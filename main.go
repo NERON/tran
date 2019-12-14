@@ -142,9 +142,9 @@ func SaveCandles() {
 	}
 
 	for _, kline := range klines {
-		t := time.Now()
+
 		_, err = stmt.Exec(kline.Symbol, 60, time.Unix(0, int64(kline.OpenTime)*int64(1000000)).UTC(), time.Unix(0, int64(kline.CloseTime)*int64(1000000)).UTC(), kline.OpenPrice, kline.ClosePrice, kline.LowPrice, kline.HighPrice, kline.BaseVolume, kline.QuoteVolume, kline.TakerBuyBaseVolume, kline.TakerBuyQuoteVolume, time.Unix(0, int64(kline.PrevCloseCandleTimestamp)*int64(1000000)).UTC())
-		log.Println(time.Since(t))
+
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -221,8 +221,8 @@ func OpenDatabaseConnection() error {
 }
 
 func main() {
-	
-	log.Println("Test work")
+
+
 	err := OpenDatabaseConnection()
 
 	if err != nil {
