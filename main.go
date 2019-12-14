@@ -239,19 +239,21 @@ func main() {
 
 	prevPrevRSI, prevRSI  := -2.0, -1.0
 
-	for _,kline :=range klines {
 
-		calcRSI,isNotNaN := rsi.PredictForNextPoint(kline.ClosePrice)
+	for idx,kline :=range klines {
+
+		calcRSI,isNotNaN := rsi.PredictForNextPoint(kline.LowPrice)
 		rsi.AddPoint(kline.ClosePrice)
 
 		if isNotNaN {
 
 			if prevRSI <= prevPrevRSI && prevRSI < calcRSI {
-				log.Println(prevPrevRSI,prevRSI,calcRSI)
+				log.Println(prevPrevRSI,prevRSI,calcRSI,klines[idx].OpenTime)
 			}
 
 			prevPrevRSI = prevRSI
 			prevRSI = calcRSI
+			
 		}
 
 	}
