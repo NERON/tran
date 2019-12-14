@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"./indicators"
+	"github.com/NERON/tran/indicators"
 )
 
 var DatabaseManager *sql.DB
