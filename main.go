@@ -199,7 +199,7 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 			rows.Close()
 			return nil,err
 		}
-		log.Println(kline)
+		
 
 		result  = append(result, kline)
 	}
@@ -249,7 +249,7 @@ func main() {
 			if prevRSI <= prevPrevRSI && prevRSI < calcRSI {
 				log.Println(prevPrevRSI,prevRSI,calcRSI)
 			}
-			
+
 			prevPrevRSI = prevRSI
 			prevRSI = calcRSI
 		}
