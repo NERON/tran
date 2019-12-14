@@ -199,7 +199,7 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 			rows.Close()
 			return nil,err
 		}
-		
+
 
 		result  = append(result, kline)
 	}
@@ -241,7 +241,7 @@ func main() {
 
 	for _,kline :=range klines {
 
-		calcRSI,isNotNaN := rsi.PredictForNextPoint(kline.LowPrice)
+		calcRSI,isNotNaN := rsi.PredictForNextPoint(kline.ClosePrice)
 		rsi.AddPoint(kline.ClosePrice)
 
 		if isNotNaN {
