@@ -68,8 +68,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			log.Fatal("Get error: ", err.Error())
 		}
 
-		log.Println("CALL API")
-
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 
