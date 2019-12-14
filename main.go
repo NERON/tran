@@ -210,6 +210,7 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 
 }
 
+
 func OpenDatabaseConnection() error {
 
 	var err error
@@ -234,12 +235,20 @@ func main() {
 
 	klines,err := LoadCandles("BTCUSDT",60)
 
+	prevPrevRSI, prevRSI  := -2.0, -1.0
+
 	for _,kline :=range klines {
 
+		calcRSI,isNotNaN := rsi.PredictForNextPoint(kline.LowPrice)
 		rsi.AddPoint(kline.ClosePrice)
-		calcRSI,isNotNaN := rsi.Calculate()//rsi.PredictForNextPoint(kline.ClosePrice)
 
-		log.Println(kline.OpenTime,kline.ClosePrice,calcRSI,isNotNaN)
+		if isNotNaN {
+
+			log.Println(prevPrevRSI,prevRSI,calcRSI)
+
+			prevPrevRSI = prevRSI
+			prevRSI = calcRSI
+		}
 
 	}
 
