@@ -149,7 +149,7 @@ func SaveCandles() {
 			log.Fatal(err.Error())
 		}
 	}
-	
+
 	stmt.Close()
 }
 func LoadCandles(symbol string, interval uint) ([]KLine, error) {
@@ -246,8 +246,10 @@ func main() {
 
 		if isNotNaN {
 
-			log.Println(prevPrevRSI,prevRSI,calcRSI)
-
+			if prevRSI <= prevPrevRSI && prevRSI < calcRSI {
+				log.Println(prevPrevRSI,prevRSI,calcRSI)
+			}
+			
 			prevPrevRSI = prevRSI
 			prevRSI = calcRSI
 		}
