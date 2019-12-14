@@ -139,15 +139,17 @@ func SaveCandles() {
 		log.Fatal(err.Error())
 	}
 
-	for _, kline := range klines {
+	for i :=0; i < len(klines) - 1; i++ {
+
+		kline := klines[i]
 
 		_, err = stmt.Exec(kline.Symbol, 60, time.Unix(0, int64(kline.OpenTime)*int64(1000000)).UTC(), time.Unix(0, int64(kline.CloseTime)*int64(1000000)).UTC(), kline.OpenPrice, kline.ClosePrice, kline.LowPrice, kline.HighPrice, kline.BaseVolume, kline.QuoteVolume, kline.TakerBuyBaseVolume, kline.TakerBuyQuoteVolume, time.Unix(0, int64(kline.PrevCloseCandleTimestamp)*int64(1000000)).UTC())
 
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-
 	}
+	
 	stmt.Close()
 }
 func LoadCandles(symbol string, interval uint) ([]KLine, error) {
