@@ -248,7 +248,7 @@ func main() {
 
 		if isNotNaN {
 
-			if prevRSI <= prevPrevRSI && prevRSI < calcRSI {
+			if prevRSI <= prevPrevRSI && prevRSI <= calcRSI {
 				log.Println(prevPrevRSI,prevRSI,calcRSI,klines[idx].OpenTime)
 			}
 
