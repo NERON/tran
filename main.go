@@ -221,7 +221,8 @@ func OpenDatabaseConnection() error {
 }
 
 func main() {
-
+	
+	log.Println("Test work")
 	err := OpenDatabaseConnection()
 
 	if err != nil {
