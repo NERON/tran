@@ -212,7 +212,8 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TESTING SHIT"))
+	
+	TemplateManager.ExecuteTemplate(w,"chartPage.tpl",nil)
 }
 
 func InitRouting() *mux.Router {
@@ -255,7 +256,7 @@ func Test() {
 func main() {
 
 	var err error
-	TemplateManager, err = template.ParseFiles("./resources/templates/header.tpl", "./resources/templates/index.tpl", "./resources/templates/index_registered.tpl", "./resources/templates/storage.tpl")
+	TemplateManager, err = template.ParseFiles("./tran_dir/templates/chartPage.tpl")
 
 	err = OpenDatabaseConnection()
 
