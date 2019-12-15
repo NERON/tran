@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/NERON/tran/indicators"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/NERON/tran/indicators"
 )
 
 var DatabaseManager *sql.DB
@@ -212,30 +212,27 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 
 }
 
-
-func OpenDatabaseConnection() error {
-
-	var err error
-	DatabaseManager, err = sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@157.230.174.164/%s", "neronru", "TESTSHIT", "trades"))
-
-	return err
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("TESTING SHIT"))
 }
 
-func main() {
 
 
-	err := OpenDatabaseConnection()
+func InitRouting() *mux.Router {
 
-	if err != nil {
+	r := mux.NewRouter()
 
-		log.Fatal("Database connection error: ", err.Error())
-	}
+	r.HandleFunc("/",IndexHandler)
+
+	return r
+}
+func Test() {
 
 	SaveCandles()
 
 	rsi:= indicators.RSI{Period:14}
 
-	klines,err := LoadCandles("BTCUSDT",60)
+	klines,_ := LoadCandles("BTCUSDT",60)
 
 	prevPrevRSI, prevRSI  := -2.0, -1.0
 
@@ -258,6 +255,24 @@ func main() {
 		}
 
 	}
+
+
+}
+func main() {
+
+
+	err := OpenDatabaseConnection()
+
+	if err != nil {
+
+		log.Fatal("Database connection error: ", err.Error())
+	}
+
+
+	router := InitRouting()
+
+	log.Fatal(http.ListenAndServe(":8085", router))
+
 
 
 
