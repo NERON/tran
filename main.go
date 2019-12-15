@@ -7,6 +7,7 @@ import (
 	"github.com/NERON/tran/indicators"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 )
 
 var DatabaseManager *sql.DB
+var TemplateManager *template.Template
 
 type KLine struct {
 	Symbol                   string
@@ -139,7 +141,7 @@ func SaveCandles() {
 		log.Fatal(err.Error())
 	}
 
-	for i :=0; i < len(klines) - 1; i++ {
+	for i := 0; i < len(klines)-1; i++ {
 
 		kline := klines[i]
 
@@ -169,46 +171,43 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 										 extract(epoch from "PrevCandleCloseTime")::bigint * 1000
 										 FROM public.candles_data 
 										 WHERE "Symbol" = $1 AND "Interval" = $2
-										 ORDER BY "OpenTime" ASC`,symbol,interval)
+										 ORDER BY "OpenTime" ASC`, symbol, interval)
 
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]KLine,0)
+	result := make([]KLine, 0)
 
 	for rows.Next() {
 
 		kline := KLine{}
 
 		err = rows.Scan(&kline.Symbol,
-			      &kline.OpenTime,
-			      &kline.CloseTime,
-			      &kline.OpenPrice,
-			      &kline.ClosePrice,
-			      &kline.LowPrice,
-			      &kline.HighPrice,
-			      &kline.BaseVolume,
-			      &kline.QuoteVolume,
-			      &kline.TakerBuyBaseVolume,
-			      &kline.TakerBuyQuoteVolume,
-			      &kline.PrevCloseCandleTimestamp)
+			&kline.OpenTime,
+			&kline.CloseTime,
+			&kline.OpenPrice,
+			&kline.ClosePrice,
+			&kline.LowPrice,
+			&kline.HighPrice,
+			&kline.BaseVolume,
+			&kline.QuoteVolume,
+			&kline.TakerBuyBaseVolume,
+			&kline.TakerBuyQuoteVolume,
+			&kline.PrevCloseCandleTimestamp)
 
 		if err != nil {
 
 			rows.Close()
-			return nil,err
+			return nil, err
 		}
 
-
-		result  = append(result, kline)
+		result = append(result, kline)
 	}
 
 	rows.Close()
 
-	return result,nil
-
-
+	return result, nil
 
 }
 
@@ -216,13 +215,11 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("TESTING SHIT"))
 }
 
-
-
 func InitRouting() *mux.Router {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/",IndexHandler)
+	r.HandleFunc("/", IndexHandler)
 
 	return r
 }
@@ -230,23 +227,21 @@ func Test() {
 
 	SaveCandles()
 
-	rsi:= indicators.RSI{Period:14}
+	rsi := indicators.RSI{Period: 14}
 
-	klines,_ := LoadCandles("BTCUSDT",60)
+	klines, _ := LoadCandles("BTCUSDT", 60)
 
-	prevPrevRSI, prevRSI  := -2.0, -1.0
+	prevPrevRSI, prevRSI := -2.0, -1.0
 
-
-	for idx,kline :=range klines {
+	for idx, kline := range klines {
 
 		rsi.AddPoint(kline.LowPrice)
-		calcRSI,isNotNaN := rsi.Calculate()
-
+		calcRSI, isNotNaN := rsi.Calculate()
 
 		if isNotNaN {
 
 			if prevRSI <= prevPrevRSI && prevRSI <= calcRSI {
-				log.Println(prevPrevRSI,prevRSI,calcRSI,klines[idx].OpenTime)
+				log.Println(prevPrevRSI, prevRSI, calcRSI, klines[idx].OpenTime)
 			}
 
 			prevPrevRSI = prevRSI
@@ -256,22 +251,21 @@ func Test() {
 
 	}
 
-
 }
 func main() {
 
+	var err error
+	TemplateManager, err = template.ParseFiles("./resources/templates/header.tpl", "./resources/templates/index.tpl", "./resources/templates/index_registered.tpl", "./resources/templates/storage.tpl")
 
-	err := OpenDatabaseConnection()
+	err = OpenDatabaseConnection()
 
 	if err != nil {
 
 		log.Fatal("Database connection error: ", err.Error())
 	}
 
-
 	router := InitRouting()
 
 	log.Fatal(http.ListenAndServe(":8085", router))
-
 
 }
