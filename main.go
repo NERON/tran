@@ -3,135 +3,23 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
+	"github.com/NERON/tran/providers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
+
 	"time"
 )
 
 var DatabaseManager *sql.DB
 var TemplateManager *template.Template
 
-type KLine struct {
-	Symbol                   string
-	OpenTime                 uint64
-	CloseTime                uint64
-	OpenPrice                float64
-	ClosePrice               float64
-	HighPrice                float64
-	LowPrice                 float64
-	BaseVolume               float64
-	QuoteVolume              float64
-	TakerBuyBaseVolume       float64
-	TakerBuyQuoteVolume      float64
-	PrevCloseCandleTimestamp uint64
-}
-
-func toFloat(value string) float64 {
-
-	val, err := strconv.ParseFloat(value, 64)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	return val
-}
-
-func GetKlines(symbol string, interval string, startTimestamp uint64, endTimestamp uint64) []KLine {
-
-	result := make([]KLine, 0)
-
-	for i := 0; i < 2; i++ {
-
-		urlS := fmt.Sprintf("https://api.binance.com/api/v1/klines?symbol=%s&interval=%s&limit=1000", symbol, interval)
-
-		if endTimestamp > 0 {
-
-			urlS = fmt.Sprintf(urlS+"&endTime=%d", endTimestamp)
-		}
-
-		if startTimestamp > 0 {
-
-			urlS = fmt.Sprintf(urlS+"&startTime=%d", startTimestamp)
-		}
-
-		resp, err := http.Get(urlS)
-
-		if err != nil {
-
-			log.Fatal("Get error: ", err.Error())
-		}
-
-		body, err := ioutil.ReadAll(resp.Body)
-		resp.Body.Close()
-
-		klines := make([]interface{}, 0)
-
-		err = json.Unmarshal(body, &klines)
-
-		if err != nil {
-
-			log.Fatal("Get error: ", err.Error())
-		}
-
-		var prevKline *KLine = nil
-
-		for j := len(klines) - 1; j > 0; j-- {
-
-			data := klines[j]
-
-			k := data.([]interface{})
-
-			kline := KLine{}
-			kline.Symbol = symbol
-			kline.OpenTime = uint64(k[0].(float64))
-			kline.OpenPrice = toFloat(k[1].(string))
-			kline.HighPrice = toFloat(k[2].(string))
-			kline.LowPrice = toFloat(k[3].(string))
-			kline.ClosePrice = toFloat(k[4].(string))
-			kline.BaseVolume = toFloat(k[5].(string))
-			kline.CloseTime = uint64(k[6].(float64))
-			kline.QuoteVolume = toFloat(k[7].(string))
-			kline.TakerBuyBaseVolume = toFloat(k[9].(string))
-			kline.TakerBuyQuoteVolume = toFloat(k[10].(string))
-
-			if prevKline != nil {
-
-				result[len(result)-1].PrevCloseCandleTimestamp = kline.CloseTime
-			}
-
-			prevKline = &kline
-			result = append(result, kline)
-
-		}
-
-		endTimestamp = result[len(result)-1].OpenTime - 1
-		log.Println("SUCCESS API", endTimestamp)
-
-	}
-
-	itemCount := len(result)
-
-	for i := 0; i < itemCount/2; i++ {
-
-		mirrorIdx := itemCount - i - 1
-		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
-
-	}
-
-	return result
-
-}
 func SaveCandles() {
-	klines := GetKlines("BTCUSDT", "1h", 0, 0)
+	klines := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
 	stmt, err := DatabaseManager.Prepare(`INSERT INTO public.candles_data(
 	"Symbol", "Interval", "OpenTime", "CloseTime", "OpenPrice", "ClosePrice", "LowPrice", "HighPrice", "Volume", "QuoteVolume", "TakerVolume", "TakerQuoteVolume", "PrevCandleCloseTime", "UniqueID")
@@ -154,7 +42,7 @@ func SaveCandles() {
 
 	stmt.Close()
 }
-func LoadCandles(symbol string, interval uint) ([]KLine, error) {
+func LoadCandles(symbol string, interval uint) ([]candlescommon.KLine, error) {
 
 	var rows, err = DatabaseManager.Query(`SELECT  
 										 "Symbol", 
@@ -177,11 +65,11 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 		return nil, err
 	}
 
-	result := make([]KLine, 0)
+	result := make([]candlescommon.KLine, 0)
 
 	for rows.Next() {
 
-		kline := KLine{}
+		kline := candlescommon.KLine{}
 
 		err = rows.Scan(&kline.Symbol,
 			&kline.OpenTime,
@@ -212,8 +100,49 @@ func LoadCandles(symbol string, interval uint) ([]KLine, error) {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	
-	TemplateManager.ExecuteTemplate(w,"chartPage.tpl",nil)
+
+	TemplateManager.ExecuteTemplate(w, "chartPage.tpl", nil)
+}
+func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
+
+	candles := providers.GetKlines("BTCUSDT","1h",0,0)
+
+	byte, _ := json.Marshal(candles)
+
+	w.Write(byte)
+
+
+}
+
+func GetLastCandles(symbol string, interval uint, limit int) []candlescommon.KLine {
+
+	candles, err := LoadCandles(symbol, interval)
+
+	if err != nil {
+
+	}
+
+	prevCandleCloseTime := uint64(0)
+
+	//check for candle data consistency
+	for _, candle := range candles {
+
+		if prevCandleCloseTime > 0 && prevCandleCloseTime != candle.PrevCloseCandleTimestamp {
+
+			//find incostistency
+			log.Println("incostistency found: ", prevCandleCloseTime, candle.PrevCloseCandleTimestamp)
+		}
+
+		prevCandleCloseTime = candle.CloseTime
+	}
+
+	//check limit
+	if len(candles) < limit {
+
+		log.Println("load candles from provider")
+	}
+
+	return candles
 }
 
 func InitRouting() *mux.Router {
@@ -221,6 +150,7 @@ func InitRouting() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", IndexHandler)
+	r.HandleFunc("/chart/:symbol/:interval", ChartUpdateHandler)
 
 	return r
 }
