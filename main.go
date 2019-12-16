@@ -150,7 +150,7 @@ func InitRouting() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", IndexHandler)
-	r.HandleFunc("/chart/:symbol/:interval", ChartUpdateHandler)
+	r.HandleFunc("/chart/{symbol}/{interval}", ChartUpdateHandler)
 
 	return r
 }
