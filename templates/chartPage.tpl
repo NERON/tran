@@ -16,24 +16,25 @@
 		var myChart = echarts.init(document.getElementById('main'));
 
 		$.getJSON("/chart/fgg/30", function(data) {
+		
+			var timestamps = data.map(function(val) {
+				return new Date(val.OpenTime);
+			});
+			
+			var candlesticks = data.map(function(val) {
+				return [val.OpenPrice,val.ClosePrice,val.LowPrice,val.HighPrice];
+			});
 
 			// specify chart configuration item and data
 			var option = {
-				title: {
-					text: 'ECharts entry example'
-				},
-				tooltip: {},
-				legend: {
-					data: ['Sales']
-				},
 				xAxis: {
-					data: ["shirt", "cardign", "chiffon shirt", "pants", "heels", "socks"]
+					data: timestamps
 				},
 				yAxis: {},
 				series: [{
-					name: 'Sales',
-					type: 'bar',
-					data: [5, 20, 36, 10, 10, 20]
+					name: 'cnd_data',
+					type: 'k',
+					data: candlesticks
 				}]
 			};
 			console.log(data);
