@@ -19,7 +19,7 @@
 		
 			var timestamps = data.map(function(val) {
 				time = new Date(val.OpenTime);
-				return time.getHours() + ":" + time.getMinutes();
+				return (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
 			});
 			
 			var candlesticks = data.map(function(val) {
@@ -30,7 +30,11 @@
 			var option = {
 				animation: false,
 				xAxis: {
-					data: timestamps
+					data: timestamps,
+					scale: true,
+					axisPointer: {
+						z: 100
+					}
 				},
 				yAxis: [{
 					scale: true,
