@@ -26,6 +26,8 @@ func (r *rsiLowReverse) IsPreviousLow() bool {
 		return false
 	}
 
+	return true
+
 	return r.lastRSIValues[1]  <= r.lastRSIValues[0]  && r.lastRSIValues[1] <= r.lastRSIValues[2]
 }
 
