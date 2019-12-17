@@ -18,7 +18,7 @@
 		$.getJSON("/chart/fgg/30", function(data) {
 		
 			var timestamps = data.map(function(val) {
-				return new Date(val.OpenTime).toTimeString().split(' ')[0];
+				return new Date(val.OpenTime).toTimeString().split(':')[0];
 			});
 			
 			var candlesticks = data.map(function(val) {
