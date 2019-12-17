@@ -105,12 +105,46 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
-	candles := providers.GetKlines("BTCUSDT","1h",0,0)
+	type ChartUpdateCandle struct {
+		OpenTime        uint64
+		CloseTime       uint64
+		OpenPrice       float64
+		ClosePrice      float64
+		LowPrice        float64
+		HighPrice       float64
+		IsRSIReverseLow bool
+	}
 
-	byte, _ := json.Marshal(candles)
+	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
+
+	updateCandles := make([]ChartUpdateCandle, 0)
+
+	rsiRev := indicators.NewRSILowReverseIndicator()
+
+	for _, candle := range candles {
+
+		rsiRev.AddPoint(candle.LowPrice,candle.ClosePrice)
+
+		if rsiRev.IsPreviousLow() {
+
+			updateCandles[len(updateCandles) - 1].IsRSIReverseLow = true
+		}
+
+		updateCandles = append(updateCandles, ChartUpdateCandle{
+			OpenTime: candle.OpenTime,
+			CloseTime: candle.CloseTime,
+			OpenPrice: candle.OpenPrice,
+			ClosePrice: candle.ClosePrice,
+			LowPrice:candle.LowPrice,
+			HighPrice:candle.HighPrice,
+		})
+
+
+	}
+
+	byte, _ := json.Marshal(updateCandles)
 
 	w.Write(byte)
-
 
 }
 
