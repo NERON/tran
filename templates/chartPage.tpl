@@ -34,6 +34,9 @@
 					scale: true,
 					axisPointer: {
 						z: 100
+					},
+					axisLine: {
+						onZero: false
 					}
 				},
 				yAxis: [{
