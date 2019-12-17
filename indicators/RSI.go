@@ -39,7 +39,7 @@ func (rsi *RSI) AddPoint(value float64) {
 
 func (rsi *RSI) Calculate() (float64,bool){
 
-	if rsi.pointsCount < rsi.Period + 1 {
+	if rsi.pointsCount <= rsi.Period + 1 {
 		return 0,false
 	}
 
