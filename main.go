@@ -124,10 +124,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	for _, candle := range candles {
 
 		rsiRev.AddPoint(candle.LowPrice,candle.ClosePrice)
-		
+
 		if rsiRev.IsPreviousLow() {
 
-			updateCandles[len(updateCandles) - 2].IsRSIReverseLow = true
+			updateCandles[len(updateCandles) - 1].IsRSIReverseLow = true
 		}
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{

@@ -1,7 +1,5 @@
 package indicators
 
-import "log"
-
 type rsiLowReverse struct {
 	rsi           RSI
 	lastRSIValues []float64
@@ -15,8 +13,6 @@ func (r *rsiLowReverse) AddPoint(calcValue float64,addValue float64) {
 		r.lastRSIValues[0] = r.lastRSIValues[1]
 		r.lastRSIValues[1] = r.lastRSIValues[2]
 		r.lastRSIValues[2] = val
-
-		log.Println(r.lastRSIValues)
 	}
 
 	r.rsi.AddPoint(addValue)
