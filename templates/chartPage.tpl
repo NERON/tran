@@ -95,6 +95,10 @@
 			
 			// use configuration item and data specified to show chart
 			myChart.setOption(option);
+			
+			myChart.on('click',function(components){
+				console.log(data[components.dataIndex]);
+			})
 		});
         
     </script>
