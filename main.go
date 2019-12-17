@@ -125,10 +125,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if rsiRev.IsPreviousLow() {
 
-			updateCandles[len(updateCandles) - 1].IsRSIReverseLow = true
+			updateCandles[len(updateCandles) - 2].IsRSIReverseLow = true
 		}
-		
-		rsiRev.AddPoint(candle.LowPrice,candle.ClosePrice)
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
 			OpenTime: candle.OpenTime,
@@ -138,6 +136,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			LowPrice:candle.LowPrice,
 			HighPrice:candle.HighPrice,
 		})
+
+		rsiRev.AddPoint(candle.LowPrice,candle.ClosePrice)
 
 
 	}
