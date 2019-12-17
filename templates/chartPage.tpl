@@ -30,7 +30,15 @@
 				xAxis: {
 					data: timestamps
 				},
-				yAxis: {},
+				yAxis: [{
+					scale: true,
+					splitArea: {
+						show: true
+					},
+					axisPointer: {
+						z: 100
+					}
+				}],
 				dataZoom: [{ type: 'inside' }],
 				series: [{
 					name: 'cnd_data',
