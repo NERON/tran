@@ -125,7 +125,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if rsiRev.IsPreviousLow() {
 
-			updateCandles[len(updateCandles) - 3].IsRSIReverseLow = true
+			updateCandles[len(updateCandles) - 2].IsRSIReverseLow = true
 		}
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
