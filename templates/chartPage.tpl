@@ -30,6 +30,8 @@
 				time = new Date(val.OpenTime);
 				return [(time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes(),val.IsRSIReverseLow ? val.LowPrice : NaN];
 			});
+			
+			console.log(scatter);
 
 			// specify chart configuration item and data
 			var option = {
