@@ -27,6 +27,7 @@
 
 			// specify chart configuration item and data
 			var option = {
+				animation: false,
 				xAxis: {
 					data: timestamps
 				},
