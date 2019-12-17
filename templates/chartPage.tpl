@@ -29,6 +29,18 @@
 			// specify chart configuration item and data
 			var option = {
 				animation: false,
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						animation: false,
+						type: 'cross',
+						lineStyle: {
+							color: '#376df4',
+							width: 2,
+							opacity: 1
+						}
+					}
+				},
 				xAxis: {
 					data: timestamps,
 					scale: true,
