@@ -31,6 +31,7 @@
 					data: timestamps
 				},
 				yAxis: {},
+				dataZoom: [{ type: 'inside' }],
 				series: [{
 					name: 'cnd_data',
 					type: 'k',
