@@ -18,7 +18,7 @@
 		$.getJSON("/chart/fgg/30", function(data) {
 		
 			var timestamps = data.map(function(val) {
-				return new Date(val.OpenTime);
+				return new Date(val.OpenTime).toTimeString();
 			});
 			
 			var candlesticks = data.map(function(val) {
@@ -38,7 +38,7 @@
 					data: candlesticks
 				}]
 			};
-			console.log(data);
+			
 			// use configuration item and data specified to show chart
 			myChart.setOption(option);
 		});
