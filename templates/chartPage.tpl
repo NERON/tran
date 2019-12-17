@@ -18,7 +18,8 @@
 		$.getJSON("/chart/fgg/30", function(data) {
 		
 			var timestamps = data.map(function(val) {
-				return new Date(val.OpenTime).toTimeString().split(':')[0];
+				time = new Date(val.OpenTime);
+				return time.getHours() + ":" + time.getMinutes();
 			});
 			
 			var candlesticks = data.map(function(val) {
@@ -40,6 +41,14 @@
 						z: 100
 					}
 				}],
+				axisPointer: {
+					link: {
+						xAxisIndex: 'all'
+					},
+					label: {
+						backgroundColor: '#777'
+					}
+				},
 				dataZoom: [{ type: 'inside' }],
 				series: [{
 					name: 'cnd_data',
