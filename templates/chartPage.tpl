@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- prepare a DOM container with width and height -->
-    <div id="main" style="width: 800px;height:600px;"></div>
+    <div id="main" style="width: 100%; min-height: 600px"></div>
     <script type="text/javascript">
 	
 		// based on prepared DOM, initialize echarts instance
