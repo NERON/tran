@@ -120,7 +120,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		rsiVal, ok := rsi.Calculate()
 
 		if ok {
-			RSIs = append(RSIs, math.Round(rsiVal*100)/100)
+			RSIs = append(RSIs, math.Round(rsiVal*1000)/1000)
 		}
 	}
 
