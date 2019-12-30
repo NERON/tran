@@ -138,7 +138,9 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	for i += 1; i < len(RSIs); i++ {
 
 		currentWindow[1] = append(currentWindow[1],RSIs[i])
-		RSIsWindowed = append(RSIsWindowed,currentWindow)
+		
+		RSIsWindowed = append(RSIsWindowed,nil)
+		copy(RSIsWindowed[len(RSIsWindowed) - 1],currentWindow)
 
 		currentWindow[0] = append(currentWindow[0],RSIs[i])
 		currentWindow[0] = currentWindow[0][1:]
