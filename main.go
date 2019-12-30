@@ -124,7 +124,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	currentWindow := make([][]float64, 2)
-	//RSIsWindowed := make([][][]float64, 0)
+	RSIsWindowed := make([][][]float64, 0)
 
 	i := 0
 
@@ -132,8 +132,19 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		currentWindow[0] = append(currentWindow[0], RSIs[i])
 	}
 
+
+	for i += 1; i < len(RSIs); i++ {
+
+		currentWindow[1] = append(currentWindow[1],RSIs[i])
+		RSIsWindowed = append(RSIsWindowed,currentWindow)
+
+		currentWindow[0] = append(currentWindow[0],RSIs[i])
+		currentWindow[0] = currentWindow[0][1:]
+
+	}
+
 	//output json
-	byte, _ := json.Marshal(currentWindow)
+	byte, _ := json.MarshalIndent(RSIsWindowed,"","")
 
 	w.Write(byte)
 }
