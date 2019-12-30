@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 
 	"time"
@@ -108,7 +109,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	WINDOW := 24
 
 	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
-	
+
 	rsi := indicators.RSI{Period: 14}
 
 	RSIs := make([]float64, 0)
@@ -119,7 +120,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		rsiVal, ok := rsi.Calculate()
 
 		if ok {
-			RSIs = append(RSIs, rsiVal)
+			RSIs = append(RSIs, math.Round(rsiVal*100)/100)
 		}
 	}
 
