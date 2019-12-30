@@ -109,6 +109,8 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
+	candles = candles[:100]
+
 	rsi := indicators.RSI{Period: 14}
 
 	RSIs := make([]float64, 0)
