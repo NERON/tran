@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"github.com/NERON/tran/candlescommon"
@@ -152,7 +153,8 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	//output json
 	byte, _ := json.Marshal(RSIsWindowed)
 
-	w.Write(byte)
+	http.ServeContent(w,r,"BTCUSDT.json",time.Now(),bytes.NewReader(byte))
+
 }
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
