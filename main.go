@@ -150,7 +150,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//output json
-	byte, _ := json.MarshalIndent(RSIsWindowed,"","")
+	byte, _ := json.Marshal(RSIsWindowed)
 
 	w.Write(byte)
 }
