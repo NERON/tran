@@ -105,12 +105,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
-	WINDOW := 2
+	WINDOW := 24
 
 	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
-
-	candles = candles[:100]
-
+	
 	rsi := indicators.RSI{Period: 14}
 
 	RSIs := make([]float64, 0)
@@ -147,7 +145,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		currentWindowNew[0] = append(currentWindowNew[0],RSIs[i])
 
 		currentWindow = currentWindowNew
-		
+
 	}
 
 	//output json
