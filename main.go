@@ -123,7 +123,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	currentWindow := make([][]float64, 0)
+	currentWindow := make([][]float64, 2)
 	//RSIsWindowed := make([][][]float64, 0)
 
 	i := 0
