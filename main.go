@@ -153,6 +153,8 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	//output json
 	byte, _ := json.Marshal(RSIsWindowed)
 
+	w.Header().Add("Content-Disposition", "Attachment")
+
 	http.ServeContent(w,r,"BTCUSDT.json",time.Now(),bytes.NewReader(byte))
 
 }
