@@ -103,6 +103,29 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 	TemplateManager.ExecuteTemplate(w, "chartPage.tpl", nil)
 }
+func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
+
+	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
+
+	rsi := indicators.RSI{Period: 14}
+
+	RSIs := make([]float64,0)
+
+	for _,candle := range candles {
+
+		rsi.AddPoint(candle.ClosePrice)
+		rsiVal,ok := rsi.Calculate()
+
+		if ok {
+			RSIs = append(RSIs,rsiVal)
+		}
+	}
+
+	//output json
+	byte, _ := json.Marshal(RSIs)
+
+	w.Write(byte)
+}
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	type ChartUpdateCandle struct {
@@ -191,6 +214,7 @@ func InitRouting() *mux.Router {
 
 	r.HandleFunc("/", IndexHandler)
 	r.HandleFunc("/chart/{symbol}/{interval}", ChartUpdateHandler)
+	r.HandleFunc("/rsiJSON",RSIJSONHandler)
 
 	return r
 }
