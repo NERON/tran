@@ -105,24 +105,35 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
+	WINDOW := 2
+
 	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
 	rsi := indicators.RSI{Period: 14}
 
-	RSIs := make([]float64,0)
+	RSIs := make([]float64, 0)
 
-	for _,candle := range candles {
+	for _, candle := range candles {
 
 		rsi.AddPoint(candle.ClosePrice)
-		rsiVal,ok := rsi.Calculate()
+		rsiVal, ok := rsi.Calculate()
 
 		if ok {
-			RSIs = append(RSIs,rsiVal)
+			RSIs = append(RSIs, rsiVal)
 		}
 	}
 
+	currentWindow := make([][]float64, 0)
+	//RSIsWindowed := make([][][]float64, 0)
+
+	i := 0
+
+	for ; i < WINDOW && i < len(RSIs); i++ {
+		currentWindow[0] = append(currentWindow[0], RSIs[i])
+	}
+
 	//output json
-	byte, _ := json.Marshal(RSIs)
+	byte, _ := json.Marshal(currentWindow)
 
 	w.Write(byte)
 }
@@ -164,7 +175,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			ClosePrice: candle.ClosePrice,
 			LowPrice:   candle.LowPrice,
 			HighPrice:  candle.HighPrice,
-			RSIValue: calcRSI,
+			RSIValue:   calcRSI,
 		})
 
 		rsi.AddPoint(candle.ClosePrice)
@@ -214,7 +225,7 @@ func InitRouting() *mux.Router {
 
 	r.HandleFunc("/", IndexHandler)
 	r.HandleFunc("/chart/{symbol}/{interval}", ChartUpdateHandler)
-	r.HandleFunc("/rsiJSON",RSIJSONHandler)
+	r.HandleFunc("/rsiJSON", RSIJSONHandler)
 
 	return r
 }
