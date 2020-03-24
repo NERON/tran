@@ -21,7 +21,7 @@ var DatabaseManager *sql.DB
 var TemplateManager *template.Template
 
 func SaveCandles() {
-	klines := providers.GetKlines("BTCUSDT", "1h", 0, 0)
+	klines := providers.GetKlines("BTCUSDT", "3d", 0, 0)
 
 	stmt, err := DatabaseManager.Prepare(`INSERT INTO public.candles_data(
 	"Symbol", "Interval", "OpenTime", "CloseTime", "OpenPrice", "ClosePrice", "LowPrice", "HighPrice", "Volume", "QuoteVolume", "TakerVolume", "TakerQuoteVolume", "PrevCandleCloseTime", "UniqueID")
