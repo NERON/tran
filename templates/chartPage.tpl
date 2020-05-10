@@ -87,7 +87,7 @@
 					}
 				},
 				{
-					symbolSize: 2,
+					symbolSize: 5,
 					data:scatter,
 					type: 'scatter'
 				}]
