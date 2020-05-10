@@ -19,7 +19,7 @@
 		
 			var timestamps = data.map(function(val) {
 				time = new Date(val.OpenTime);
-				return (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
+				return time
 			});
 			
 			var candlesticks = data.map(function(val) {
