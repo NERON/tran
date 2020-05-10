@@ -12,7 +12,7 @@ func (r *rsiLowReverse) AddPoint(calcValue float64,addValue float64) {
 	if isNotNan {
 		r.lastRSIValues[0] = r.lastRSIValues[1]
 		r.lastRSIValues[1] = r.lastRSIValues[2]
-		r.lastRSIValues[2] = val
+		r.lastRSIValues[2] = calcValue
 	}
 
 	r.rsi.AddPoint(calcValue)
