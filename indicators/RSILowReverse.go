@@ -15,7 +15,7 @@ func (r *rsiLowReverse) AddPoint(calcValue float64,addValue float64) {
 		r.lastRSIValues[2] = val
 	}
 
-	r.rsi.AddPoint(addValue)
+	r.rsi.AddPoint(calcValue)
 
 }
 
