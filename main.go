@@ -21,7 +21,7 @@ var DatabaseManager *sql.DB
 var TemplateManager *template.Template
 
 func SaveCandles() {
-	klines := providers.GetKlines("BTCUSDT", "3d", 0, 0)
+	klines := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
 	stmt, err := DatabaseManager.Prepare(`INSERT INTO public.candles_data(
 	"Symbol", "Interval", "OpenTime", "CloseTime", "OpenPrice", "ClosePrice", "LowPrice", "HighPrice", "Volume", "QuoteVolume", "TakerVolume", "TakerQuoteVolume", "PrevCandleCloseTime", "UniqueID")
@@ -109,7 +109,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	WINDOW := 24
 
-	candles := providers.GetKlines("BTCUSDT", "3d", 0, 0)
+	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
 	rsi := indicators.RSI{Period: 14}
 
@@ -171,7 +171,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		RSIValue        float64
 	}
 
-	candles := providers.GetKlines("BTCUSDT", "3d", 0, 0)
+	candles := providers.GetKlines("BTCUSDT", "1h", 0, 0)
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
