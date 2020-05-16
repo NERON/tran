@@ -7,7 +7,7 @@ type rsiLowReverse struct {
 
 func (r *rsiLowReverse) AddPoint(calcValue float64,addValue float64) {
 
-	val, isNotNan := r.rsi.PredictForNextPoint(calcValue)
+	_, isNotNan := r.rsi.PredictForNextPoint(calcValue)
 
 	if isNotNan {
 		r.lastRSIValues[0] = r.lastRSIValues[1]

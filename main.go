@@ -158,6 +158,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w,r,"BTCUSDT.json",time.Now(),bytes.NewReader(byte))
 
 }
+
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	type ChartUpdateCandle struct {
@@ -169,6 +170,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		HighPrice       float64
 		IsRSIReverseLow bool
 		RSIValue        float64
+		RSIBestPeriod int
 	}
 
 	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
@@ -178,6 +180,9 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
 
+
+	rsiP := indicators.NewRSIMultiplePeriods(250)
+
 	for _, candle := range candles {
 
 		rsiRev.AddPoint(candle.LowPrice, candle.ClosePrice)
@@ -186,6 +191,9 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 			updateCandles[len(updateCandles)-1].IsRSIReverseLow = true
 		}
+
+		period := rsiP.GetBestPeriod(candle.LowPrice,30)
+		rsiP.AddPoint(candle.ClosePrice)
 
 		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
 
@@ -197,6 +205,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			LowPrice:   candle.LowPrice,
 			HighPrice:  candle.HighPrice,
 			RSIValue:   calcRSI,
+			RSIBestPeriod:period,
 		})
 
 		rsi.AddPoint(candle.ClosePrice)
