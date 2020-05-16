@@ -10,7 +10,7 @@ func(rsip *RSIMultiplePeriods) AddPoint(addPrice float64) {
 
 	for i:=0; i < len(rsip.RSIs); i++ {
 
-		rsip.AddPoint(addPrice)
+		rsip.RSIs[i].AddPoint(addPrice)
 	}
 }
 
