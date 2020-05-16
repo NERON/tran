@@ -183,7 +183,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	rsi := indicators.RSI{Period: 3}
 
 
-	rsiP := indicators.NewRSIMultiplePeriods(250)
+	//rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	for _, candle := range candles {
 
