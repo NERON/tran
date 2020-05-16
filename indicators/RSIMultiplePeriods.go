@@ -24,7 +24,7 @@ func(rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64,centralRSI float64
 		rsi, ok := rsip.RSIs[i].PredictForNextPoint(priceFor)
 
 		if !ok {
-			return 0
+			return bestPeriod
 		}
 
 		if math.Abs(rsi - centralRSI) < bestRSIDiff {
