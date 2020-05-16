@@ -177,6 +177,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
+	g := time.Now()
+
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
 
@@ -212,6 +214,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	log.Println(time.Since(g))
 	byte, _ := json.Marshal(updateCandles)
 
 	w.Write(byte)
