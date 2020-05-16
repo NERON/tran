@@ -64,23 +64,23 @@ func (rsi *RSI) PredictForNextPoint(value float64) (float64,bool) {
 	return result,notNaN
 
 }
-func (rsi * RSI) PredictPrice(RSIValue float64) float64 {
+func (rsi * RSI) PredictPrice(RSIValue float64) (float64,bool) {
 
 	currentRSI,ok := rsi.Calculate()
 
 	if !ok {
-		return -1
+		return 0,false
 	}
 
 	coef := RSIValue / (100-RSIValue)
 
 	if currentRSI >= RSIValue {
 
-		return float64(rsi.Period - 1) * (rsi.avgLoss - rsi.avgGain/coef ) + rsi.lastValue
+		return float64(rsi.Period - 1) * (rsi.avgLoss - rsi.avgGain/coef ) + rsi.lastValue,true
 
 	} else {
 
-		return float64(rsi.Period - 1) * (rsi.avgLoss*coef - rsi.avgGain) + rsi.lastValue
+		return float64(rsi.Period - 1) * (rsi.avgLoss*coef - rsi.avgGain) + rsi.lastValue,true
 	}
 
 }

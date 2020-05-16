@@ -16,20 +16,20 @@ func(rsip *RSIMultiplePeriods) AddPoint(addPrice float64) {
 
 func(rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64,centralRSI float64) int {
 
-	bestRSIDiff := 100.0
+	bestDiff := 10000000000000000.0
 	bestPeriod := 0
 
 	for i:=0; i < len(rsip.RSIs); i++ {
 
-		rsi, ok := rsip.RSIs[i].PredictForNextPoint(priceFor)
+		price, ok := rsip.RSIs[i].PredictPrice(centralRSI)
 
 		if !ok {
 			return bestPeriod
 		}
 
-		if math.Abs(rsi - centralRSI) < bestRSIDiff {
+		if math.Abs(price - priceFor) < bestDiff {
 			bestPeriod = i + 2
-			bestRSIDiff = math.Abs(rsi - centralRSI)
+			bestDiff = math.Abs(price - priceFor)
 		}
 	}
 
