@@ -194,8 +194,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			updateCandles[len(updateCandles)-1].IsRSIReverseLow = true
 		}
 
-		period := rsiP.GetBestPeriod(candle.LowPrice,30)
-		rsiP.AddPoint(candle.ClosePrice)
+		period := 0 //rsiP.GetBestPeriod(candle.LowPrice,30)
+		//rsiP.AddPoint(candle.ClosePrice)
 
 		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
 
