@@ -93,7 +93,7 @@
 						}
 					},
 					markPoint: {
-                         data: filtered
+                         data: markPoints
                     },
 				},
 				{
