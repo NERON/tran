@@ -31,11 +31,13 @@
 
 			        filtered.push({name: 'test_' + candlestick.OpenTime, value: candlestick.RSIBestPeriod, xAxis: index, yAxis: candlestick.LowPrice});
 			    }
+
+			    return filtered;
 			},[]);
 
 			console.log(markPoints);
 
-					
+
 			// specify chart configuration item and data
 			var option = {
 				animation: false,
