@@ -158,7 +158,53 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w,r,"BTCUSDT.json",time.Now(),bytes.NewReader(byte))
 
 }
+func TestHandler(w http.ResponseWriter, r *http.Request) {
 
+
+	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
+
+	lowReverse := indicators.NewRSILowReverseIndicator()
+	lowsMap := make(map[int]struct{})
+
+	for idx, candle := range candles {
+
+		lowReverse.AddPoint(candle.LowPrice,0)
+
+		if lowReverse.IsPreviousLow() {
+			lowsMap[idx-1] = struct{}{}
+		}
+
+	}
+
+	rsiP := indicators.NewRSIMultiplePeriods(250)
+
+
+	sequence := make([]int,0)
+
+
+	for idx, candle := range candles {
+
+
+		_, ok := lowsMap[idx]
+		
+		if ok {
+
+			bestPeriod := rsiP.GetBestPeriod(candle.LowPrice,30)
+			sequence = append(sequence,bestPeriod)
+		}
+
+		rsiP.AddPoint(candle.ClosePrice)
+
+	}
+
+	b, _ := json.Marshal(sequence)
+
+	w.Write(b)
+
+
+
+
+}
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	type ChartUpdateCandle struct {
@@ -259,38 +305,11 @@ func InitRouting() *mux.Router {
 	r.HandleFunc("/", IndexHandler)
 	r.HandleFunc("/chart/{symbol}/{interval}", ChartUpdateHandler)
 	r.HandleFunc("/rsiJSON", RSIJSONHandler)
+	r.HandleFunc("/test", TestHandler)
 
 	return r
 }
-func Test() {
 
-	SaveCandles()
-
-	rsi := indicators.RSI{Period: 14}
-
-	klines, _ := LoadCandles("ETHUSDT", 60)
-
-	prevPrevRSI, prevRSI := -2.0, -1.0
-
-	for idx, kline := range klines {
-
-		rsi.AddPoint(kline.LowPrice)
-		calcRSI, isNotNaN := rsi.Calculate()
-
-		if isNotNaN {
-
-			if prevRSI <= prevPrevRSI && prevRSI <= calcRSI {
-				log.Println(prevPrevRSI, prevRSI, calcRSI, klines[idx].OpenTime)
-			}
-
-			prevPrevRSI = prevRSI
-			prevRSI = calcRSI
-
-		}
-
-	}
-
-}
 func main() {
 
 	var err error

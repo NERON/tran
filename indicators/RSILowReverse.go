@@ -1,21 +1,16 @@
 package indicators
 
 type rsiLowReverse struct {
-	rsi           RSI
+
 	lastRSIValues []float64
 }
 
 func (r *rsiLowReverse) AddPoint(calcValue float64,addValue float64) {
 
-	_, isNotNan := r.rsi.PredictForNextPoint(calcValue)
+	r.lastRSIValues[0] = r.lastRSIValues[1]
+	r.lastRSIValues[1] = r.lastRSIValues[2]
+	r.lastRSIValues[2] = calcValue
 
-	if isNotNan {
-		r.lastRSIValues[0] = r.lastRSIValues[1]
-		r.lastRSIValues[1] = r.lastRSIValues[2]
-		r.lastRSIValues[2] = calcValue
-	}
-
-	r.rsi.AddPoint(calcValue)
 
 }
 
@@ -33,6 +28,6 @@ func NewRSILowReverseIndicator() *rsiLowReverse {
 
 	lastValues := []float64{-1,-1,-1}
 
-	return &rsiLowReverse{rsi: RSI{Period: 3}, lastRSIValues: lastValues}
+	return &rsiLowReverse{ lastRSIValues: lastValues}
 
 }
