@@ -210,7 +210,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 		transitionMap[fmt.Sprintf("%d",val)] = transitionMap[fmt.Sprintf("%d",val)] + 1
 	}
 
-	b, _ := json.Marshal(sequence)
+	b, _ := json.Marshal(transitionMap)
 
 	w.Write(b)
 
