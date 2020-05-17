@@ -200,15 +200,17 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	transitionMap := make(map[string]int)
 
-	for idx, val := range sequence {
+	for _, val := range sequence {
 
-		if idx > 0 {
+		/*if idx > 0 {
 
 			transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] = transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] + 1
-		}
+		}*/
+
+		transitionMap[fmt.Sprintf("%d",val)] = transitionMap[fmt.Sprintf("%d",val)] + 1
 	}
 
-	b, _ := json.Marshal(transitionMap )
+	b, _ := json.Marshal(sequence)
 
 	w.Write(b)
 
