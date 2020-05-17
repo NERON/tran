@@ -26,11 +26,16 @@
 				return [val.OpenPrice,val.ClosePrice,val.LowPrice,val.HighPrice];
 			});
 			
-			var scatter = data.map(function(val) {
-				return val.IsRSIReverseLow ? val.LowPrice : NaN;
-			});
-			
-		
+			var markPoints = data.reduce(function(filtered,candlestick,index) {
+			    if (candlestick.IsRSIReverseLow) {
+
+			        filtered.push({name: 'test_' + candlestick.OpenTime, value: candlestick.RSIBestPeriod, xAxis: index, yAxis: candlestick.LowPrice});
+			    }
+			},[]);
+
+			console.log(markPoints);
+
+					
 			// specify chart configuration item and data
 			var option = {
 				animation: false,
@@ -84,7 +89,10 @@
 							borderColor0: '#FD1050',
 							borderColor: '#0CF49B'
 						}
-					}
+					},
+					markPoint: {
+                         data: filtered
+                    },
 				},
 				{
 					symbolSize: 5,
