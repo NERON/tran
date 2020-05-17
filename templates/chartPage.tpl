@@ -95,11 +95,6 @@
 					markPoint: {
                          data: markPoints
                     },
-				},
-				{
-					symbolSize: 5,
-					data:scatter,
-					type: 'scatter'
 				}]
 			};
 			
