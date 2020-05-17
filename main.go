@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
 	"github.com/NERON/tran/providers"
@@ -186,7 +187,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 
 		_, ok := lowsMap[idx]
-		
+
 		if ok {
 
 			bestPeriod := rsiP.GetBestPeriod(candle.LowPrice,30)
@@ -197,7 +198,17 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	b, _ := json.Marshal(sequence)
+	transitionMap := make(map[string]int)
+
+	for idx, val := range sequence {
+
+		if idx > 0 {
+
+			transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] = transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] + 1
+		}
+	}
+
+	b, _ := json.Marshal(transitionMap )
 
 	w.Write(b)
 
