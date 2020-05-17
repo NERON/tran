@@ -236,25 +236,46 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
+
 	g := time.Now()
+
+	lowReverse := indicators.NewRSILowReverseIndicator()
+	lowsMap := make(map[int]struct{})
+
+	for idx, candle := range candles {
+
+		lowReverse.AddPoint(candle.LowPrice,0)
+
+		if lowReverse.IsPreviousLow() {
+			lowsMap[idx-1] = struct{}{}
+		}
+
+	}
+
 
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
+	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 
-	//rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	for _, candle := range candles {
+	for idx, candle := range candles {
 
 		rsiRev.AddPoint(candle.LowPrice, candle.ClosePrice)
 
-		if rsiRev.IsPreviousLow() {
 
-			updateCandles[len(updateCandles)-1].IsRSIReverseLow = true
+		_, ok := lowsMap[idx]
+
+		bestPeriod := 0
+
+		if ok {
+
+			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice,30)
+
 		}
 
-		period := 0 //rsiP.GetBestPeriod(candle.LowPrice,30)
-		//rsiP.AddPoint(candle.ClosePrice)
+		rsiP.AddPoint(candle.ClosePrice)
+		
 
 		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
 
@@ -266,7 +287,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			LowPrice:   candle.LowPrice,
 			HighPrice:  candle.HighPrice,
 			RSIValue:   calcRSI,
-			RSIBestPeriod:period,
+			RSIBestPeriod:bestPeriod,
+			IsRSIReverseLow: ok,
 		})
 
 		rsi.AddPoint(candle.ClosePrice)
