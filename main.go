@@ -234,6 +234,22 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
 
+
+	rsiP := indicators.NewRSIMultiplePeriods(250)
+
+	candlesOld := providers.GetKlines("ETHUSDT", "1h", 0, candles[0].OpenTime-1)
+
+
+	for _,candleOld := range candlesOld {
+
+		rsiP.AddPoint(candleOld.ClosePrice)
+
+		log.Println(candleOld)
+		
+	}
+
+	log.Println(candles[0])
+
 	updateCandles := make([]ChartUpdateCandle, 0)
 
 
@@ -255,7 +271,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
-	rsiP := indicators.NewRSIMultiplePeriods(250)
+
 
 
 
@@ -275,7 +291,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		rsiP.AddPoint(candle.ClosePrice)
-		
+
 
 		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
 
