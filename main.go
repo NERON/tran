@@ -162,7 +162,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 
-	candles := providers.GetKlines("ETHUSDT", "1d", 0, 0)
+	candles := providers.GetKlines("BTCUSDT", "1d", 0, 0)
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	lowsMap := make(map[int]struct{})
