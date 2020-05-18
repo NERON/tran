@@ -161,8 +161,23 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 }
 func TestHandler(w http.ResponseWriter, r *http.Request) {
 
+	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candles := providers.GetKlines("BTCUSDT", "1d", 0, 0)
+	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
+
+
+	candlesOld := providers.GetKlines("ETHUSDT", "1h", 0, candles[0].OpenTime-1)
+
+
+	for _,candleOld := range candlesOld {
+
+		rsiP.AddPoint(candleOld.ClosePrice)
+
+		log.Println(candleOld)
+
+	}
+
+	log.Println("tt",candles[0])
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	lowsMap := make(map[int]struct{})
@@ -177,7 +192,6 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 
 	sequence := make([]int,0)
