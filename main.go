@@ -171,7 +171,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _,candleOld := range candlesOld {
 
-		rsiP.AddPoint(candleOld.ClosePrice)
+		//rsiP.AddPoint(candleOld.ClosePrice)
 
 		log.Println(candleOld)
 
