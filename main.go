@@ -250,7 +250,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld := providers.GetKlines("ETHUSDT", "1h", 0, candles[0].OpenTime-1)
+	candlesOld := providers.GetKlines("ETHUSDT", "4h", 0, candles[0].OpenTime-1)
 
 
 	for _,candleOld := range candlesOld {
