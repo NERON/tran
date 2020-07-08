@@ -248,12 +248,12 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	
 
-	candles := providers.GetKlines(vars['symbol'], vars['interval'], 0, 0)
+	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, 0)
 
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld := providers.GetKlines(vars['symbol'], vars['interval'], 0, candles[0].OpenTime-1)
+	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1)
 
 
 	for _,candleOld := range candlesOld {
