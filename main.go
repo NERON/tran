@@ -244,8 +244,11 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		RSIValue        float64
 		RSIBestPeriod int
 	}
+	
+	vars := mux.Vars(r)
+	
 
-	candles := providers.GetKlines("ETHUSDT", "4h", 0, 0)
+	candles := providers.GetKlines(vars['symbol'], vars['interval'], 0, 0)
 
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
