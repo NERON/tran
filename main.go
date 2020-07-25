@@ -5,15 +5,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"log"
+	"math"
+	"net/http"
+
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
 	"github.com/NERON/tran/providers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
-	"html/template"
-	"log"
-	"math"
-	"net/http"
 
 	"time"
 )
@@ -104,7 +105,14 @@ func LoadCandles(symbol string, interval uint) ([]candlescommon.KLine, error) {
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
-	TemplateManager.ExecuteTemplate(w, "chartPage.tpl", nil)
+	type Data struct {
+		Symbol    string
+		Timeframe string
+	}
+
+	vars := mux.Vars(r)
+
+	TemplateManager.ExecuteTemplate(w, "chartPage.html", Data{vars["symbol"], vars["interval"]})
 }
 func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -135,17 +143,16 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		currentWindow[0] = append(currentWindow[0], RSIs[i])
 	}
 
-
 	for i += 1; i < len(RSIs); i++ {
 
-		currentWindow[1] = make([]float64,1)
+		currentWindow[1] = make([]float64, 1)
 		currentWindow[1][0] = RSIs[i]
 
-		RSIsWindowed = append(RSIsWindowed,currentWindow)
+		RSIsWindowed = append(RSIsWindowed, currentWindow)
 
-		currentWindowNew := make([][]float64,2)
-		currentWindowNew[0] = append(currentWindowNew[0],currentWindow[0][1:]...)
-		currentWindowNew[0] = append(currentWindowNew[0],RSIs[i])
+		currentWindowNew := make([][]float64, 2)
+		currentWindowNew[0] = append(currentWindowNew[0], currentWindow[0][1:]...)
+		currentWindowNew[0] = append(currentWindowNew[0], RSIs[i])
 
 		currentWindow = currentWindowNew
 
@@ -156,7 +163,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Disposition", "Attachment")
 
-	http.ServeContent(w,r,"BTCUSDT.json",time.Now(),bytes.NewReader(byte))
+	http.ServeContent(w, r, "BTCUSDT.json", time.Now(), bytes.NewReader(byte))
 
 }
 func TestHandler(w http.ResponseWriter, r *http.Request) {
@@ -165,25 +172,23 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
 
-
 	candlesOld := providers.GetKlines("ETHUSDT", "1h", 0, candles[0].OpenTime-1)
 
-
-	for _,candleOld := range candlesOld {
+	for _, candleOld := range candlesOld {
 		rsiP.AddPoint(candleOld.ClosePrice)
 
 		log.Println(candleOld)
 
 	}
 
-	log.Println("tt",candles[0])
+	log.Println("tt", candles[0])
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	lowsMap := make(map[int]struct{})
 
 	for idx, candle := range candles {
 
-		lowReverse.AddPoint(candle.LowPrice,0)
+		lowReverse.AddPoint(candle.LowPrice, 0)
 
 		if lowReverse.IsPreviousLow() {
 			lowsMap[idx-1] = struct{}{}
@@ -191,20 +196,16 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-
-
-	sequence := make([]int,0)
-
+	sequence := make([]int, 0)
 
 	for idx, candle := range candles {
-
 
 		_, ok := lowsMap[idx]
 
 		if ok {
 
-			bestPeriod := rsiP.GetBestPeriod(candle.LowPrice,30)
-			sequence = append(sequence,bestPeriod)
+			bestPeriod := rsiP.GetBestPeriod(candle.LowPrice, 30)
+			sequence = append(sequence, bestPeriod)
 		}
 
 		rsiP.AddPoint(candle.ClosePrice)
@@ -217,7 +218,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if idx > 0 {
 
-			transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] = transitionMap[fmt.Sprintf("%d-%d",sequence[idx-1],val)] + 1
+			transitionMap[fmt.Sprintf("%d-%d", sequence[idx-1], val)] = transitionMap[fmt.Sprintf("%d-%d", sequence[idx-1], val)] + 1
 		}
 
 		//transitionMap[fmt.Sprintf("%d",val)] = transitionMap[fmt.Sprintf("%d",val)] + 1
@@ -226,9 +227,6 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(sequence)
 
 	w.Write(b)
-
-
-
 
 }
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
@@ -242,21 +240,18 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		HighPrice       float64
 		IsRSIReverseLow bool
 		RSIValue        float64
-		RSIBestPeriod int
+		RSIBestPeriod   int
 	}
-	
+
 	vars := mux.Vars(r)
-	
 
 	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, 0)
-
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1)
 
-
-	for _,candleOld := range candlesOld {
+	for _, candleOld := range candlesOld {
 
 		rsiP.AddPoint(candleOld.ClosePrice)
 
@@ -268,7 +263,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
-
 	g := time.Now()
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
@@ -276,7 +270,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	for idx, candle := range candles {
 
-		lowReverse.AddPoint(candle.LowPrice,0)
+		lowReverse.AddPoint(candle.LowPrice, 0)
 
 		if lowReverse.IsPreviousLow() {
 			lowsMap[idx-1] = struct{}{}
@@ -284,17 +278,12 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
-
-
-
 
 	for idx, candle := range candles {
 
 		rsiRev.AddPoint(candle.LowPrice, candle.ClosePrice)
-
 
 		_, ok := lowsMap[idx]
 
@@ -302,24 +291,23 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice,30)
+			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice, 30)
 
 		}
 
 		rsiP.AddPoint(candle.ClosePrice)
 
-
 		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
-			OpenTime:   candle.OpenTime,
-			CloseTime:  candle.CloseTime,
-			OpenPrice:  candle.OpenPrice,
-			ClosePrice: candle.ClosePrice,
-			LowPrice:   candle.LowPrice,
-			HighPrice:  candle.HighPrice,
-			RSIValue:   calcRSI,
-			RSIBestPeriod:bestPeriod,
+			OpenTime:        candle.OpenTime,
+			CloseTime:       candle.CloseTime,
+			OpenPrice:       candle.OpenPrice,
+			ClosePrice:      candle.ClosePrice,
+			LowPrice:        candle.LowPrice,
+			HighPrice:       candle.HighPrice,
+			RSIValue:        calcRSI,
+			RSIBestPeriod:   bestPeriod,
 			IsRSIReverseLow: ok,
 		})
 
@@ -369,7 +357,7 @@ func InitRouting() *mux.Router {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", IndexHandler)
+	r.HandleFunc("/info/{symbol}/{interval}", IndexHandler)
 	r.HandleFunc("/chart/{symbol}/{interval}", ChartUpdateHandler)
 	r.HandleFunc("/rsiJSON", RSIJSONHandler)
 	r.HandleFunc("/test", TestHandler)
@@ -380,7 +368,7 @@ func InitRouting() *mux.Router {
 func main() {
 
 	var err error
-	TemplateManager, err = template.ParseFiles("./tran_dir/templates/chartPage.tpl")
+	TemplateManager, err = template.ParseFiles("./tran_dir/templates/chartPage.html")
 
 	err = OpenDatabaseConnection()
 

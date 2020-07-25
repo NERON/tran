@@ -10,12 +10,16 @@
 <body>
     <!-- prepare a DOM container with width and height -->
     <div id="main" style="width: 100%; min-height: 600px"></div>
-    <script type="text/javascript">
+	<script type="text/javascript">
+	
+		var symbol = "{{.Symbol}}";
+		var timeframe = "{{.Timeframe}}";
+
 	
 		// based on prepared DOM, initialize echarts instance
 		var myChart = echarts.init(document.getElementById('main'));
 
-		$.getJSON("/chart/fgg/30", function(data) {
+		$.getJSON("/chart/" + symbol + "/" + timeframe, function(data) {
 		
 			var timestamps = data.map(function(val) {
 				time = new Date(val.OpenTime);
