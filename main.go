@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"math"
@@ -214,7 +213,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	transitionMap := make(map[string]int)
+	transitionMap := make(map[int]map[int]int)
 
 	for i := 0; i < len(sequence); i++ {
 
@@ -225,7 +224,14 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if j < len(sequence) {
-			transitionMap[fmt.Sprintf("%d-%d", sequence[i], sequence[j])] = transitionMap[fmt.Sprintf("%d-%d", sequence[i], sequence[j])] + 1
+
+			_, ok := transitionMap[sequence[i]]
+
+			if !ok {
+				transitionMap[sequence[i]] = make(map[int]int)
+			}
+
+			transitionMap[sequence[i]][sequence[j]]++
 		}
 
 	}
