@@ -143,7 +143,9 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 		currentWindow[0] = append(currentWindow[0], RSIs[i])
 	}
 
-	for i += 1; i < len(RSIs); i++ {
+	i++
+
+	for ; i < len(RSIs); i++ {
 
 		currentWindow[1] = make([]float64, 1)
 		currentWindow[1][0] = RSIs[i]
@@ -214,17 +216,21 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	transitionMap := make(map[string]int)
 
-	for idx, val := range sequence {
+	for i := 0; i < len(sequence); i++ {
 
-		if idx > 0 {
+		j := i + 1
 
-			transitionMap[fmt.Sprintf("%d-%d", sequence[idx-1], val)] = transitionMap[fmt.Sprintf("%d-%d", sequence[idx-1], val)] + 1
+		for j < len(sequence) && sequence[i] > sequence[j] {
+			j++
 		}
 
-		//transitionMap[fmt.Sprintf("%d",val)] = transitionMap[fmt.Sprintf("%d",val)] + 1
+		if j < len(sequence) {
+			transitionMap[fmt.Sprintf("%d-%d", sequence[i], sequence[j])] = transitionMap[fmt.Sprintf("%d-%d", sequence[i], sequence[j])] + 1
+		}
+
 	}
 
-	b, _ := json.Marshal(sequence)
+	b, _ := json.Marshal(transitionMap)
 
 	w.Write(b)
 
