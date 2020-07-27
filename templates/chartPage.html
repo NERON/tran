@@ -108,7 +108,7 @@
 
 		$('#ExludeFilterButton').click(function() {
 
-			var excludeFilterValue = $('excludeFilterInput').val() || 0;
+			var excludeFilterValue = $('#excludeFilterInput').val() * 1 || 0;
 			drawChart(chartData,excludeFilterValue);
 
 		});
