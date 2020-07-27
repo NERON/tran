@@ -8,19 +8,18 @@
 	
 </head>
 <body>
+	<div>
+		<div>
+			<input type="text" id="excludeFilterInput"   size="10">
+			<button id = "ExludeFilterButton">Start</button>
+		</div>
+	</div>
     <!-- prepare a DOM container with width and height -->
     <div id="main" style="width: 100%; min-height: 600px"></div>
 	<script type="text/javascript">
-	
-		var symbol = "{{.Symbol}}";
-		var timeframe = "{{.Timeframe}}";
 
-	
-		// based on prepared DOM, initialize echarts instance
-		var myChart = echarts.init(document.getElementById('main'));
-
-		$.getJSON("/chart/" + symbol + "/" + timeframe, function(data) {
-		
+		function drawChart(data,excludeFilterValue) {
+			
 			var timestamps = data.map(function(val) {
 				time = new Date(val.OpenTime);
 				return time
@@ -31,16 +30,15 @@
 			});
 			
 			var markPoints = data.reduce(function(filtered,candlestick,index) {
-			    if (candlestick.IsRSIReverseLow) {
+
+			    if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > excludeFilterValue) {
 
 			        filtered.push({name: 'test_' + candlestick.OpenTime, value: candlestick.RSIBestPeriod, xAxis: index, yAxis: candlestick.LowPrice});
 			    }
 
 			    return filtered;
 			},[]);
-
-			console.log(markPoints);
-
+			
 
 			// specify chart configuration item and data
 			var option = {
@@ -105,9 +103,31 @@
 			// use configuration item and data specified to show chart
 			myChart.setOption(option);
 			
-			myChart.on('click',function(components){
-				console.log(data[components.dataIndex]);
-			})
+			
+		}
+
+		$('#ExludeFilterButton').click(function() {
+
+			var excludeFilterValue = $('excludeFilterInput').val() || 0;
+			drawChart(chartData,excludeFilterValue);
+
+		});
+	
+		var symbol = "{{.Symbol}}";
+		var timeframe = "{{.Timeframe}}";
+
+		var ChartData = null;
+
+	
+		// based on prepared DOM, initialize echarts instance
+		var myChart = echarts.init(document.getElementById('main'));
+
+		$.getJSON("/chart/" + symbol + "/" + timeframe, function(data) {
+
+			chartData = data;
+
+			drawChart(data,0);
+		
 		});
         
     </script>
