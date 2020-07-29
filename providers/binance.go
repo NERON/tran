@@ -42,8 +42,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 		resp, err := http.Get(urlS)
 		
-		log.Println(urlS)
-
 		if err != nil {
 
 			log.Fatal("Get error: ", err.Error())
@@ -60,6 +58,8 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 			log.Fatal("Get error: ", err.Error())
 		}
+		
+		log.Println(klines)
 
 
 		for j := len(klines) - 1; j > 0; j-- {
