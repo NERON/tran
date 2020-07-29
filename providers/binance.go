@@ -106,7 +106,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 	}
 	
-	log.Println(result)
+	log.Println(len(result))
 
 	result[len(result)-1].Closed = false
 
