@@ -65,7 +65,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 		   return result
 		}
 
-		for j := len(klines) - 1; j > 0; j-- {
+		for j := len(klines) - 1; j >= 0; j-- {
 
 			data := klines[j]
 
