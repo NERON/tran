@@ -59,8 +59,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			log.Fatal("Get error: ", err.Error())
 		}
 		
-		log.Println(klines)
-
+		
 
 		for j := len(klines) - 1; j > 0; j-- {
 
@@ -106,6 +105,8 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
 
 	}
+	
+	log.Println(result)
 
 	result[len(result)-1].Closed = false
 
