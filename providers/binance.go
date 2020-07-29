@@ -46,6 +46,8 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 			log.Fatal("Get error: ", err.Error())
 		}
+		
+		log.Println(urlS)
 
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
@@ -111,7 +113,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 	}
 	
 	log.Println(len(result))
-
+	
 	result[len(result)-1].Closed = false
 
 	return result
