@@ -88,8 +88,11 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			result = append(result, kline)
 
 		}
-
-		endTimestamp = result[len(result)-1].OpenTime - 1
+		
+		if len(result) > 0 {
+			endTimestamp = result[len(result)-1].OpenTime - 1
+		}
+		
 
 	}
 
