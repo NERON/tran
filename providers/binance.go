@@ -64,8 +64,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 		if len(klines) == 0 {
 		   return result
 		}
-		
-		
 
 		for j := len(klines) - 1; j > 0; j-- {
 
@@ -96,12 +94,16 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 		}
 		
+		log.Println("temp result ",len(result))
+		
 		if len(result) > 0 {
 			endTimestamp = result[len(result)-1].OpenTime - 1
 		}
 		
 
 	}
+	
+	log.Println(len(result))
 
 	itemCount := len(result)
 
@@ -112,7 +114,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 	}
 	
-	log.Println(len(result))
+	
 	
 	result[len(result)-1].Closed = false
 
