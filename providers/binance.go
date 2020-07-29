@@ -47,8 +47,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			log.Fatal("Get error: ", err.Error())
 		}
 		
-		log.Println(urlS)
-
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 
@@ -61,10 +59,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			log.Fatal("Get error: ", err.Error())
 		}
 		
-		if len(klines) == 0 {
-		   return result
-		}
-
 		for j := len(klines) - 1; j >= 0; j-- {
 
 			data := klines[j]
@@ -93,9 +87,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			result = append(result, kline)
 
 		}
-		
-		log.Println("temp result ",len(result))
-		
+				
 		if len(result) > 0 {
 			endTimestamp = result[len(result)-1].OpenTime - 1
 		}
@@ -103,7 +95,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 	}
 	
-	log.Println(len(result))
 
 	itemCount := len(result)
 
@@ -113,10 +104,6 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
 
 	}
-	
-	
-	
-	result[len(result)-1].Closed = false
 
 	return result
 
