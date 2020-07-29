@@ -59,6 +59,10 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 			log.Fatal("Get error: ", err.Error())
 		}
 		
+		if len(klines) == 0 {
+		   return result
+		}
+		
 		
 
 		for j := len(klines) - 1; j > 0; j-- {
