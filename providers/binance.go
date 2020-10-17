@@ -129,6 +129,9 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 		result[len(result)-1].Closed = false
 	}
 
+	if interval == "1h" {
+		candlescommon.SaveCandles(result)
+	}
 	return result
 
 }
