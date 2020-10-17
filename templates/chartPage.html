@@ -35,6 +35,7 @@
 	<script type="text/javascript">
 	
 		var chartInited = false;
+		var centralRSI = 10;
 
 		function RSI(period) {
 
@@ -127,7 +128,7 @@
 		}
 
 		var RSIPeriod = 5;
-		var RSIValue = 20;
+		var RSIValue = centralRSI;
 		var ExcludeFilter = 0;
 
 		$('#RSIValue').val(RSIValue);
@@ -170,15 +171,15 @@
 			for (let i = 0; i < data.length; i++) {
 
 				reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
-				reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(20));
+				reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
 				reverseRSI.addPoint(data[i].ClosePrice);
 				
 				
-				reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(20));
+				reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
 				reverseRSIPrev.addPoint(data[i].ClosePrice);
 				
 				
-				reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(20));
+				reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
 				reverseRSINext.addPoint(data[i].ClosePrice);
 				
 				
@@ -187,10 +188,10 @@
 			}
 
 			reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
-			reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(20));
+			reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
 			
-			reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(20));
-			reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(20));
+			reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+			reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
 			
 			reverseRSIValsPrev = reverseRSIValsPrev.map(function(val,idx) {
 				return (reverseRSIVals30[idx] + val) / 2;
@@ -412,7 +413,7 @@
 			
 				
 					
-				var predictedPrice = RSIs[j].predictPriceForNextCandle(20);
+				var predictedPrice = RSIs[j].predictPriceForNextCandle(centralRSI);
 				
 				
 				if (j==0) {
@@ -421,7 +422,7 @@
 					
 				}else {
 				
-					var up = (RSIs[j-1].predictPriceForNextCandle(20) + predictedPrice) / 2;
+					var up = (RSIs[j-1].predictPriceForNextCandle(centralRSI) + predictedPrice) / 2;
 					
 				}	
 
@@ -431,7 +432,7 @@
 					
 				} else {
 				
-					var down = (RSIs[j+1].predictPriceForNextCandle(20) + predictedPrice) / 2
+					var down = (RSIs[j+1].predictPriceForNextCandle(centralRSI) + predictedPrice) / 2
 					
 				}
 				
