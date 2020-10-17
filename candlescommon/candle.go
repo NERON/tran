@@ -67,7 +67,8 @@ func (manager KLineManager) GetChartData(symbol string, interval time.Duration, 
 	klines := make([]KLine, 0)
 
 	//get data from database
-	rows, err := database.DatabaseManager.Query("")
+	rows, err := database.DatabaseManager.Query(`SELECT "symbol", "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume"
+	FROM public.tran_candles_1h WHERE "symbol" = $1 ORDER BY "openTime" DESC LIMIT 5000;`, symbol)
 
 	if err != nil {
 		return nil, err
@@ -127,7 +128,8 @@ func (manager KLineManager) GetChartData(symbol string, interval time.Duration, 
 
 func SaveCandles(klines []KLine) {
 
-	log.Println("Start saving")
+	t := time.Now()
+
 	stmt, err := database.DatabaseManager.Prepare(`INSERT INTO public.tran_candles_1h(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;`)
 
@@ -138,7 +140,6 @@ func SaveCandles(klines []KLine) {
 
 	for _, kline := range klines {
 
-		t := time.Now()
 		if kline.PrevCloseCandleTimestamp == 0 || !kline.Closed {
 			continue
 		}
@@ -149,11 +150,11 @@ func SaveCandles(klines []KLine) {
 
 			log.Fatal(err.Error())
 		}
-		log.Println(time.Since(t))
 
 	}
 
 	stmt.Close()
 
-	log.Println("saved")
+	log.Println(time.Since(t))
+
 }
