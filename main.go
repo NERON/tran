@@ -40,6 +40,6 @@ func main() {
 
 	router := InitRouting()
 
-	log.Fatal(http.ListenAndServe(":8085", router))
+	log.Fatal(http.ListenAndServeTLS(":8085", "server.crt", "server.key", router))
 
 }
