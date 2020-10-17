@@ -29,6 +29,7 @@
 	</div>
 	<div id = "PossiblePeriods"></div>
 	<!-- prepare a DOM container with width and height -->
+	<p class="priceValue"></p>
 	<div id="main" style="width: 100%; min-height: 600px"></div>
 	
 	<script type="text/javascript">
@@ -474,7 +475,7 @@
 				if (params.seriesName == "cnd_data") {
 					$('#FromCandle').val(params.data[0]);
 				} else {
-					navigator.clipboard.writeText(params.data)
+					$('.priceValue').text(params.data)
 				}
 				
 		});
