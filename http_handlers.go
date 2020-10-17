@@ -244,7 +244,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice, 10)
+			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice, 20)
 
 		}
 
