@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <!-- including ECharts file -->
+      <script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   </head>
+   <body>
+      <div>
+			<input type="text" id="RSIPeriod" size="10">
+			<button id="Btn">Start</button>
+	   </div>
+	   <div id="links"></div>
+	   
+	   <style>
+		 .periodLink {
+			padding: 3px;
+		 }
+	   </style>
+	   
+      <!-- prepare a DOM container with width and height -->
+      <div id="main" style="width: 100%; min-height: 600px"></div>
+      <script type="text/javascript">
+		 var RSIPeriod = 2;
+		 var data = JSON.parse("{{.Data}}");
+		 var klineData= JSON.parse("{{.Test}}");
+		 var counterMap = JSON.parse("{{.Stat}}");
+         
+		 function DrawPie() {
+			
+			var locData = [];
+			for (const [key, value] of Object.entries(data[RSIPeriod])) {
+				locData.push({value:value,name:key});
+			}
+			 option = {
+           tooltip: {
+               trigger: 'item',
+               formatter: '{a} <br/>{b}: {c} ({d}%)'
+           },
+           legend: {
+               orient: 'vertical',
+               left: 10,
+               data: Object.keys(data[RSIPeriod])
+           },
+           series: [
+               {
+                   name: 'test',
+                   type: 'pie',
+                   radius: ['50%', '70%'],
+                   avoidLabelOverlap: false,
+                   label: {
+                       show: false,
+                       position: 'center'
+                   },
+                   emphasis: {
+                       label: {
+                           show: true,
+                           fontSize: '30',
+                           fontWeight: 'bold'
+                       }
+                   },
+                   labelLine: {
+                       show: false
+                   },
+                   data: locData,
+               }
+           ]
+         };
+			myChart.setOption(option);
+		 }
+		 
+		 // based on prepared DOM, initialize echarts instance
+		var myChart = echarts.init(document.getElementById('main'));
+		DrawPie();
+		
+		$('#Btn').click(function() {
+			
+			RSIPeriod = $('#RSIPeriod').val() * 1 || 0;
+			DrawPie();
+		});
+		
+		var keys = Object.keys(data);
+		for (var period in keys) {
+			$('#links').append($('<a class="periodLink" href="#">' + keys[period] +'</a>').attr('data-period',keys[period]));
+		}
+		
+		$('body').on('click',".periodLink", function(evt) {
+			
+			evt.preventDefault();
+			RSIPeriod = $(this).attr('data-period') * 1 || 0;
+			DrawPie();
+			
+		});
+         
+         
+         
+      </script>
+   </body>
+</html>

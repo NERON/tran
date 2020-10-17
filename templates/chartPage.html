@@ -1,46 +1,208 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
-    <!-- including ECharts file -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
+	<meta charset="utf-8">
+	<!-- including ECharts file -->
+	<script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	
+
 </head>
+
 <body>
 	<div>
 		<div>
-			<input type="text" id="excludeFilterInput"   size="10">
-			<button id = "ExludeFilterButton">Start</button>
+			<input type="text" id="excludeFilterInput" size="10">
+			<button id="ExludeFilterButton">Start</button>
+		</div>
+		<div>
+			<input type="text" id="RSIPeriod" size="10">
+			<input type="text" id="RSIValue" size="10">
+			<button id="LineButton">Start</button>
+		</div>
+		<div>
+			<input type="text" id="FromCandle" size="10">
+			<input type="text" id="FromPrice" size="10">
+			<input type="text" id="ToPrice" size="10">
+			<button id="GetPeriodsButton">Start</button>
 		</div>
 	</div>
-    <!-- prepare a DOM container with width and height -->
-    <div id="main" style="width: 100%; min-height: 600px"></div>
+	<div id = "PossiblePeriods"></div>
+	<!-- prepare a DOM container with width and height -->
+	<div id="main" style="width: 100%; min-height: 600px"></div>
+	
 	<script type="text/javascript">
+	
+		var chartInited = false;
 
-		function drawChart(data,excludeFilterValue) {
-			
-			var timestamps = data.map(function(val) {
+		function RSI(period) {
+
+			this.avgGain = 0.0
+			this.avgLoss = 0.0
+
+			this.pointsCount = 0
+			this.lastPoint = 0
+
+
+			this.addPoint = function (point) {
+
+				this.pointsCount++
+
+				if (this.pointsCount > 1 && this.pointsCount <= period + 1) {
+
+					this.avgGain += Math.max(point - this.lastPoint, 0)
+					this.avgLoss += Math.max(this.lastPoint - point, 0)
+
+					if (this.pointsCount == period + 1) {
+
+						this.avgGain /= period
+						this.avgLoss /= period
+
+					}
+
+				}
+				else if (this.pointsCount > period + 1) {
+
+					this.avgGain = ((period - 1) * this.avgGain + Math.max(point - this.lastPoint, 0)) / period
+					this.avgLoss = ((period - 1) * this.avgLoss + Math.max(this.lastPoint - point, 0)) / period
+				}
+
+
+
+				this.lastPoint = point
+			}
+
+			this.calculate = function () {
+
+				if (this.pointsCount < period + 1) return NaN
+
+
+
+				return 100 - 100 / (1 + this.avgGain / this.avgLoss)
+
+			}
+
+			this.predictPriceForNextCandle = function (RSIValue) {
+
+				var currentRSI = this.calculate();
+
+				if (isNaN(currentRSI)) return NaN
+
+
+				var koef = RSIValue / (100 - RSIValue)
+
+
+				if (currentRSI >= RSIValue) {
+
+					return (period - 1) * (this.avgLoss - this.avgGain / koef) + this.lastPoint
+
+				} else {
+
+					return (period - 1) * (this.avgLoss * koef - this.avgGain) + this.lastPoint
+				}
+
+
+			},
+				this.CalculateForPrice = function (price) {
+
+					//save state
+					avgG = this.avgGain
+					avgL = this.avgLoss
+					pC = this.pointsCount
+					lP = this.lastPoint
+
+					this.addPoint(price);
+					RSI = this.calculate();
+
+					this.avgGain = avgG;
+					this.avgLoss = avgL;
+					this.pointsCount = pC;
+					this.lastPoint = lP;
+
+					return RSI;
+
+				}
+
+		}
+
+		var RSIPeriod = 5;
+		var RSIValue = 20;
+		var ExcludeFilter = 0;
+
+		$('#RSIValue').val(RSIValue);
+		$('#RSIPeriod').val(RSIPeriod);
+
+		function drawChart(data, excludeFilterValue, RSIValue, RSIPeriod) {
+
+			var timestamps = data.map(function (val) {
 				time = new Date(val.OpenTime);
 				return time
 			});
+
+
+			timestamps.push(timestamps[timestamps.lengt - 1] + 1);
+
+			var candlesticks = data.map(function (val) {
+				return [val.OpenPrice, val.ClosePrice, val.LowPrice, val.HighPrice];
+			});
+
+			var markPoints = data.reduce(function (filtered, candlestick, index) {
+
+				if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > excludeFilterValue) {
+
+					filtered.push({ name: 'test_' + candlestick.OpenTime, value: candlestick.RSIBestPeriod, xAxis: index, yAxis: candlestick.LowPrice });
+				}
+
+				return filtered;
+			}, []);
+
+			var reverseRSI = new RSI(RSIPeriod);
+			var reverseRSIPrev = new RSI(RSIPeriod - 1);
+			var reverseRSINext = new RSI(RSIPeriod + 1);
 			
-			var candlesticks = data.map(function(val) {
-				return [val.OpenPrice,val.ClosePrice,val.LowPrice,val.HighPrice];
+			
+			var reverseRSIVals = [];
+			var reverseRSIValsPrev = [];
+			var reverseRSIValsNext = [];
+			var reverseRSIVals30 = [];
+
+			for (let i = 0; i < data.length; i++) {
+
+				reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
+				reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(20));
+				reverseRSI.addPoint(data[i].ClosePrice);
+				
+				
+				reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(20));
+				reverseRSIPrev.addPoint(data[i].ClosePrice);
+				
+				
+				reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(20));
+				reverseRSINext.addPoint(data[i].ClosePrice);
+				
+				
+				
+
+			}
+
+			reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
+			reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(20));
+			
+			reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(20));
+			reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(20));
+			
+			reverseRSIValsPrev = reverseRSIValsPrev.map(function(val,idx) {
+				return (reverseRSIVals30[idx] + val) / 2;
 			});
 			
-			var markPoints = data.reduce(function(filtered,candlestick,index) {
-
-			    if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > excludeFilterValue) {
-
-			        filtered.push({name: 'test_' + candlestick.OpenTime, value: candlestick.RSIBestPeriod, xAxis: index, yAxis: candlestick.LowPrice});
-			    }
-
-			    return filtered;
-			},[]);
+			reverseRSIValsNext = reverseRSIValsNext.map(function(val,idx) {
+				return (reverseRSIVals30[idx] + val) / 2;
+			});
 			
-
-			// specify chart configuration item and data
+			
+			if (!chartInited) {
+				
+				// specify chart configuration item and data
 			var option = {
 				animation: false,
 				tooltip: {
@@ -81,7 +243,22 @@
 						backgroundColor: '#777'
 					}
 				},
-				dataZoom: [{ type: 'inside' }],
+				dataZoom: [
+					{
+						type: 'inside',
+						xAxisIndex: 0,
+						start: 98,
+						end: 100
+					},
+					{
+						show: true,
+						xAxisIndex: 0,
+						type: 'slider',
+						top: '85%',
+						start: 98,
+						end: 100
+					}
+				],
 				series: [{
 					name: 'cnd_data',
 					type: 'k',
@@ -95,42 +272,216 @@
 						}
 					},
 					markPoint: {
-                         data: markPoints
-                    },
-				}]
+						data: markPoints
+					},
+				},
+				{
+					name: 'reverseRSI',
+					type: 'line',
+
+					data: reverseRSIVals,
+
+				},
+				{
+					name: 'reverseRSIPrev',
+					type: 'line',
+
+					data: reverseRSIValsPrev,
+
+				},
+				{
+					name: 'reverseRSINext',
+					type: 'line',
+
+					data: reverseRSIValsNext,
+
+				},
+				]
 			};
+			
+			} else {
+				
+				var option = {
+				
+				
+				series: [{
+					name: 'cnd_data',
+					type: 'k',
+					data: candlesticks,
+					itemStyle: {
+						normal: {
+							color0: '#FD1050',
+							color: '#0CF49B',
+							borderColor0: '#FD1050',
+							borderColor: '#0CF49B'
+						}
+					},
+					markPoint: {
+						data: markPoints
+					},
+				},
+				{
+					name: 'reverseRSI',
+					type: 'line',
+
+					data: reverseRSIVals,
+
+				},
+				{
+					name: 'reverseRSIPrev',
+					type: 'line',
+
+					data: reverseRSIValsPrev,
+
+				},
+				{
+					name: 'reverseRSINext',
+					type: 'line',
+
+					data: reverseRSIValsNext,
+
+				},
+				]
+			};
+			}
+
+			
+			
+			chartInited = true;
 			
 			// use configuration item and data specified to show chart
 			myChart.setOption(option);
 			
-			
+
+
 		}
 
-		$('#ExludeFilterButton').click(function() {
+		$('#ExludeFilterButton').click(function () {
 
-			var excludeFilterValue = $('#excludeFilterInput').val() * 1 || 0;
-			drawChart(chartData,excludeFilterValue);
+			ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
+			drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
 
 		});
-	
+
+		$('#LineButton').click(function () {
+
+			ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
+			RSIValue = $('#RSIValue').val() * 1 || 0;
+			RSIPeriod = $('#RSIPeriod').val() * 1 || 0;
+
+			drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
+
+		});
+		
+		$('#GetPeriodsButton').click(function () {
+			
+			$('#PossiblePeriods').children().remove();
+			
+			var fromCandle = $('#FromCandle').val() * 1;
+			
+			if (!fromCandle) {
+				fromCandle = chartData.length;
+			}
+			
+			var RSIs = [];
+
+			for (var i = 2; i < 250;i++) {
+			
+				RSIs.push(new RSI(i));
+				
+			}
+			
+			for (let i = 0; i < fromCandle; i++) {
+				
+				for (var j = 0; j < RSIs.length;j++) {
+					
+					RSIs[j].addPoint(chartData[i].ClosePrice);
+					
+				}
+				
+			}	
+
+			
+			
+			FromPrice = $('#FromPrice').val() * 1 || 0;
+			ToPrice = $('#ToPrice').val() * 1 || 0;
+			
+			
+			for (var j = 0; j < RSIs.length;j++) {
+			
+				
+					
+				var predictedPrice = RSIs[j].predictPriceForNextCandle(20);
+				
+				
+				if (j==0) {
+				
+					var up = predictedPrice;
+					
+				}else {
+				
+					var up = (RSIs[j-1].predictPriceForNextCandle(20) + predictedPrice) / 2;
+					
+				}	
+
+				if (j == RSIs.length - 1) {
+				
+					var down = predictedPrice;
+					
+				} else {
+				
+					var down = (RSIs[j+1].predictPriceForNextCandle(20) + predictedPrice) / 2
+					
+				}
+				
+				console.log(j+2,up,down);
+							
+				
+				if ( !isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice)) {
+					
+					$('#PossiblePeriods').append('<div>' + (j+2) + '</div>');
+				}
+			}
+			
+			
+
+			
+			
+		
+			
+
+		});
+
 		var symbol = "{{.Symbol}}";
 		var timeframe = "{{.Timeframe}}";
 
-		var ChartData = null;
+		var chartData = null;
 
-	
+
 		// based on prepared DOM, initialize echarts instance
 		var myChart = echarts.init(document.getElementById('main'));
 
-		$.getJSON("/chart/" + symbol + "/" + timeframe, function(data) {
+		$.getJSON("/chart/" + symbol + "/" + timeframe, function (data) {
 
 			chartData = data;
 
-			drawChart(data,0);
-		
+			drawChart(data, ExcludeFilter, RSIValue, RSIPeriod);
+
 		});
-        
-    </script>
+		
+		myChart.on('click', function (params) {
+				
+				if (params.seriesName == "cnd_data") {
+					$('#FromCandle').val(params.data[0]);
+				} else {
+					navigator.clipboard.writeText(params.data)
+				}
+				
+		});
+		
+		
+
+	</script>
 </body>
 
 </html>
