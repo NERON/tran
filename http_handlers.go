@@ -214,8 +214,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsiP.AddPoint(candleOld.ClosePrice)
 
-		log.Println(candleOld)
-
 	}
 
 	updateCandles := make([]ChartUpdateCandle, 0)
