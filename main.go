@@ -33,6 +33,8 @@ func main() {
 
 	err = database.OpenDatabaseConnection()
 
+	database.InitializeDatabase([]string{"1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d"})
+
 	if err != nil {
 
 		log.Fatal("Database connection error: ", err.Error())
