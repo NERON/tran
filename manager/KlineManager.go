@@ -55,7 +55,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	rows.Close()
 
-	return fetchedKlines, nil
+	return lastKlines, nil
 
 }
 
