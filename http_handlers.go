@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/indicators"
@@ -90,7 +91,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	symbols := []string{"BTCUSDT", "ETHUSDT", "LTCUSDT"}
 
-	RSIValMap := make(map[float64]int, 0)
+	RSIValMap := make(map[string]int, 0)
 
 	for _, symbol := range symbols {
 
@@ -129,7 +130,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 20)
 				sequence = append(sequence, bestPeriod)
 
-				RSIValMap[rsiVal]++
+				RSIValMap[fmt.Sprintf("%.1f", rsiVal)]++
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
