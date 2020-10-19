@@ -163,9 +163,8 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	candles := make([]candlescommon.KLine, 0)
 	b, _ := json.Marshal(transitionMap)
-	t, _ := json.Marshal(candles)
+	t, _ := json.Marshal(RSIValMap)
 	c, _ := json.Marshal(counterMap)
 
 	type Test struct {
