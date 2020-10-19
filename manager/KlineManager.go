@@ -22,18 +22,10 @@ func getClosestInterval(interval string) (string, time.Duration) {
 
 func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
 
-	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0)
+	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
 
 	if len(fetchedKlines) >= limit {
 		return fetchedKlines[:limit], nil
-	}
-
-	itemCount := len(fetchedKlines)
-
-	for i := 0; i < itemCount/2; i++ {
-
-		mirrorIdx := itemCount - i - 1
-		fetchedKlines[i], fetchedKlines[mirrorIdx] = fetchedKlines[mirrorIdx], fetchedKlines[i]
 	}
 
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
@@ -62,6 +54,8 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 	rows.Close()
 
 	if len(fetchedKlines) < limit {
+
+		_ = providers.GetKlines(symbol, interval, 0, fetchedKlines[len(fetchedKlines)-1].OpenTime-1, true)
 
 	}
 

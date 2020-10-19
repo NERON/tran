@@ -31,7 +31,7 @@ func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	WINDOW := 24
 
-	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0)
+	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0, false)
 
 	rsi := indicators.RSI{Period: 14}
 
@@ -100,7 +100,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 		candles := providers.GetKlinesTest(symbol, vars["interval"], 0, 0, 20)
 
-		candlesOld := providers.GetKlines(symbol, vars["interval"], 0, candles[0].OpenTime-1)
+		candlesOld := providers.GetKlines(symbol, vars["interval"], 0, candles[0].OpenTime-1, false)
 
 		for _, candleOld := range candlesOld {
 			rsiP.AddPoint(candleOld.ClosePrice)
@@ -215,11 +215,11 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		endTimestamp, _ = strconv.ParseUint(r.URL.Query()["endTimestamp"][0], 10, 64)
 	}
 
-	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, endTimestamp)
+	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, endTimestamp, false)
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1)
+	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1, false)
 
 	if interval == "2w" {
 		candles = candlescommon.GroupKline(candles, 2)

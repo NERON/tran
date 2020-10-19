@@ -40,7 +40,7 @@ func toFloat(value string) float64 {
 	return val
 }
 
-func GetKlines(symbol string, interval string, startTimestamp uint64, endTimestamp uint64) []candlescommon.KLine {
+func GetKlines(symbol string, interval string, startTimestamp uint64, endTimestamp uint64, reverseOrder bool) []candlescommon.KLine {
 
 	result := make([]candlescommon.KLine, 0)
 
@@ -116,17 +116,27 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 	}
 
-	itemCount := len(result)
+	if !reverseOrder {
 
-	for i := 0; i < itemCount/2; i++ {
+		itemCount := len(result)
 
-		mirrorIdx := itemCount - i - 1
-		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
+		for i := 0; i < itemCount/2; i++ {
 
-	}
+			mirrorIdx := itemCount - i - 1
+			result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
 
-	if len(result) > 0 {
-		result[len(result)-1].Closed = false
+		}
+
+		if len(result) > 0 {
+			result[len(result)-1].Closed = false
+		}
+
+	} else {
+
+		if len(result) > 0 {
+			result[0].Closed = false
+		}
+
 	}
 
 	return result
