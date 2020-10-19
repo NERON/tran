@@ -1,10 +1,7 @@
 package candlescommon
 
 import (
-	"github.com/NERON/tran/database"
-	"log"
 	"math"
-	"time"
 )
 
 type KLine struct {
@@ -58,103 +55,4 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 	}
 
 	return newKlines
-}
-
-type KLineManager struct{}
-
-func (manager KLineManager) GetChartData(symbol string, interval time.Duration, startTimestamp uint64, endTimestamp uint64) ([]KLine, error) {
-
-	klines := make([]KLine, 0)
-
-	//get data from database
-	rows, err := database.DatabaseManager.Query(`SELECT "symbol", "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume"
-	FROM public.tran_candles_1h WHERE "symbol" = $1 ORDER BY "openTime" DESC LIMIT 5000;`, symbol)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-
-		kline := KLine{}
-
-		err = rows.Scan(&kline.Symbol,
-			&kline.OpenTime,
-			&kline.CloseTime,
-			&kline.OpenPrice,
-			&kline.ClosePrice,
-			&kline.LowPrice,
-			&kline.HighPrice,
-			&kline.BaseVolume,
-			&kline.QuoteVolume,
-			&kline.TakerBuyBaseVolume,
-			&kline.TakerBuyQuoteVolume,
-			&kline.PrevCloseCandleTimestamp)
-
-		if err != nil {
-
-			rows.Close()
-			return nil, err
-		}
-
-	}
-
-	rows.Close()
-
-	var prevKlineCloseTime uint64
-
-	type Gap struct {
-		From uint64
-		To   uint64
-	}
-
-	gaps := make([]Gap, 0)
-
-	//check data for correctness
-	for _, kline := range klines {
-
-		if prevKlineCloseTime > 0 && prevKlineCloseTime != prevKlineCloseTime {
-			gaps = append(gaps, Gap{From: prevKlineCloseTime + 1, To: kline.OpenTime})
-		}
-
-		prevKlineCloseTime = kline.CloseTime
-		klines = append(klines, kline)
-
-	}
-
-	return klines, nil
-
-}
-
-func SaveCandles(klines []KLine) {
-
-	t := time.Now()
-
-	stmt, err := database.DatabaseManager.Prepare(`INSERT INTO public.tran_candles_1h(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;`)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	for _, kline := range klines {
-
-		if kline.PrevCloseCandleTimestamp == 0 || !kline.Closed {
-			continue
-		}
-
-		_, err = stmt.Exec(kline.Symbol, kline.OpenTime, kline.CloseTime, kline.PrevCloseCandleTimestamp, kline.OpenPrice, kline.ClosePrice, kline.LowPrice, kline.HighPrice, kline.BaseVolume, kline.QuoteVolume, kline.TakerBuyBaseVolume, kline.TakerBuyQuoteVolume)
-
-		if err != nil {
-
-			log.Fatal(err.Error())
-		}
-
-	}
-
-	stmt.Close()
-
-	log.Println(time.Since(t))
-
 }

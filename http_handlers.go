@@ -90,6 +90,8 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	symbols := []string{"BTCUSDT", "ETHUSDT", "LTCUSDT"}
 
+	RSIValMap := make(map[float64]int, 0)
+
 	for _, symbol := range symbols {
 
 		rsiP := indicators.NewRSIMultiplePeriods(250)
@@ -124,8 +126,10 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if ok {
 
-				bestPeriod := rsiP.GetBestPeriod(candle.LowPrice, 20)
+				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 20)
 				sequence = append(sequence, bestPeriod)
+
+				RSIValMap[rsiVal]++
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
@@ -244,7 +248,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			bestPeriod = rsiP.GetBestPeriod(candle.LowPrice, 20)
+			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, 20)
 
 		}
 
