@@ -57,7 +57,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	SaveCandles(lastKlines)
 
-	return lastKlines, nil
+	return fetchedKlines, nil
 
 }
 
