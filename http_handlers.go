@@ -164,8 +164,12 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b, _ := json.Marshal(transitionMap)
-	t, _ := json.Marshal(RSIValMap)
+	t, err := json.Marshal(RSIValMap)
 	c, _ := json.Marshal(counterMap)
+
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
 
 	type Test struct {
 		Data string
@@ -173,7 +177,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 		Stat string
 	}
 
-	err := TemplateManager.ExecuteTemplate(w, "RSIReverseStat.html", Test{string(b), string(t), string(c)})
+	err = TemplateManager.ExecuteTemplate(w, "RSIReverseStat.html", Test{string(b), string(t), string(c)})
 
 	if err != nil {
 		log.Println(err)
