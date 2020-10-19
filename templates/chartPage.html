@@ -27,6 +27,7 @@
 			<button id="GetPeriodsButton">Start</button>
 		</div>
 	</div>
+	<button class="moreLoad">More</button>
 	<div id = "PossiblePeriods"></div>
 	<!-- prepare a DOM container with width and height -->
 	<p class="priceValue"></p>
@@ -479,6 +480,17 @@
 					$('.priceValue').text(params.data)
 				}
 				
+		});
+
+		$('.moreLoad').click(function() {
+
+			$.getJSON("/chart/" + symbol + "/" + timeframe + "?endTimestamp=" + chartData[0].OpenTime - 1, function (data) {
+
+				chartData = data.push(...chartData);
+
+				drawChart(data, ExcludeFilter, RSIValue, RSIPeriod);
+
+			});
 		});
 		
 		

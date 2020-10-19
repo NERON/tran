@@ -12,6 +12,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -208,7 +209,13 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		vars["interval"] = "1w"
 	}
 
-	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, 0)
+	endTimestamp := uint64(0)
+
+	if len(r.URL.Query()["endTimestamp"]) > 0 {
+		endTimestamp, _ = strconv.ParseUint(r.URL.Query()["endTimestamp"][0], 10, 64)
+	}
+
+	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, endTimestamp)
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 

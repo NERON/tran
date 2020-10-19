@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
@@ -19,11 +20,42 @@ func getClosestInterval(interval string) (string, time.Duration) {
 	return "", 1000000 * time.Hour
 }
 
-func GetLastKLines(symbol string, interval time.Duration, limit uint) ([]candlescommon.KLine, error) {
+func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
 
-	lastKlines := providers.GetKlines(symbol, "1h", 0, 0)
+	lastKlines := providers.GetKlines(symbol, interval, 0, 0)
 
-	return lastKlines, nil
+	if len(lastKlines) >= limit {
+		return lastKlines[:limit], nil
+	}
+
+	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
+	FROM public.tran_candles_%s WHERE openTime < $1 ORDER BY openTime ASC LIMIT %d`, interval, limit-len(lastKlines)), lastKlines[1].OpenTime)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fetchedKlines := make([]candlescommon.KLine, 0)
+
+	for rows.Next() {
+
+		kline := candlescommon.KLine{}
+
+		err = rows.Scan(&kline.Symbol, &kline.OpenTime, &kline.CloseTime, &kline.PrevCloseCandleTimestamp, &kline.OpenPrice, &kline.ClosePrice, &kline.LowPrice, &kline.HighPrice)
+
+		if err != nil {
+
+			rows.Close()
+			return nil, err
+		}
+
+		fetchedKlines = append(fetchedKlines, kline)
+
+	}
+
+	rows.Close()
+
+	return fetchedKlines, nil
 
 }
 
