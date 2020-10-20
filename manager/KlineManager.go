@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
@@ -28,8 +27,8 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		return fetchedKlines[:limit], nil
 	}
 
-	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
-	FROM public.tran_candles_%s WHERE "openTime" < $1 ORDER BY "openTime" ASC LIMIT %d`, interval, limit-len(fetchedKlines)), fetchedKlines[len(fetchedKlines)-1].OpenTime)
+	/*rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT * FROM (SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
+	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d) as "tt" ORDER BY "openTime" ASC`, interval, limit-len(fetchedKlines)),symbol, fetchedKlines[len(fetchedKlines)-1].OpenTime)
 
 	if err != nil {
 		return nil, err
@@ -51,7 +50,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	}
 
-	rows.Close()
+	rows.Close()*/
 
 	if len(fetchedKlines) < limit {
 
