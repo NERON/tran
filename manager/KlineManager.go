@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
@@ -19,20 +20,27 @@ func getClosestInterval(interval string) (string, time.Duration) {
 	return "", 1000000 * time.Hour
 }
 
-func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
+func GetLastKLines(symbol string, interval string, limit int) ([]uint64, error) {
 
 	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
 
 	if len(fetchedKlines) >= limit {
-		return fetchedKlines[:limit], nil
+		//return fetchedKlines[:limit], nil
 	}
 
-	/*rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT * FROM (SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
-	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d) as "tt" ORDER BY "openTime" ASC`, interval, limit-len(fetchedKlines)),symbol, fetchedKlines[len(fetchedKlines)-1].OpenTime)
+	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
+	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d`, interval, limit-len(fetchedKlines)), symbol, fetchedKlines[len(fetchedKlines)-1].OpenTime)
 
 	if err != nil {
 		return nil, err
 	}
+
+	databaseCandles := make([]candlescommon.KLine, 0)
+
+	var candleClose = uint64(0)
+	var prevOpenTime = uint64(0)
+
+	var gaps = make([]uint64, 0)
 
 	for rows.Next() {
 
@@ -46,19 +54,20 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 			return nil, err
 		}
 
-		fetchedKlines = append(fetchedKlines, kline)
+		if candleClose > 0 && kline.CloseTime != candleClose {
+			gaps = append(gaps, prevOpenTime)
+		}
+
+		candleClose = kline.PrevCloseCandleTimestamp
+		prevOpenTime = kline.OpenTime
+
+		databaseCandles = append(databaseCandles, kline)
 
 	}
 
-	rows.Close()*/
+	rows.Close()
 
-	if len(fetchedKlines) < limit {
-
-		_ = providers.GetKlines(symbol, interval, 0, fetchedKlines[len(fetchedKlines)-1].OpenTime-1, true)
-
-	}
-
-	return fetchedKlines, nil
+	return gaps, nil
 
 }
 
