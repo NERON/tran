@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"errors"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
@@ -20,14 +21,24 @@ func getClosestInterval(interval string) (string, time.Duration) {
 	return "", 1000000 * time.Hour
 }
 
+type DatabaseGap struct {
+	From uint64
+	To   uint64
+}
+
 func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
 
 	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
 
-	if len(fetchedKlines) >= limit {
-		//return fetchedKlines[:limit], nil
+	if len(fetchedKlines) == 0 {
+		return nil, errors.New("candles not found")
 	}
 
+	if len(fetchedKlines) >= limit {
+		return fetchedKlines[:limit], nil
+	}
+
+	//TODO: REMOVE TEST
 	fetchedKlines = fetchedKlines[:500]
 
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
@@ -42,7 +53,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 	var candleClose = uint64(0)
 	var prevOpenTime = uint64(0)
 
-	var gaps = make([]uint64, 0)
+	var gaps = make([]DatabaseGap, 0)
 
 	for rows.Next() {
 
@@ -57,7 +68,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		}
 
 		if candleClose > 0 && kline.CloseTime != candleClose {
-			gaps = append(gaps, prevOpenTime)
+			gaps = append(gaps, DatabaseGap{prevOpenTime, kline.OpenTime})
 		}
 
 		candleClose = kline.PrevCloseCandleTimestamp
@@ -70,6 +81,11 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 	rows.Close()
 
 	log.Println(gaps)
+
+	//if we have no data in database,or last fetched kline not in database list
+	if len(databaseCandles) == 0 || fetchedKlines[len(fetchedKlines)-1].OpenTime != databaseCandles[0].OpenTime {
+
+	}
 
 	return databaseCandles, nil
 
