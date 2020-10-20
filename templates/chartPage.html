@@ -36,7 +36,7 @@
 	<script type="text/javascript">
 	
 		var chartInited = false;
-		var centralRSI = 15;
+		var centralRSI = {{.centralRSI}};
 
 		function RSI(period) {
 
@@ -458,13 +458,14 @@
 		var symbol = "{{.Symbol}}";
 		var timeframe = "{{.Timeframe}}";
 
+
 		var chartData = null;
 
 
 		// based on prepared DOM, initialize echarts instance
 		var myChart = echarts.init(document.getElementById('main'));
 
-		$.getJSON("/chart/" + symbol + "/" + timeframe, function (data) {
+		$.getJSON("/chart/" + symbol + "/" + timeframe + "/" + centralRSI, function (data) {
 
 			chartData = data;
 

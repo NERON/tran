@@ -19,13 +19,14 @@ import (
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 	type Data struct {
-		Symbol    string
-		Timeframe string
+		Symbol     string
+		Timeframe  string
+		CentralRSI string
 	}
 
 	vars := mux.Vars(r)
 
-	TemplateManager.ExecuteTemplate(w, "chartPage.html", Data{vars["symbol"], vars["interval"]})
+	TemplateManager.ExecuteTemplate(w, "chartPage.html", Data{vars["symbol"], vars["interval"], vars["centralRSI"]})
 }
 func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -209,6 +210,12 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		vars["interval"] = "1w"
 	}
 
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
+	if centralRSI == 0 {
+		centralRSI = 20
+	}
+
 	endTimestamp := uint64(0)
 
 	if len(r.URL.Query()["endTimestamp"]) > 0 {
@@ -259,7 +266,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, 15)
+			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
 		}
 
