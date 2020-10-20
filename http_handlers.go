@@ -128,7 +128,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if ok {
 
-				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 15)
+				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 20)
 				sequence = append(sequence, bestPeriod)
 
 				RSIValMap[fmt.Sprintf("%.1f", rsiVal)]++
