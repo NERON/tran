@@ -93,9 +93,16 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	}
 
-	log.Println(gaps)
+	for _, gap := range gaps {
 
-	return databaseCandles, nil
+		receivedKlines := providers.GetKlines(symbol, interval, 0, gap.From, true)
+
+		log.Println(receivedKlines[0])
+
+		break
+	}
+
+	return fetchedKlines, nil
 
 }
 
