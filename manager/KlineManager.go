@@ -26,23 +26,13 @@ type DatabaseGap struct {
 	To   uint64
 }
 
-func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
-
-	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
-
-	if len(fetchedKlines) == 0 {
-		return nil, errors.New("candles not found")
-	}
-
-	if len(fetchedKlines) >= limit {
-		return fetchedKlines[:limit], nil
-	}
+func getKlinesFromDatabase(symbol string, interval string, endTimestamp uint64, limit int) ([]candlescommon.KLine, []DatabaseGap, error) {
 
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
-	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d`, interval, limit-len(fetchedKlines)), symbol, fetchedKlines[len(fetchedKlines)-1].OpenTime)
+	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d`, interval, limit), symbol, endTimestamp)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	databaseCandles := make([]candlescommon.KLine, 0)
@@ -61,7 +51,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		if err != nil {
 
 			rows.Close()
-			return nil, err
+			return nil, nil, err
 		}
 
 		if candleClose > 0 && kline.CloseTime != candleClose {
@@ -77,26 +67,35 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	rows.Close()
 
-	//if we have no data in database,or last fetched kline not in database list
-	if len(databaseCandles) == 0 || fetchedKlines[len(fetchedKlines)-1].OpenTime != databaseCandles[0].OpenTime {
+	return databaseCandles, gaps, nil
 
-		gap := DatabaseGap{From: fetchedKlines[len(fetchedKlines)-1].OpenTime}
+}
 
-		if len(databaseCandles) > 0 {
-			gap.To = databaseCandles[0].OpenTime
-		}
+func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
 
-		gaps = append([]DatabaseGap{gap}, gaps...)
+	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
+
+	if len(fetchedKlines) == 0 {
+		return nil, errors.New("candles not found")
+	}
+
+	if len(fetchedKlines) >= limit {
+		return fetchedKlines[:limit], nil
+	}
+
+	lastTime := fetchedKlines[len(fetchedKlines)-1].OpenTime
+	databaseKlines, gaps, err := getKlinesFromDatabase(symbol, interval, lastTime, limit-len(fetchedKlines))
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(databaseKlines) == 0 || databaseKlines[0].OpenTime != lastTime {
 
 	}
 
-	for _, gap := range gaps {
+	if len(gaps) > 0 {
 
-		receivedKlines := providers.GetKlines(symbol, interval, 0, gap.From, true)
-
-		log.Println(receivedKlines[0])
-
-		break
 	}
 
 	return fetchedKlines, nil
