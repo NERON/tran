@@ -20,7 +20,7 @@ func getClosestInterval(interval string) (string, time.Duration) {
 	return "", 1000000 * time.Hour
 }
 
-func GetLastKLines(symbol string, interval string, limit int) ([]uint64, error) {
+func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
 
 	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
 
@@ -69,7 +69,9 @@ func GetLastKLines(symbol string, interval string, limit int) ([]uint64, error) 
 
 	rows.Close()
 
-	return gaps, nil
+	log.Println(gaps)
+
+	return databaseCandles, nil
 
 }
 
