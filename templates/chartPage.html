@@ -488,7 +488,7 @@
 
 			chartInited = false;
 
-			$.getJSON("/chart/" + symbol + "/" + timeframe + "?endTimestamp=" + (chartData[0].OpenTime - 1), function (data) {
+			$.getJSON("/chart/" + symbol + "/" + timeframe + "/" + centralRSI + "?endTimestamp=" + (chartData[0].OpenTime - 1), function (data) {
 
 				chartData = data.concat(chartData);
 
