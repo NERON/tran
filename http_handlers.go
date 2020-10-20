@@ -291,7 +291,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	klines, err := manager.GetLastKLines("ETHUSDT", "12h", 3000)
+	klines, err := manager.GetLastKLines("ETHUSDT", "1h", 3000)
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
