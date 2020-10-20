@@ -92,7 +92,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	for _, gap := range gaps {
 
-		receivedKlines := providers.GetKlines(symbol, interval, 0, gap.From-1, true)
+		receivedKlines := providers.GetKlines(symbol, interval, 0, gap.From, true)
 
 		log.Println(receivedKlines[1])
 
