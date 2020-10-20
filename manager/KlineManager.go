@@ -68,7 +68,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		}
 
 		if candleClose > 0 && kline.CloseTime != candleClose {
-			gaps = append(gaps, DatabaseGap{prevOpenTime, kline.OpenTime})
+			gaps = append(gaps, DatabaseGap{kline.OpenTime, prevOpenTime})
 		}
 
 		candleClose = kline.PrevCloseCandleTimestamp
@@ -84,7 +84,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	//if we have no data in database,or last fetched kline not in database list
 	if len(databaseCandles) == 0 || fetchedKlines[len(fetchedKlines)-1].OpenTime != databaseCandles[0].OpenTime {
-
+		log.Println("Gap found")
 	}
 
 	return databaseCandles, nil
