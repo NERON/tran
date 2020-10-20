@@ -28,6 +28,8 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		//return fetchedKlines[:limit], nil
 	}
 
+	fetchedKlines = fetchedKlines[:500]
+
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
 	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d`, interval, limit-len(fetchedKlines)), symbol, fetchedKlines[len(fetchedKlines)-1].OpenTime)
 
