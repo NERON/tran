@@ -93,6 +93,8 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 	}
 
+	log.Println(gaps)
+
 	return databaseCandles, nil
 
 }
