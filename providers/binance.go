@@ -44,7 +44,7 @@ func GetKlines(symbol string, interval string, startTimestamp uint64, endTimesta
 
 	result := make([]candlescommon.KLine, 0)
 
-	for i := 0; i < 9; i++ {
+	for i := 0; i < 3; i++ {
 
 		urlS := fmt.Sprintf("https://api.binance.com/api/v1/klines?symbol=%s&interval=%s&limit=1000", symbol, interval)
 
