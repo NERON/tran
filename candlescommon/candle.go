@@ -56,3 +56,36 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 
 	return newKlines
 }
+
+func HoursGroupKline(klines []KLine, hours uint64) []KLine {
+
+	groupedKlines := make([]KLine, 0)
+
+	currentKline := klines[0]
+
+	for i := 1; i < len(klines); i++ {
+
+		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[i].HighPrice)
+		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[i].LowPrice)
+
+		currentKline.BaseVolume += klines[i].BaseVolume
+		currentKline.TakerBuyBaseVolume += klines[i].TakerBuyBaseVolume
+		currentKline.QuoteVolume += klines[i].QuoteVolume
+		currentKline.TakerBuyQuoteVolume += klines[i].TakerBuyQuoteVolume
+
+		if klines[i].OpenTime%(hours*3600*1000) == 0 {
+
+			currentKline.OpenTime = klines[i].OpenTime
+			currentKline.OpenPrice = klines[i].OpenPrice
+
+		} else if klines[i].OpenTime%(hours*3600*1000) == (hours-1)*3600*1000 {
+
+			currentKline.PrevCloseCandleTimestamp = klines[i].CloseTime
+			groupedKlines = append(groupedKlines, currentKline)
+			currentKline = klines[i]
+		}
+	}
+
+	return groupedKlines
+
+}

@@ -90,8 +90,29 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		return nil, err
 	}
 
+	databaseIndex := 0
+
 	if len(databaseKlines) == 0 || databaseKlines[0].OpenTime != lastTime {
 
+		afterKlines := providers.GetKlines(symbol, interval, 0, lastTime, true)
+
+		if len(afterKlines) == 0 {
+			return nil, errors.New("can't get data")
+		}
+
+		if fetchedKlines[lastTime].OpenTime != afterKlines[0].OpenTime {
+			return nil, errors.New("wrong data get")
+		}
+
+		fetchedKlines[lastTime].PrevCloseCandleTimestamp = afterKlines[0].PrevCloseCandleTimestamp
+
+		for i := 1; i < len(afterKlines); i++ {
+
+			if len(databaseKlines) > 0 && databaseKlines[databaseIndex].OpenTime == afterKlines[i].OpenTime {
+				databaseIndex++
+			}
+
+		}
 	}
 
 	if len(gaps) > 0 {

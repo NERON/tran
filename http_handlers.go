@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
-	"github.com/NERON/tran/manager"
 	"github.com/NERON/tran/providers"
 	"github.com/gorilla/mux"
 	"log"
@@ -298,13 +297,15 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	klines, err := manager.GetLastKLines("ETHUSDT", "1h", 3000)
+	klines := providers.GetKlines("ETHUSDT", "1h", 0, 0, true)
 
-	if err != nil {
+	/*if err != nil {
 		w.Write([]byte(err.Error()))
-	}
+	}*/
 
-	byte, _ := json.Marshal(klines)
+	newKlines := candlescommon.HoursGroupKline(klines, 3)
+
+	byte, _ := json.Marshal(newKlines)
 
 	w.Write(byte)
 }
