@@ -209,6 +209,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		vars["interval"] = "1w"
 	}
 
+	if interval == "3h" {
+		vars["interval"] = "1h"
+	}
+
 	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
 
 	if centralRSI == 0 {
