@@ -304,8 +304,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	}*/
 
 	newKlines := candlescommon.HoursGroupKlineAsc(klines, 3)
+	newKlines = append(newKlines, candlescommon.KLine{})
+	mKlines := providers.GetKlines("ETHUSDT", "1h", 0, newKlines[0].OpenTime-1, false)
+	mergKlines := candlescommon.HoursGroupKlineAsc(mKlines, 3)
 
-	byte, _ := json.Marshal(newKlines)
+	byte, _ := json.Marshal(append(newKlines, mergKlines...))
 
 	w.Write(byte)
 }
