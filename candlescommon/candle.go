@@ -94,3 +94,56 @@ func HoursGroupKline(klines []KLine, hours uint64) []KLine {
 	return groupedKlines
 
 }
+
+func HoursGroupKlineAsc(klines []KLine, hours uint64) []KLine {
+
+	groupedKlines := make([]KLine, 0)
+
+	i := 0
+
+	//iterate and skip all unfinished klines in the beginning
+	for i < len(klines) && klines[i].OpenTime%(hours*3600*1000) != 0 {
+		i++
+	}
+
+	var currentKline KLine
+	var prevCloseCandle uint64
+	var counter uint64
+
+	for ; i < len(klines); i++ {
+
+		if klines[i].OpenTime%(hours*3600*1000) == 0 {
+
+			if currentKline.OpenTime > 0 {
+				prevCloseCandle = currentKline.CloseTime
+				groupedKlines = append(groupedKlines, currentKline)
+			}
+
+			currentKline = klines[i]
+			currentKline.PrevCloseCandleTimestamp = prevCloseCandle
+			counter = 0
+			continue
+
+		}
+
+		currentKline.ClosePrice = klines[i].ClosePrice
+		currentKline.CloseTime = klines[i].CloseTime
+		currentKline.Closed = klines[i].Closed
+
+		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[i].HighPrice)
+		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[i].LowPrice)
+
+		currentKline.BaseVolume += klines[i].BaseVolume
+		currentKline.TakerBuyBaseVolume += klines[i].TakerBuyBaseVolume
+		currentKline.QuoteVolume += klines[i].QuoteVolume
+		currentKline.TakerBuyQuoteVolume += klines[i].TakerBuyQuoteVolume
+		counter++
+
+	}
+
+	if currentKline.Closed == false || counter == (hours-1) {
+		groupedKlines = append(groupedKlines, currentKline)
+	}
+
+	return groupedKlines
+}

@@ -297,13 +297,13 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	klines := providers.GetKlines("ETHUSDT", "1h", 0, 0, true)
+	klines := providers.GetKlines("ETHUSDT", "1h", 0, 0, false)
 
 	/*if err != nil {
 		w.Write([]byte(err.Error()))
 	}*/
 
-	newKlines := candlescommon.HoursGroupKline(klines, 3)
+	newKlines := candlescommon.HoursGroupKlineAsc(klines, 3)
 
 	byte, _ := json.Marshal(newKlines)
 
