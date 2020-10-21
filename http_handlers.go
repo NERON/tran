@@ -223,9 +223,17 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, endTimestamp, false)
 
+	if interval == "3h" {
+		candles = candlescommon.HoursGroupKlineAsc(candles, 3)
+	}
+
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1, false)
+
+	if interval == "3h" {
+		candlesOld = candlescommon.HoursGroupKlineAsc(candlesOld, 3)
+	}
 
 	if interval == "2w" {
 		candles = candlescommon.GroupKline(candles, 2)
