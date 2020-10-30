@@ -88,7 +88,12 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	transitionMap := make(map[int]map[int]int)
 
-	counterMap := make(map[int]int)
+	type CounterVal struct {
+		Counter   uint64
+		LastKline candlescommon.KLine
+	}
+
+	counterMap := make(map[int]CounterVal)
 
 	symbols := []string{"BTCUSDT", "ETHUSDT", "LTCUSDT"}
 
@@ -121,6 +126,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		sequence := make([]int, 0)
+		klinesSeq := make([]candlescommon.KLine, 0)
 
 		for idx, candle := range candles {
 
@@ -130,6 +136,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 15)
 				sequence = append(sequence, bestPeriod)
+				klinesSeq = append(klinesSeq, candle)
 
 				RSIValMap[fmt.Sprintf("%.1f", rsiVal)]++
 			}
@@ -142,7 +149,10 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			j := i + 1
 
-			counterMap[sequence[i]]++
+			counterV := counterMap[sequence[i]]
+			counterV.Counter += 1
+			counterV.LastKline = klinesSeq[i]
+			counterMap[sequence[i]] = counterV
 
 			for j < len(sequence) && sequence[i] > sequence[j] {
 				j++
