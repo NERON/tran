@@ -90,9 +90,13 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 		return nil, err
 	}
 
+	log.Println("gaps:", len(gaps))
+
 	databaseIndex := 0
 
 	if len(databaseKlines) == 0 || databaseKlines[0].OpenTime != lastTime {
+
+		log.Println("database has no klines")
 
 		afterKlines := providers.GetKlines(symbol, interval, 0, lastTime, true)
 
