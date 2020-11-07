@@ -139,7 +139,10 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				sequence = append(sequence, bestPeriod)
 				klinesSeq = append(klinesSeq, candle)
 
-				RSIValMap[fmt.Sprintf("%.1f", rsiVal)]++
+				if bestPeriod > 2 {
+					RSIValMap[fmt.Sprintf("%.1f", rsiVal)]++
+				}
+
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
