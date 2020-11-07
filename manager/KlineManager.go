@@ -108,7 +108,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 			return nil, errors.New("wrong data get")
 		}
 
-		fetchedKlines[lastTime].PrevCloseCandleTimestamp = afterKlines[0].PrevCloseCandleTimestamp
+		fetchedKlines[len(fetchedKlines)-1].PrevCloseCandleTimestamp = afterKlines[0].PrevCloseCandleTimestamp
 
 		for i := 1; i < len(afterKlines); i++ {
 
