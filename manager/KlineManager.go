@@ -104,7 +104,7 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 			return nil, errors.New("can't get data")
 		}
 
-		if fetchedKlines[lastTime].OpenTime != afterKlines[0].OpenTime {
+		if lastTime != afterKlines[0].OpenTime {
 			return nil, errors.New("wrong data get")
 		}
 
