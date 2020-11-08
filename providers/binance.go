@@ -237,3 +237,49 @@ func GetKlinesTest(symbol string, interval string, startTimestamp uint64, endTim
 	return result
 
 }
+
+func GetAvailableSymbols() ([]string, error) {
+
+	resp, err := http.Get("https://api.binance.com/api/v3/exchangeInfo")
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = resp.Body.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	type SymbolInfoJSON struct {
+		Symbol string `json:"symbol"`
+	}
+
+	type ExchangeInfoJSON struct {
+		Symbols []SymbolInfoJSON `json:"symbols"`
+	}
+
+	exchangeInfo := ExchangeInfoJSON{}
+
+	err = json.Unmarshal(body, &exchangeInfo)
+
+	if err != nil {
+		return nil, err
+	}
+
+	symbolsNames := make([]string, 0)
+
+	for _, symbol := range exchangeInfo.Symbols {
+		symbolsNames = append(symbolsNames, symbol.Symbol)
+	}
+
+	return symbolsNames, nil
+
+}
