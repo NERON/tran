@@ -233,6 +233,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		vars["interval"] = "1h"
 	}
 
+	if interval == "45m" {
+		vars["interval"] = "15m"
+	}
+
 	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
 
 	if centralRSI == 0 {
@@ -251,12 +255,20 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		candles = candlescommon.HoursGroupKlineAsc(candles, 3)
 	}
 
+	if interval == "45m" {
+		candles = candlescommon.MinutesGroupKlineAsc(candles, 15, 45)
+	}
+
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1, false)
 
 	if interval == "3h" {
 		candlesOld = candlescommon.HoursGroupKlineAsc(candlesOld, 3)
+	}
+
+	if interval == "45m" {
+		candlesOld = candlescommon.MinutesGroupKlineAsc(candlesOld, 15, 45)
 	}
 
 	if interval == "2w" {
