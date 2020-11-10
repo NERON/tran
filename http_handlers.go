@@ -237,6 +237,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		vars["interval"] = "15m"
 	}
 
+	if interval == "288m" {
+		vars["interval"] = "3m"
+	}
+
 	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
 
 	if centralRSI == 0 {
@@ -258,6 +262,9 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if interval == "45m" {
 		candles = candlescommon.MinutesGroupKlineAsc(candles, 15, 45)
 	}
+	if interval == "288m" {
+		candles = candlescommon.MinutesGroupKlineAsc(candles, 3, 288)
+	}
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
@@ -269,6 +276,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	if interval == "45m" {
 		candlesOld = candlescommon.MinutesGroupKlineAsc(candlesOld, 15, 45)
+	}
+
+	if interval == "288m" {
+		candlesOld = candlescommon.MinutesGroupKlineAsc(candles, 3, 288)
 	}
 
 	if interval == "2w" {
