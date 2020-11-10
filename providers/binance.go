@@ -15,6 +15,17 @@ type BinanceProvider struct {
 	baseUrl string
 }
 
+func GetSupportedTimeframes() map[string][]uint {
+
+	return map[string][]uint{
+		"m": {1, 3, 5, 15, 30},
+		"h": {1, 2, 4, 6, 8, 12},
+		"d": {1, 3},
+		"w": {1},
+		"M": {1},
+	}
+}
+
 func NewStandardBinanceProvider() BinanceProvider {
 
 	return BinanceProvider{

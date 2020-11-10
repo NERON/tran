@@ -15,11 +15,14 @@ func OpenDatabaseConnection() error {
 	return err
 }
 
-func InitializeDatabase(Intervals []string) {
+func InitializeDatabase() {
 
-	for _, interval := range Intervals {
+	timeframes := GetDatabaseSupportedTimeframes()
 
-		DatabaseManager.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.tran_candles_%s 
+	for letter := range timeframes {
+
+		for _, value := range timeframes[letter] {
+			DatabaseManager.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.tran_candles_%d 
 (
     symbol character varying COLLATE pg_catalog."default" NOT NULL,
     "openTime" bigint NOT NULL,
@@ -33,7 +36,20 @@ func InitializeDatabase(Intervals []string) {
     "quoteVolume" double precision,
     "takerVolume" double precision,
     "takerQuoteVolume" double precision,
-    CONSTRAINT primary_%s PRIMARY KEY (symbol, "openTime")
-)`, interval, interval))
+    CONSTRAINT primary_%d PRIMARY KEY (symbol, "openTime")
+)`, value, value))
+
+		}
+	}
+
+}
+func GetDatabaseSupportedTimeframes() map[string][]uint {
+
+	return map[string][]uint{
+		"m": {3, 5, 15, 72},
+		"h": {1, 2, 4, 6, 8, 12},
+		"d": {1, 3},
+		"w": {1},
+		"M": {1},
 	}
 }
