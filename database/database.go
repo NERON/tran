@@ -22,7 +22,7 @@ func InitializeDatabase() {
 	for letter := range timeframes {
 
 		for _, value := range timeframes[letter] {
-			DatabaseManager.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.tran_candles_%d 
+			DatabaseManager.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.tran_candles_%d%s 
 (
     symbol character varying COLLATE pg_catalog."default" NOT NULL,
     "openTime" bigint NOT NULL,
@@ -36,8 +36,8 @@ func InitializeDatabase() {
     "quoteVolume" double precision,
     "takerVolume" double precision,
     "takerQuoteVolume" double precision,
-    CONSTRAINT primary_%d PRIMARY KEY (symbol, "openTime")
-)`, value, value))
+    CONSTRAINT primary_%d%s PRIMARY KEY (symbol, "openTime")
+)`, value, letter, value, letter))
 
 		}
 	}
