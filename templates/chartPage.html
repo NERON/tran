@@ -472,10 +472,11 @@
     myChart.on('click', function (params) {
 
         if (params.seriesName == "cnd_data") {
-            $('#FromCandle').val(reverseRSIValsNext[params.data[0]] - reverseRSIValsNext[params.data[0]]);
+            $('#FromCandle').val(params.data[0]);
+            $('.priceValue').text(reverseRSIValsNext[params.data[0]] - reverseRSIValsNext[params.data[0]])
 
         } else {
-            $('.priceValue').text(params.data)
+
             navigator.clipboard.writeText(params.data)
         }
 
