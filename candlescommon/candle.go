@@ -20,6 +20,11 @@ type KLine struct {
 	Closed                   bool
 }
 
+type Interval struct {
+	Letter   string
+	Duration uint
+}
+
 func GroupKline(klines []KLine, groupCount int) []KLine {
 
 	newKlines := make([]KLine, 0)

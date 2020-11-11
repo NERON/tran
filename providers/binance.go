@@ -1,15 +1,19 @@
 package providers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
+	"golang.org/x/time/rate"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
+
+var limiter = rate.NewLimiter(rate.Limit(10), 1)
 
 type BinanceProvider struct {
 	baseUrl string
@@ -248,7 +252,94 @@ func GetKlinesTest(symbol string, interval string, startTimestamp uint64, endTim
 	return result
 
 }
+func GetKlinesNew(symbol string, interval string, startTimestamp uint64, endTimestamp uint64) []candlescommon.KLine {
 
+	limiter.Wait(context.Background())
+
+	result := make([]candlescommon.KLine, 0)
+
+	urlS := fmt.Sprintf("https://api.binance.com/api/v1/klines?symbol=%s&interval=%s&limit=1000", symbol, interval)
+
+	if endTimestamp > 0 {
+
+		urlS = fmt.Sprintf(urlS+"&endTime=%d", endTimestamp)
+	}
+
+	if startTimestamp > 0 {
+
+		urlS = fmt.Sprintf(urlS+"&startTime=%d", startTimestamp)
+	}
+
+	resp, err := http.Get(urlS)
+
+	if err != nil {
+
+		log.Fatal("Get error: ", err.Error())
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+
+	klines := make([]interface{}, 0)
+
+	err = json.Unmarshal(body, &klines)
+
+	if err != nil {
+
+		log.Fatal("Get error: ", err.Error())
+	}
+
+	for j := len(klines) - 1; j > 0; j-- {
+
+		data := klines[j]
+
+		k := data.([]interface{})
+
+		kline := candlescommon.KLine{}
+		kline.Symbol = symbol
+		kline.OpenTime = uint64(k[0].(float64))
+		kline.OpenPrice = toFloat(k[1].(string))
+		kline.HighPrice = toFloat(k[2].(string))
+		kline.LowPrice = toFloat(k[3].(string))
+		kline.ClosePrice = toFloat(k[4].(string))
+		kline.BaseVolume = toFloat(k[5].(string))
+		kline.CloseTime = uint64(k[6].(float64))
+		kline.QuoteVolume = toFloat(k[7].(string))
+		kline.TakerBuyBaseVolume = toFloat(k[9].(string))
+		kline.TakerBuyQuoteVolume = toFloat(k[10].(string))
+		kline.Closed = true
+
+		if len(result) > 0 {
+
+			result[len(result)-1].PrevCloseCandleTimestamp = kline.CloseTime
+		}
+
+		result = append(result, kline)
+
+	}
+
+	if len(result) == 0 || len(klines) == 0 {
+		return nil
+	}
+
+	endTimestamp = result[len(result)-1].OpenTime - 1
+
+	itemCount := len(result)
+
+	for i := 0; i < itemCount/2; i++ {
+
+		mirrorIdx := itemCount - i - 1
+		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
+
+	}
+
+	if len(result) > 0 {
+		result[len(result)-1].Closed = false
+	}
+
+	return result
+
+}
 func GetAvailableSymbols() ([]string, error) {
 
 	resp, err := http.Get("https://api.binance.com/api/v3/exchangeInfo")
