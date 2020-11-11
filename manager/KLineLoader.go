@@ -36,23 +36,23 @@ func GetFirstKlineForSymbol(symbol string, timeframe string) (uint64, error) {
 
 func LoadKlinesToDatabase(symbol string, interval candlescommon.Interval, up bool) {
 
-	timestamp := uint64(0)
+	startTimestamp := uint64(0)
+	endTimestamp := uint64(0)
 
 	var err error
 
 	//get first or latest save kline in database
 	if up {
 
-		timestamp, err = GetLastKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+		startTimestamp, err = GetLastKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
 
 	} else {
 
-		timestamp, err = GetFirstKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+		endTimestamp, err = GetFirstKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
 	}
 
 	if err != nil {
 		log.Fatal("error", err.Error())
-		//TODO: handle issue
 		return
 	}
 
@@ -68,9 +68,18 @@ func LoadKlinesToDatabase(symbol string, interval candlescommon.Interval, up boo
 	}
 
 	if optimalTimeFrame == 0 {
-		log.Fatal("Not supported")
+		return
 	}
 
-	log.Println("Choosed interval:", optimalTimeFrame, timestamp)
+	klines := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", optimalTimeFrame, interval.Letter), startTimestamp, endTimestamp)
+
+	if len(klines) == 0 {
+		log.Println("Klines nil")
+		return
+	}
+
+	klines = candlescommon.MinutesGroupKlineAsc(klines, uint64(optimalTimeFrame), uint64(interval.Duration))
+
+	log.Println(klines)
 
 }

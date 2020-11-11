@@ -322,8 +322,6 @@ func GetKlinesNew(symbol string, interval string, startTimestamp uint64, endTime
 		return nil
 	}
 
-	endTimestamp = result[len(result)-1].OpenTime - 1
-
 	itemCount := len(result)
 
 	for i := 0; i < itemCount/2; i++ {
