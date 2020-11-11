@@ -353,6 +353,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	manager.LoadKlinesToDatabase("ETHUSDT", candlescommon.Interval{Duration: 144, Letter: "m"}, false)
+	manager.LoadKlinesToDatabase("ETHUSDT", candlescommon.Interval{Duration: 72, Letter: "m"}, false)
 
 }
