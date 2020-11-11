@@ -13,7 +13,7 @@ func GetLastKlineForSymbol(symbol string, timeframe string) (uint64, error) {
 
 	timestamp := uint64(0)
 
-	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT "openTime" FROM public.tran_candles_%s WHERE symbol ='$1' ORDER BY "openTime" DESC LIMIT 1;`, timeframe), symbol).Scan(&timestamp)
+	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT "openTime" FROM public.tran_candles_%s WHERE symbol =$1 ORDER BY "openTime" DESC LIMIT 1;`, timeframe), symbol).Scan(&timestamp)
 
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
@@ -25,7 +25,7 @@ func GetFirstKlineForSymbol(symbol string, timeframe string) (uint64, error) {
 
 	timestamp := uint64(0)
 
-	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT "openTime" FROM public.tran_candles_%s WHERE symbol ='$1' ORDER BY "openTime" ASC LIMIT 1;`, timeframe), symbol).Scan(&timestamp)
+	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT "openTime" FROM public.tran_candles_%s WHERE symbol =$1 ORDER BY "openTime" ASC LIMIT 1;`, timeframe), symbol).Scan(&timestamp)
 
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
