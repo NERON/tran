@@ -51,6 +51,7 @@ func LoadKlinesToDatabase(symbol string, interval candlescommon.Interval, up boo
 	}
 
 	if err != nil {
+		log.Fatal("error", err.Error())
 		//TODO: handle issue
 		return
 	}
