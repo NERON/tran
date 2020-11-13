@@ -362,7 +362,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		klines, err = providers.GetLastKlines("ETHUSDT", "1h")
 	} else {
 
-		direction, _ := strconv.ParseUint(vars["time"], 10, 64)
+		direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
 
 		if direction == 0 {
 			klines, err = providers.GetKlinesNew("ETHUSDT", "1h", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
