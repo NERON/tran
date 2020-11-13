@@ -8,15 +8,21 @@ import (
 	"golang.org/x/time/rate"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-var limiter = rate.NewLimiter(rate.Limit(10), 1)
+var limiter = rate.NewLimiter(rate.Limit(15), 3)
 
 type BinanceProvider struct {
 	baseUrl string
+}
+
+type GetKlineRange struct {
+	Direction     uint
+	FromTimestamp uint64
 }
 
 func GetSupportedTimeframes() map[string][]uint {
@@ -252,29 +258,66 @@ func GetKlinesTest(symbol string, interval string, startTimestamp uint64, endTim
 	return result
 
 }
-func GetKlinesNew(symbol string, interval string, startTimestamp uint64, endTimestamp uint64) []candlescommon.KLine {
+func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error) {
+
+	klines, err := getKline(symbol, interval, GetKlineRange{Direction: 1, FromTimestamp: 0})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(klines) == 0 {
+		return klines, nil
+	}
+
+	return klines[:len(klines)-1], nil
+
+}
+
+func GetKlinesNew(symbol string, interval string, ranges GetKlineRange) ([]candlescommon.KLine, error) {
+
+	klines, err := getKline(symbol, interval, ranges)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(klines) == 0 {
+		return klines, nil
+	}
+
+	//if last kline is set to closed we should remove it, because we don't know about it's real state
+	if klines[0].Closed {
+		klines = klines[1:]
+	}
+
+	//if kline with smallest open time has prevCloseCandle equals 0, we should remove them
+	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
+		klines = klines[:len(klines)-1]
+	}
+
+	return klines, nil
+}
+func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlescommon.KLine, error) {
 
 	limiter.Wait(context.Background())
 
-	result := make([]candlescommon.KLine, 0)
-
 	urlS := fmt.Sprintf("https://api.binance.com/api/v1/klines?symbol=%s&interval=%s&limit=1000", symbol, interval)
 
-	if endTimestamp > 0 {
+	if ranges.Direction == 0 {
 
-		urlS = fmt.Sprintf(urlS+"&endTime=%d", endTimestamp)
-	}
+		urlS = fmt.Sprintf(urlS+"&endTime=%d", ranges.FromTimestamp)
 
-	if startTimestamp > 0 {
+	} else if ranges.Direction == 1 {
 
-		urlS = fmt.Sprintf(urlS+"&startTime=%d", startTimestamp)
+		urlS = fmt.Sprintf(urlS+"&startTime=%d", ranges.FromTimestamp)
 	}
 
 	resp, err := http.Get(urlS)
 
 	if err != nil {
 
-		log.Fatal("Get error: ", err.Error())
+		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -286,7 +329,13 @@ func GetKlinesNew(symbol string, interval string, startTimestamp uint64, endTime
 
 	if err != nil {
 
-		log.Fatal("Get error: ", err.Error())
+		return nil, err
+	}
+
+	result := make([]candlescommon.KLine, 0)
+
+	if len(klines) == 0 {
+		return result, nil
 	}
 
 	for j := len(klines) - 1; j > 0; j-- {
@@ -318,26 +367,20 @@ func GetKlinesNew(symbol string, interval string, startTimestamp uint64, endTime
 
 	}
 
-	if len(result) == 0 || len(klines) == 0 {
-		return nil
+	//if we fetch last klines, or result no more than 1000, we reach the end
+	if ranges.Direction == 1 && (ranges.FromTimestamp == 0 || len(result) < 1000) {
+		result[0].Closed = false
 	}
 
-	itemCount := len(result)
-
-	for i := 0; i < itemCount/2; i++ {
-
-		mirrorIdx := itemCount - i - 1
-		result[i], result[mirrorIdx] = result[mirrorIdx], result[i]
-
+	//if we fetch old klines and
+	if ranges.Direction == 0 && len(result) < 1000 {
+		result[len(result)-1].PrevCloseCandleTimestamp = math.MaxUint64
 	}
 
-	if len(result) > 0 {
-		result[len(result)-1].Closed = false
-	}
-
-	return result
+	return result, nil
 
 }
+
 func GetAvailableSymbols() ([]string, error) {
 
 	resp, err := http.Get("https://api.binance.com/api/v3/exchangeInfo")
