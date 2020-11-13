@@ -287,14 +287,14 @@ func GetKlinesNew(symbol string, interval string, ranges GetKlineRange) ([]candl
 	}
 
 	//if last kline is set to closed we should remove it, because we don't know about it's real state
-	if klines[0].Closed {
+	/*if klines[0].Closed {
 		klines = klines[1:]
 	}
 
 	//if kline with smallest open time has prevCloseCandle equals 0, we should remove them
 	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
 		klines = klines[:len(klines)-1]
-	}
+	}*/
 
 	return klines, nil
 }
