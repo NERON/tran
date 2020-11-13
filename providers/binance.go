@@ -308,7 +308,7 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 
 		urlS = fmt.Sprintf(urlS+"&endTime=%d", ranges.FromTimestamp)
 
-	} else if ranges.Direction == 1 {
+	} else if ranges.Direction == 1 && ranges.FromTimestamp > 0 {
 
 		urlS = fmt.Sprintf(urlS+"&startTime=%d", ranges.FromTimestamp)
 	}
