@@ -338,7 +338,7 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 		return result, nil
 	}
 
-	for j := len(klines) - 1; j > 0; j-- {
+	for j := len(klines) - 1; j >= 0; j-- {
 
 		data := klines[j]
 
