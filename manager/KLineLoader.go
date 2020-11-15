@@ -79,9 +79,12 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 		return
 	}
 
+	//generare interval string
+	intervalString := fmt.Sprintf("%d%s", timeframe, interval.Letter)
+
 	if latestDBKlines == 0 {
 
-		klines, _ := providers.GetLastKlines(symbol, fmt.Sprintf("%d%s", timeframe, interval.Letter))
+		klines, _ := providers.GetLastKlines(symbol, intervalString)
 
 		if interval.Letter == "h" {
 			klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration))
@@ -92,6 +95,27 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 		SaveCandles(klines, interval)
 
 	} else {
+
+		for {
+
+			loadedKlines, _ := providers.GetKlinesNew(symbol, intervalString, providers.GetKlineRange{FromTimestamp: latestDBKlines, Direction: 1})
+
+			if len(loadedKlines) == 0 {
+				break
+			}
+
+			for i := 0; i < len(loadedKlines)/2; i++ {
+				j := len(loadedKlines) - i - 1
+				loadedKlines[i], loadedKlines[j] = loadedKlines[j], loadedKlines[i]
+			}
+
+			SaveCandles(loadedKlines, interval)
+
+			if loadedKlines[len(loadedKlines)-1].Closed == false {
+				break
+			}
+
+		}
 
 	}
 }
