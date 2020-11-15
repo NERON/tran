@@ -6,6 +6,7 @@ import (
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
+	"log"
 )
 
 func GetLastKlineForSymbol(symbol string, timeframe string) (uint64, error) {
@@ -74,6 +75,7 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 
 	//check for database error
 	if err != nil {
+		log.Println(err.Error())
 		return
 	}
 
@@ -87,7 +89,7 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 			klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration))
 		}
 
-		SaveCandles(klines)
+		SaveCandles(klines, interval)
 
 	} else {
 

@@ -127,12 +127,12 @@ func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.K
 
 }
 
-func SaveCandles(klines []candlescommon.KLine) {
+func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) {
 
 	t := time.Now()
 
-	stmt, err := database.DatabaseManager.Prepare(`INSERT INTO public.tran_candles_1h(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;`)
+	stmt, err := database.DatabaseManager.Prepare(fmt.Sprintf(`INSERT INTO public.tran_candles_%d%s(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;`, interval.Duration, interval.Letter))
 
 	if err != nil {
 
