@@ -104,6 +104,12 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 				break
 			}
 
+			if interval.Letter == "h" {
+				loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
+			} else if interval.Letter == "m" {
+				loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
+			}
+
 			for i := 0; i < len(loadedKlines)/2; i++ {
 				j := len(loadedKlines) - i - 1
 				loadedKlines[i], loadedKlines[j] = loadedKlines[j], loadedKlines[i]
