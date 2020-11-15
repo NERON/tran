@@ -376,7 +376,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	klines = candlescommon.MinutesGroupKlineDesc(klines, 6)
+	klines = candlescommon.MinutesGroupKlineDesc(klines, 72)
 
 	byte, _ := json.Marshal(klines)
 
