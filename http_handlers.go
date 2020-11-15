@@ -355,36 +355,43 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	/*vars := mux.Vars(r)
-	time, _ := strconv.ParseUint(vars["time"], 10, 64)
+	/*
+		time, _ := strconv.ParseUint(vars["time"], 10, 64)
 
-	var klines []candlescommon.KLine
-	var err error
+		var klines []candlescommon.KLine
+		var err error
 
-	if time == 0 {
-		klines, err = providers.GetLastKlines("ETHUSDT", "3m")
-	} else {
-
-		direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
-
-		if direction == 0 {
-			klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
+		if time == 0 {
+			klines, err = providers.GetLastKlines("ETHUSDT", "3m")
 		} else {
-			klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 1, FromTimestamp: time})
+
+			direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
+
+			if direction == 0 {
+				klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
+			} else {
+				klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 1, FromTimestamp: time})
+			}
+
 		}
 
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		klines = candlescommon.MinutesGroupKlineDesc(klines, 72)
+
+		byte, _ := json.Marshal(klines)
+
+		w.Write(byte)*/
+
+	vars := mux.Vars(r)
+	direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
+
+	if direction == 0 {
+		manager.FillDatabaseWithPrevValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72}, 100)
+	} else {
+		manager.FillDatabaseToLatestValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72})
 	}
-
-	if err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-	klines = candlescommon.MinutesGroupKlineDesc(klines, 72)
-
-	byte, _ := json.Marshal(klines)
-
-	w.Write(byte)*/
-
-	manager.FillDatabaseToLatestValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72})
 
 }

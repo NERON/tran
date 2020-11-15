@@ -121,7 +121,54 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 				break
 			}
 
+			latestDBKlines = loadedKlines[len(loadedKlines)-1].OpenTime
+
 		}
 
 	}
+}
+func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
+
+	//choose optimal load timeframe
+	timeframe := GetOptimalLoadTimeframe(interval)
+
+	//get latest values in database
+	firstDBKline, err := GetFirstKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+
+	//check for database error
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if firstDBKline == 0 {
+		return
+	}
+
+	//generate interval string
+	intervalString := fmt.Sprintf("%d%s", timeframe, interval.Letter)
+
+	counter := uint(0)
+
+	for counter < limit {
+
+		loadedKlines, _ := providers.GetKlinesNew(symbol, intervalString, providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
+
+		if len(loadedKlines) == 0 {
+			break
+		}
+
+		if interval.Letter == "h" {
+			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
+		} else if interval.Letter == "m" {
+			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
+		}
+
+		SaveCandles(loadedKlines, interval)
+
+		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
+		counter += uint(len(loadedKlines))
+
+	}
+
 }
