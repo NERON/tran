@@ -6,7 +6,6 @@ import (
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
-	"log"
 )
 
 func GetLastKlineForSymbol(symbol string, timeframe string) (uint64, error) {
@@ -49,46 +48,48 @@ func GetOptimalLoadTimeframe(interval candlescommon.Interval) uint {
 
 	return optimalTimeFrame
 }
+func GetOptimalDatabaseTimeframe(interval candlescommon.Interval) uint {
 
-func LoadKlinesToDatabase(symbol string, interval candlescommon.Interval, up bool, limit uint) {
+	//detect more suitable interval
+	timeframes := database.GetDatabaseSupportedTimeframes()
+	optimalTimeFrame := uint(0)
 
-	startTimestamp := uint64(0)
-	endTimestamp := uint64(0)
+	for _, val := range timeframes[interval.Letter] {
 
-	var err error
+		if interval.Duration%val == 0 {
+			optimalTimeFrame = val
+		}
+	}
 
-	//get first or latest save kline in database
-	if up {
+	return optimalTimeFrame
+}
 
-		startTimestamp, err = GetLastKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) {
+
+	//choose optimal load timeframe
+	timeframe := GetOptimalLoadTimeframe(interval)
+
+	//get latest values in database
+	latestDBKlines, err := GetLastKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+
+	//check for database error
+	if err != nil {
+		return
+	}
+
+	if latestDBKlines == 0 {
+
+		klines, _ := providers.GetLastKlines(symbol, fmt.Sprintf("%d%s", timeframe, interval.Letter))
+
+		if interval.Letter == "h" {
+			klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration))
+		} else if interval.Letter == "m" {
+			klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration))
+		}
+
+		SaveCandles(klines)
 
 	} else {
 
-		endTimestamp, err = GetFirstKlineForSymbol(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
 	}
-
-	if err != nil {
-		log.Fatal("error", err.Error())
-		return
-	}
-
-	optimalTimeFrame := GetOptimalLoadTimeframe(interval)
-
-	if optimalTimeFrame == 0 {
-		return
-	}
-
-	klines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", optimalTimeFrame, interval.Letter), providers.GetKlineRange{})
-
-	if len(klines) == 0 {
-		log.Println("Klines nil")
-		return
-	}
-
-	log.Println(startTimestamp, endTimestamp)
-
-	klines = candlescommon.MinutesGroupKlineAsc(klines, uint64(optimalTimeFrame), uint64(interval.Duration))
-
-	log.Println(klines)
-
 }

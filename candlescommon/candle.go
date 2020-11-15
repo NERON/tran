@@ -204,6 +204,11 @@ func MinutesGroupKlineAsc(klines []KLine, originalMinutes uint64, minutes uint64
 
 	return groupedKlines
 }
+
+func HoursGroupKlineDesc(klines []KLine, hours uint64) []KLine {
+	return MinutesGroupKlineDesc(klines, hours*60)
+}
+
 func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 
 	//grouped klines

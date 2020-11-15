@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
+	"github.com/NERON/tran/manager"
 	"github.com/NERON/tran/providers"
 	"github.com/gorilla/mux"
 	"log"
@@ -354,7 +355,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
+	/*vars := mux.Vars(r)
 	time, _ := strconv.ParseUint(vars["time"], 10, 64)
 
 	var klines []candlescommon.KLine
@@ -382,6 +383,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	byte, _ := json.Marshal(klines)
 
-	w.Write(byte)
+	w.Write(byte)*/
+
+	manager.FillDatabaseToLatestValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72})
 
 }
