@@ -95,6 +95,8 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	counterMap := make(map[int]CounterVal)
 
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
 	symbols := []string{"BTCUSDT", "ETHUSDT", "LTCUSDT"}
 
 	RSIValMap := make(map[int]map[string]int, 0)
@@ -134,7 +136,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if ok {
 
-				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, 15)
+				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 				sequence = append(sequence, bestPeriod)
 				klinesSeq = append(klinesSeq, candle)
 

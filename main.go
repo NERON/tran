@@ -20,7 +20,7 @@ func InitRouting() *mux.Router {
 	r.HandleFunc("/info/{symbol}/{interval}/{centralRSI}", IndexHandler)
 	r.HandleFunc("/chart/{symbol}/{interval}/{centralRSI}", ChartUpdateHandler)
 	r.HandleFunc("/rsiJSON", RSIJSONHandler)
-	r.HandleFunc("/test/{symbol}/{interval}", TestHandler)
+	r.HandleFunc("/test/{symbol}/{interval}/{centralRSI}", TestHandler)
 	r.HandleFunc("/load/{time}/{direction}", SaveCandlesHandler)
 
 	return r
