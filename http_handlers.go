@@ -359,15 +359,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if time == 0 {
-		klines, err = providers.GetLastKlines("ETHUSDT", "1h")
+		klines, err = providers.GetLastKlines("ETHUSDT", "3m")
 	} else {
 
 		direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
 
 		if direction == 0 {
-			klines, err = providers.GetKlinesNew("ETHUSDT", "1h", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
+			klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
 		} else {
-			klines, err = providers.GetKlinesNew("ETHUSDT", "1h", providers.GetKlineRange{Direction: 1, FromTimestamp: time})
+			klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 1, FromTimestamp: time})
 		}
 
 	}
@@ -376,6 +376,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
+	klines = candlescommon.MinutesGroupKlineDesc(klines, 6)
 
 	byte, _ := json.Marshal(klines)
 
