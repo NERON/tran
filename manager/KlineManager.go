@@ -11,37 +11,18 @@ import (
 	"time"
 )
 
-func getClosestInterval(interval string) (string, time.Duration) {
-
-	if interval == "1h" {
-		return "1h", time.Hour
-	} else if interval == "2h" {
-		return "1h", 2 * time.Hour
-	}
-
-	return "", 1000000 * time.Hour
-}
-
-type DatabaseGap struct {
-	From uint64
-	To   uint64
-}
-
-func getKlinesFromDatabase(symbol string, interval string, endTimestamp uint64, limit int) ([]candlescommon.KLine, []DatabaseGap, error) {
+func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTimestamp uint64, limit int) ([]candlescommon.KLine, error) {
 
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
-	FROM public.tran_candles_%s WHERE symbol = $1 AND "openTime" <= $2 ORDER BY "openTime" DESC LIMIT %d`, interval, limit), symbol, endTimestamp)
+	FROM public.tran_candles_%d%s WHERE symbol = $1 AND "openTime" < $2 ORDER BY "openTime" DESC LIMIT %d`, interval.Duration, interval.Letter, limit), symbol, endTimestamp)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	databaseCandles := make([]candlescommon.KLine, 0)
 
-	var candleClose = uint64(0)
-	var prevOpenTime = uint64(0)
-
-	var gaps = make([]DatabaseGap, 0)
+	prevCandleClose := uint64(0)
 
 	for rows.Next() {
 
@@ -52,29 +33,47 @@ func getKlinesFromDatabase(symbol string, interval string, endTimestamp uint64, 
 		if err != nil {
 
 			rows.Close()
-			return nil, nil, err
+			return nil, err
 		}
 
-		if candleClose > 0 && kline.CloseTime != candleClose {
-			gaps = append(gaps, DatabaseGap{prevOpenTime, kline.OpenTime})
+		if prevCandleClose > 0 && prevCandleClose != kline.CloseTime {
+			rows.Close()
+			return nil, errors.New("gap found")
 		}
-
-		candleClose = kline.PrevCloseCandleTimestamp
-		prevOpenTime = kline.OpenTime
 
 		databaseCandles = append(databaseCandles, kline)
 
+		prevCandleClose = kline.PrevCloseCandleTimestamp
 	}
 
 	rows.Close()
 
-	return databaseCandles, gaps, nil
+	return databaseCandles, nil
 
 }
+func convertKlinesToNewTimestamp(klines []candlescommon.KLine, interval candlescommon.Interval) []candlescommon.KLine {
 
+	if interval.Letter == "h" {
+		klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration))
+	} else if interval.Letter == "m" {
+		klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration))
+	}
+
+	return klines
+}
 func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([]candlescommon.KLine, error) {
 
-	loadInterval := GetOptimalLoadTimeframe(interval)
+	databaseInterval := GetOptimalDatabaseTimeframe(interval)
+
+	var loadInterval = uint(0)
+
+	if databaseInterval != 0 {
+		loadInterval = GetOptimalLoadTimeframe(candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval})
+	}
+
+	if loadInterval == 0 {
+		loadInterval = GetOptimalLoadTimeframe(interval)
+	}
 
 	if loadInterval == 0 {
 		return nil, errors.New("can't found optimal timeframe")
@@ -90,7 +89,12 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 		return nil, errors.New("data empty")
 	}
 
-	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" {
+	if interval.Duration != loadInterval {
+
+		lastKlines = convertKlinesToNewTimestamp(lastKlines, interval)
+	}
+
+	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" || databaseInterval == 0 {
 
 		for len(lastKlines) < limit {
 
@@ -104,11 +108,39 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 				break
 			}
 
+			if interval.Duration != loadInterval {
+
+				fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
+			}
+
 			lastKlines = append(lastKlines, fetchedKlines...)
 
 			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
 				break
 			}
+		}
+
+	} else {
+
+		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
+
+		for len(lastKlines) < limit {
+
+			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, lastKlines[len(lastKlines)-1].OpenTime, 1000)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if len(fetchedKlines) == 0 {
+				FillDatabaseToLatestValues(symbol, databaseIn)
+				FillDatabaseWithPrevValues(symbol, databaseIn, 1000)
+				continue
+			}
+
+			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
+
+			lastKlines = append(lastKlines, fetchedKlines...)
 		}
 
 	}
@@ -156,6 +188,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 			timestamp = lastKlines[len(lastKlines)-1].OpenTime
 		}
+
+	} else {
 
 	}
 

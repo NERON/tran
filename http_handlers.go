@@ -392,9 +392,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if time == 0 {
-		klines, err = manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "d", Duration: 1}, 50)
+		klines, err = manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "h", Duration: 3}, 1000)
 	} else {
-		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", candlescommon.Interval{Letter: "d", Duration: 1}, time, 50)
+		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", candlescommon.Interval{Letter: "h", Duration: 3}, time, 50)
 	}
 
 	if err != nil {
