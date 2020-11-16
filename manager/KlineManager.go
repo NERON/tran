@@ -213,6 +213,8 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 	t := time.Now()
 
+	log.Println("saved klines", len(klines))
+
 	stmt, err := database.DatabaseManager.Prepare(fmt.Sprintf(`INSERT INTO public.tran_candles_%d%s(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;`, interval.Duration, interval.Letter))
 
