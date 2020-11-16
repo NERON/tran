@@ -270,7 +270,7 @@ func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error
 		return klines, nil
 	}
 
-	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+	if klines[len(klines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
 		klines[len(klines)-1].PrevCloseCandleTimestamp = 0
 		return klines, nil
 	}
