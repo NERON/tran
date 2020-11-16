@@ -226,23 +226,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	interval := vars["interval"]
-
-	if interval == "2w" {
-		vars["interval"] = "1w"
-	}
-
-	if interval == "3h" {
-		vars["interval"] = "1h"
-	}
-
-	if interval == "45m" {
-		vars["interval"] = "15m"
-	}
-
-	if interval == "288m" {
-		vars["interval"] = "3m"
-	}
+	intervalStr := vars["interval"]
 
 	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
 
@@ -256,38 +240,19 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		endTimestamp, _ = strconv.ParseUint(r.URL.Query()["endTimestamp"][0], 10, 64)
 	}
 
-	candles := providers.GetKlines(vars["symbol"], vars["interval"], 0, endTimestamp, false)
+	interval := candlescommon.IntervalFromStr(intervalStr)
 
-	if interval == "3h" {
-		candles = candlescommon.HoursGroupKlineAsc(candles, 3)
-	}
+	var candles []candlescommon.KLine
 
-	if interval == "45m" {
-		candles = candlescommon.MinutesGroupKlineAsc(candles, 15, 45)
-	}
-	if interval == "288m" {
-		candles = candlescommon.MinutesGroupKlineAsc(candles, 3, 288)
+	if endTimestamp > 0 {
+		candles, _ = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, endTimestamp, 1000)
+	} else {
+		candles, _ = manager.GetLastKLines(vars["symbol"], interval, 1000)
 	}
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld := providers.GetKlines(vars["symbol"], vars["interval"], 0, candles[0].OpenTime-1, false)
-
-	if interval == "3h" {
-		candlesOld = candlescommon.HoursGroupKlineAsc(candlesOld, 3)
-	}
-
-	if interval == "45m" {
-		candlesOld = candlescommon.MinutesGroupKlineAsc(candlesOld, 15, 45)
-	}
-
-	if interval == "288m" {
-		candlesOld = candlescommon.MinutesGroupKlineAsc(candles, 3, 288)
-	}
-
-	if interval == "2w" {
-		candles = candlescommon.GroupKline(candles, 2)
-	}
+	candlesOld, _ := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
 
 	for _, candleOld := range candlesOld {
 
@@ -388,10 +353,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	time, _ := strconv.ParseUint(vars["time"], 10, 64)
 
-	intervalStr, _ := vars["interval"]
-	duration, _ := strconv.ParseUint(intervalStr[:len(intervalStr)-1], 10, 64)
-
-	interval := candlescommon.Interval{Duration: uint(duration), Letter: string(intervalStr[len(intervalStr)-1])}
+	intervalStr := vars["time"]
+	interval := candlescommon.IntervalFromStr(intervalStr)
 
 	log.Println(intervalStr, interval)
 

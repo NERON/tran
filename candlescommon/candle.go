@@ -2,6 +2,7 @@ package candlescommon
 
 import (
 	"math"
+	"strconv"
 )
 
 type KLine struct {
@@ -23,6 +24,16 @@ type KLine struct {
 type Interval struct {
 	Letter   string
 	Duration uint
+}
+
+func IntervalFromStr(intervalStr string) Interval {
+
+	duration, _ := strconv.ParseUint(intervalStr[:len(intervalStr)-1], 10, 64)
+
+	interval := Interval{Duration: uint(duration), Letter: string(intervalStr[len(intervalStr)-1])}
+
+	return interval
+
 }
 
 func GroupKline(klines []KLine, groupCount int) []KLine {
