@@ -228,6 +228,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			log.Fatal(err.Error())
 		}
 
+		log.Println(timestamp, isFull)
+
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
 		for len(lastKlines) < limit {
