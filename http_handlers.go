@@ -353,7 +353,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	time, _ := strconv.ParseUint(vars["time"], 10, 64)
 
-	intervalStr := vars["time"]
+	intervalStr := vars["interval"]
 	interval := candlescommon.IntervalFromStr(intervalStr)
 
 	log.Println(intervalStr, interval)
