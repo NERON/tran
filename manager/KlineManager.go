@@ -228,7 +228,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			log.Fatal(err.Error())
 		}
 
-		log.Println(timestamp, isFull)
+		log.Println(timestamp, symbol, isFull, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
 
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
