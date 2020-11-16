@@ -102,13 +102,15 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	RSIValMap := make(map[int]map[string]int, 0)
 
+	interval := candlescommon.IntervalFromStr(vars["interval"])
+
 	for _, symbol := range symbols {
 
 		rsiP := indicators.NewRSIMultiplePeriods(250)
 
-		candles := providers.GetKlinesTest(symbol, vars["interval"], 0, 0, 20)
+		candles, _ := manager.GetLastKLines(symbol, interval, 10000)
 
-		candlesOld := providers.GetKlines(symbol, vars["interval"], 0, candles[0].OpenTime-1, false)
+		candlesOld, _ := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 2000)
 
 		for _, candleOld := range candlesOld {
 			rsiP.AddPoint(candleOld.ClosePrice)
