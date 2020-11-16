@@ -41,6 +41,8 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 			return nil, errors.New("gap found")
 		}
 
+		kline.Closed = true
+
 		databaseCandles = append(databaseCandles, kline)
 
 		prevCandleClose = kline.PrevCloseCandleTimestamp
