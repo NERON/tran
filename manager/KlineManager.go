@@ -95,6 +95,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 		lastKlines = convertKlinesToNewTimestamp(lastKlines, interval)
 	}
 
+	log.Println("kline length", len(lastKlines))
+
 	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" || databaseInterval == 0 {
 
 		for len(lastKlines) < limit {
