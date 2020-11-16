@@ -147,6 +147,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			if fetchedKlines[len(fetchedKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
+
+			log.Println("load klines")
 		}
 
 	}
