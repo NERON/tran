@@ -269,6 +269,10 @@ func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error
 		return klines, nil
 	}
 
+	if klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
+		return klines, nil
+	}
+
 	return klines[:len(klines)-1], nil
 
 }
