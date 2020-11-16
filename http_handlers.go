@@ -385,13 +385,14 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(byte)*/
 
-	vars := mux.Vars(r)
-	direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
+	klines, err := manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "w", Duration: 1}, 300)
 
-	if direction == 0 {
-		manager.FillDatabaseWithPrevValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72}, 100)
-	} else {
-		manager.FillDatabaseToLatestValues("ETHUSDT", candlescommon.Interval{Letter: "m", Duration: 72})
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
 	}
 
+	byte, _ := json.Marshal(klines)
+
+	w.Write(byte)
 }

@@ -86,9 +86,9 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 
 		klines, _ := providers.GetLastKlines(symbol, intervalString)
 
-		if interval.Letter == "h" {
+		if interval.Letter == "h" && interval.Duration != timeframe {
 			klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration))
-		} else if interval.Letter == "m" {
+		} else if interval.Letter == "m" && interval.Duration != timeframe {
 			klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration))
 		}
 
@@ -104,9 +104,9 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 				break
 			}
 
-			if interval.Letter == "h" {
+			if interval.Letter == "h" && interval.Duration != timeframe {
 				loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
-			} else if interval.Letter == "m" {
+			} else if interval.Letter == "m" && interval.Duration != timeframe {
 				loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
 			}
 
@@ -158,9 +158,9 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			break
 		}
 
-		if interval.Letter == "h" {
+		if interval.Letter == "h" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
-		} else if interval.Letter == "m" {
+		} else if interval.Letter == "m" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
 		}
 

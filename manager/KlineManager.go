@@ -7,6 +7,7 @@ import (
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
 	"log"
+	"math"
 	"time"
 )
 
@@ -71,60 +72,103 @@ func getKlinesFromDatabase(symbol string, interval string, endTimestamp uint64, 
 
 }
 
-func GetLastKLines(symbol string, interval string, limit int) ([]candlescommon.KLine, error) {
+func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([]candlescommon.KLine, error) {
 
-	fetchedKlines := providers.GetKlines(symbol, interval, 0, 0, true)
+	loadInterval := GetOptimalLoadTimeframe(interval)
 
-	if len(fetchedKlines) == 0 {
-		return nil, errors.New("candles not found")
+	if loadInterval == 0 {
+		return nil, errors.New("can't found optimal timeframe")
 	}
 
-	if len(fetchedKlines) >= limit {
-		return fetchedKlines[:limit], nil
-	}
-
-	lastTime := fetchedKlines[len(fetchedKlines)-1].OpenTime
-	databaseKlines, gaps, err := getKlinesFromDatabase(symbol, interval, lastTime, limit-len(fetchedKlines))
+	lastKlines, err := providers.GetLastKlines(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter))
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("gaps:", len(gaps))
+	if len(lastKlines) == 0 {
+		return nil, errors.New("data empty")
+	}
 
-	databaseIndex := 0
+	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" {
 
-	if len(databaseKlines) == 0 || databaseKlines[0].OpenTime != lastTime {
+		for len(lastKlines) < limit {
 
-		log.Println("database has no klines")
+			fetchedKlines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter), providers.GetKlineRange{Direction: 0, FromTimestamp: lastKlines[len(lastKlines)-1].OpenTime})
 
-		afterKlines := providers.GetKlines(symbol, interval, 0, lastTime, true)
-
-		if len(afterKlines) == 0 {
-			return nil, errors.New("can't get data")
-		}
-
-		if lastTime != afterKlines[0].OpenTime {
-			return nil, errors.New("wrong data get")
-		}
-
-		fetchedKlines[len(fetchedKlines)-1].PrevCloseCandleTimestamp = afterKlines[0].PrevCloseCandleTimestamp
-
-		for i := 1; i < len(afterKlines); i++ {
-
-			if len(databaseKlines) > 0 && databaseKlines[databaseIndex].OpenTime == afterKlines[i].OpenTime {
-				databaseIndex++
+			if err != nil {
+				return nil, err
 			}
 
+			if len(fetchedKlines) == 0 {
+				break
+			}
+
+			lastKlines = append(lastKlines, fetchedKlines...)
+
+			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+				break
+			}
 		}
-	}
-
-	if len(gaps) > 0 {
 
 	}
 
-	return fetchedKlines, nil
+	if len(lastKlines) > limit {
+		lastKlines = lastKlines[:limit]
+	}
 
+	for i := 0; i < len(lastKlines)/2; i++ {
+		j := len(lastKlines) - i - 1
+		lastKlines[i], lastKlines[j] = lastKlines[j], lastKlines[i]
+	}
+
+	return lastKlines, nil
+}
+func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, timestamp uint64, limit int) ([]candlescommon.KLine, error) {
+
+	loadInterval := GetOptimalLoadTimeframe(interval)
+
+	if loadInterval == 0 {
+		return nil, errors.New("can't found optimal timeframe")
+	}
+
+	lastKlines := make([]candlescommon.KLine, 0)
+
+	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" {
+
+		for len(lastKlines) < limit {
+
+			fetchedKlines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter), providers.GetKlineRange{Direction: 0, FromTimestamp: timestamp})
+
+			if err != nil {
+				return nil, err
+			}
+
+			if len(fetchedKlines) == 0 {
+				break
+			}
+
+			lastKlines = append(lastKlines, fetchedKlines...)
+
+			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+				break
+			}
+
+			timestamp = lastKlines[len(lastKlines)-1].OpenTime
+		}
+
+	}
+
+	if len(lastKlines) > limit {
+		lastKlines = lastKlines[:limit]
+	}
+
+	for i := 0; i < len(lastKlines)/2; i++ {
+		j := len(lastKlines) - i - 1
+		lastKlines[i], lastKlines[j] = lastKlines[j], lastKlines[i]
+	}
+
+	return lastKlines, nil
 }
 
 func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) {
