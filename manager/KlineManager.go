@@ -149,6 +149,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 	}
 
+	log.Println("exrracted klines", len(lastKlines))
+
 	if len(lastKlines) > limit {
 		lastKlines = lastKlines[:limit]
 	}
