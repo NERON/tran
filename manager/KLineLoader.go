@@ -74,6 +74,8 @@ func isAllCandlesLoaded(symbol string, timeframe string) (bool, error) {
 		return false, err
 	}
 
+	log.Println(value, err.Error())
+
 	return value == 0, nil
 }
 
