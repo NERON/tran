@@ -91,7 +91,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 	index := len(klines) - 1
 
 	//if first kline in array isn't have start open time iterating...
-	if klines[index].OpenTime%(minutes*60*1000) != 0 {
+	if klines[index].OpenTime%(minutes*60*1000) != 0 && klines[index].PrevCloseCandleTimestamp != 0 {
 
 		division := klines[index].OpenTime / (minutes * 60 * 1000)
 
@@ -107,7 +107,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 
 	}
 
-	var currentKline KLine = KLine{Closed: true}
+	currentKline := KLine{Closed: true}
 
 	var division = uint64(0)
 
@@ -139,7 +139,6 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 			currentKline.PrevCloseCandleTimestamp = (prevCandleDivisor+1)*(minutes*60*1000) - 1
 		}
 
-		//set prev candle close zero,if original is zero
 		if klines[index].PrevCloseCandleTimestamp == 0 {
 			currentKline.PrevCloseCandleTimestamp = 0
 		}
