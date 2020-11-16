@@ -227,6 +227,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 {
+				log.Println("field load")
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
@@ -237,8 +238,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			if fetchedKlines[len(fetchedKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
-
-			log.Println(fetchedKlines)
 
 		}
 	}
