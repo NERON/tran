@@ -222,6 +222,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		IsRSIReverseLow bool
 		RSIValue        float64
 		RSIBestPeriod   int
+		PrevCandleClose uint64
 	}
 
 	vars := mux.Vars(r)
@@ -306,6 +307,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			RSIValue:        calcRSI,
 			RSIBestPeriod:   bestPeriod,
 			IsRSIReverseLow: ok,
+			PrevCandleClose: candle.PrevCloseCandleTimestamp,
 		})
 
 		rsi.AddPoint(candle.ClosePrice)
