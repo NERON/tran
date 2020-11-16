@@ -240,9 +240,13 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				return nil, err
 			}
 
+			if len(fetchedKlines) == 0 && isFull {
+				break
+			}
+
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
-			if len(fetchedKlines) == 0 && !isFull {
+			if len(fetchedKlines) == 0 {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
