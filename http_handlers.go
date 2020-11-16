@@ -385,7 +385,17 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(byte)*/
 
-	klines, err := manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "w", Duration: 1}, 300)
+	vars := mux.Vars(r)
+	time, _ := strconv.ParseUint(vars["time"], 10, 64)
+
+	var klines []candlescommon.KLine
+	var err error
+
+	if time == 0 {
+		klines, err = manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "d", Duration: 1}, 50)
+	} else {
+		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", candlescommon.Interval{Letter: "d", Duration: 1}, time, 50)
+	}
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
