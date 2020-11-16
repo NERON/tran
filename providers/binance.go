@@ -8,7 +8,6 @@ import (
 	"golang.org/x/time/rate"
 	"io/ioutil"
 	"log"
-	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -374,7 +373,7 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 
 	//if we fetch old klines and
 	if ranges.Direction == 0 && len(result) < 1000 {
-		result[len(result)-1].PrevCloseCandleTimestamp = math.MaxUint64
+		result[len(result)-1].PrevCloseCandleTimestamp = 0
 	}
 
 	return result, nil

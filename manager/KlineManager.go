@@ -7,7 +7,6 @@ import (
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
 	"log"
-	"math"
 	"time"
 )
 
@@ -117,7 +116,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			lastKlines = append(lastKlines, fetchedKlines...)
 
-			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
 		}
@@ -125,6 +124,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 	} else {
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
+
+		FillDatabaseToLatestValues(symbol, databaseIn)
 
 		for len(lastKlines) < limit {
 
@@ -135,8 +136,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			}
 
 			if len(fetchedKlines) == 0 {
-				FillDatabaseToLatestValues(symbol, databaseIn)
 				FillDatabaseWithPrevValues(symbol, databaseIn, 1000)
+				log.Println("fetched nil,do loading to db", lastKlines[len(lastKlines)-1].OpenTime)
 				continue
 			}
 
@@ -185,7 +186,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 			lastKlines = append(lastKlines, fetchedKlines...)
 
-			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
 

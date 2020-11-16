@@ -169,8 +169,6 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
 		counter += uint(len(loadedKlines))
 
-		log.Println("saved value ", counter)
-
 	}
 
 }
