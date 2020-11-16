@@ -123,6 +123,8 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 
 			latestDBKlines = loadedKlines[len(loadedKlines)-1].OpenTime
 
+			log.Println("load data fyck")
+
 		}
 
 	}
