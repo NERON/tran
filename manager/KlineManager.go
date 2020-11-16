@@ -143,9 +143,9 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 				continue
 			}
 
-			log.Println("executing after continue", fetchedKlines)
-
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
+
+			log.Println("executing after continue", fetchedKlines)
 
 			lastKlines = append(lastKlines, fetchedKlines...)
 		}
