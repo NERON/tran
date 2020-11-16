@@ -65,6 +65,18 @@ func GetOptimalDatabaseTimeframe(interval candlescommon.Interval) uint {
 	return optimalTimeFrame
 }
 
+func isAllCandlesLoaded(symbol string, timeframe string) (bool, error) {
+
+	value := -1
+	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT 1 FROM (SELECT "prevCandle" FROM public.tran_candles_%s WHERE symbol =$1  ORDER BY "openTime" ASC LIMIT 1) t WHERE t."prevCandle" = 0;`, timeframe), symbol).Scan(&value)
+
+	if err != nil && err != sql.ErrNoRows {
+		return false, err
+	}
+
+	return value == 0, nil
+}
+
 func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) {
 
 	//choose optimal load timeframe

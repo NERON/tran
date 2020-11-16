@@ -125,6 +125,12 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
+		isFull, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
 		for len(lastKlines) < limit {
@@ -137,7 +143,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
-			if len(fetchedKlines) == 0 {
+			if len(fetchedKlines) == 0 && !isFull {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
@@ -216,6 +222,12 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
+		isFull, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
 		for len(lastKlines) < limit {
@@ -228,7 +240,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
-			if len(fetchedKlines) == 0 {
+			if len(fetchedKlines) == 0 && !isFull {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
