@@ -251,7 +251,7 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 	t := time.Now()
 
-	if len(klines) == 0 {
+	if len(klines) == 1 {
 		log.Println(klines)
 	}
 	log.Println("saved klines", len(klines))
