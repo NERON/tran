@@ -251,6 +251,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		candles, _ = manager.GetLastKLines(vars["symbol"], interval, 1000)
 	}
 
+	if len(candles) == 0 {
+		return
+	}
+
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	candlesOld, _ := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 2000)
