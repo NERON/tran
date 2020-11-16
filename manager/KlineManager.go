@@ -141,7 +141,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			if len(fetchedKlines) == 0 {
 				log.Println(len(lastKlines))
-				FillDatabaseWithPrevValues(symbol, databaseIn, 1000)
+				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
 
@@ -228,7 +228,7 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 	for _, kline := range klines {
 
-		if kline.PrevCloseCandleTimestamp == 0 || !kline.Closed {
+		if !kline.Closed {
 			continue
 		}
 
