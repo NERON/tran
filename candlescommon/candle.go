@@ -73,149 +73,6 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 	return newKlines
 }
 
-func HoursGroupKline(klines []KLine, hours uint64) []KLine {
-
-	groupedKlines := make([]KLine, 0)
-
-	currentKline := klines[0]
-
-	for i := 1; i < len(klines); i++ {
-
-		if klines[i].OpenTime%(hours*3600*1000) == (hours-1)*3600*1000 {
-
-			currentKline.PrevCloseCandleTimestamp = klines[i].CloseTime
-			groupedKlines = append(groupedKlines, currentKline)
-			currentKline = klines[i]
-
-			continue
-		}
-
-		if klines[i].OpenTime%(hours*3600*1000) == 0 {
-
-			currentKline.OpenTime = klines[i].OpenTime
-			currentKline.OpenPrice = klines[i].OpenPrice
-
-		}
-
-		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[i].HighPrice)
-		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[i].LowPrice)
-
-		currentKline.BaseVolume += klines[i].BaseVolume
-		currentKline.TakerBuyBaseVolume += klines[i].TakerBuyBaseVolume
-		currentKline.QuoteVolume += klines[i].QuoteVolume
-		currentKline.TakerBuyQuoteVolume += klines[i].TakerBuyQuoteVolume
-
-	}
-
-	return groupedKlines
-
-}
-
-func HoursGroupKlineAsc(klines []KLine, hours uint64) []KLine {
-
-	groupedKlines := make([]KLine, 0)
-
-	i := 0
-
-	//iterate and skip all unfinished klines in the beginning
-	for i < len(klines) && klines[i].OpenTime%(hours*3600*1000) != 0 {
-		i++
-	}
-
-	var currentKline KLine
-	var prevCloseCandle uint64
-	var counter uint64
-
-	for ; i < len(klines); i++ {
-
-		if klines[i].OpenTime%(hours*3600*1000) == 0 {
-
-			if currentKline.OpenTime > 0 {
-				prevCloseCandle = currentKline.CloseTime
-				groupedKlines = append(groupedKlines, currentKline)
-			}
-
-			currentKline = klines[i]
-			currentKline.PrevCloseCandleTimestamp = prevCloseCandle
-			counter = 0
-			continue
-
-		}
-
-		currentKline.ClosePrice = klines[i].ClosePrice
-		currentKline.CloseTime = klines[i].CloseTime
-		currentKline.Closed = klines[i].Closed
-
-		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[i].HighPrice)
-		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[i].LowPrice)
-
-		currentKline.BaseVolume += klines[i].BaseVolume
-		currentKline.TakerBuyBaseVolume += klines[i].TakerBuyBaseVolume
-		currentKline.QuoteVolume += klines[i].QuoteVolume
-		currentKline.TakerBuyQuoteVolume += klines[i].TakerBuyQuoteVolume
-		counter++
-
-	}
-
-	if currentKline.Closed == false || counter == (hours-1) {
-		groupedKlines = append(groupedKlines, currentKline)
-	}
-
-	return groupedKlines
-}
-func MinutesGroupKlineAsc(klines []KLine, originalMinutes uint64, minutes uint64) []KLine {
-
-	groupedKlines := make([]KLine, 0)
-
-	i := 0
-
-	//iterate and skip all unfinished klines in the beginning
-	for i < len(klines) && klines[i].OpenTime%(minutes*60*1000) != 0 {
-		i++
-	}
-
-	var currentKline KLine
-	var prevCloseCandle uint64
-	var counter uint64
-
-	for ; i < len(klines); i++ {
-
-		if klines[i].OpenTime%(minutes*60*1000) == 0 {
-
-			if currentKline.OpenTime > 0 {
-				prevCloseCandle = currentKline.CloseTime
-				groupedKlines = append(groupedKlines, currentKline)
-			}
-
-			currentKline = klines[i]
-			currentKline.PrevCloseCandleTimestamp = prevCloseCandle
-			counter = 0
-			continue
-
-		}
-
-		currentKline.ClosePrice = klines[i].ClosePrice
-		currentKline.CloseTime = klines[i].CloseTime
-		currentKline.Closed = klines[i].Closed
-
-		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[i].HighPrice)
-		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[i].LowPrice)
-
-		currentKline.BaseVolume += klines[i].BaseVolume
-		currentKline.TakerBuyBaseVolume += klines[i].TakerBuyBaseVolume
-		currentKline.QuoteVolume += klines[i].QuoteVolume
-		currentKline.TakerBuyQuoteVolume += klines[i].TakerBuyQuoteVolume
-		counter++
-
-	}
-
-	if currentKline.Closed == false || counter == (minutes/originalMinutes-1) {
-		groupedKlines = append(groupedKlines, currentKline)
-	}
-
-	return groupedKlines
-}
-
 func HoursGroupKlineDesc(klines []KLine, hours uint64) []KLine {
 	return MinutesGroupKlineDesc(klines, hours*60)
 }
@@ -280,6 +137,11 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 			//calculate start time for previous kline
 			prevCandleDivisor := currentKline.PrevCloseCandleTimestamp / (minutes * 60 * 1000)
 			currentKline.PrevCloseCandleTimestamp = (prevCandleDivisor+1)*(minutes*60*1000) - 1
+		}
+
+		//set prev candle close zero,if original is zero
+		if klines[index].PrevCloseCandleTimestamp == 0 {
+			currentKline.PrevCloseCandleTimestamp = 0
 		}
 
 		//set close price to current
