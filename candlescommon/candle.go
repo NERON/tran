@@ -239,7 +239,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 
 	}
 
-	var currentKline KLine
+	var currentKline KLine = KLine{Closed: true}
 
 	var division = uint64(0)
 
