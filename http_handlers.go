@@ -388,13 +388,20 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	time, _ := strconv.ParseUint(vars["time"], 10, 64)
 
+	intervalStr, _ := vars["intervalStr"]
+	duration, _ := strconv.ParseUint(intervalStr[:len(intervalStr)-1], 10, 64)
+
+	interval := candlescommon.Interval{Duration: uint(duration), Letter: string(intervalStr[len(intervalStr)-1])}
+
+	log.Println(intervalStr, interval)
+
 	var klines []candlescommon.KLine
 	var err error
 
 	if time == 0 {
-		klines, err = manager.GetLastKLines("ETHUSDT", candlescommon.Interval{Letter: "h", Duration: 3}, 1000)
+		klines, err = manager.GetLastKLines("ETHUSDT", interval, 1000)
 	} else {
-		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", candlescommon.Interval{Letter: "h", Duration: 3}, time, 1000)
+		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", interval, time, 1000)
 	}
 
 	if err != nil {
