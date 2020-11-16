@@ -12,7 +12,7 @@ import (
 
 func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTimestamp uint64, limit int) ([]candlescommon.KLine, error) {
 
-	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice"
+	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice","volume", "quoteVolume", "takerVolume", "takerQuoteVolume"
 	FROM public.tran_candles_%d%s WHERE symbol = $1 AND "openTime" < $2 ORDER BY "openTime" DESC LIMIT %d`, interval.Duration, interval.Letter, limit), symbol, endTimestamp)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 
 		kline := candlescommon.KLine{}
 
-		err = rows.Scan(&kline.Symbol, &kline.OpenTime, &kline.CloseTime, &kline.PrevCloseCandleTimestamp, &kline.OpenPrice, &kline.ClosePrice, &kline.LowPrice, &kline.HighPrice)
+		err = rows.Scan(&kline.Symbol, &kline.OpenTime, &kline.CloseTime, &kline.PrevCloseCandleTimestamp, &kline.OpenPrice, &kline.ClosePrice, &kline.LowPrice, &kline.HighPrice, &kline.BaseVolume, &kline.QuoteVolume, &kline.TakerBuyBaseVolume, &kline.TakerBuyQuoteVolume)
 
 		if err != nil {
 
@@ -95,8 +95,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 		lastKlines = convertKlinesToNewTimestamp(lastKlines, interval)
 	}
 
-	log.Println("kline length", len(lastKlines))
-
 	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" || databaseInterval == 0 {
 
 		for len(lastKlines) < limit {
@@ -140,7 +138,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 {
-				log.Println(len(lastKlines))
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
@@ -149,8 +146,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 		}
 
 	}
-
-	log.Println("exrracted klines", len(lastKlines))
 
 	if len(lastKlines) > limit {
 		lastKlines = lastKlines[:limit]
