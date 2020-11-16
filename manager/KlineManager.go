@@ -183,6 +183,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 	lastKlines := make([]candlescommon.KLine, 0)
 
+	log.Println(loadInterval, databaseInterval)
+
 	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" {
 
 		for len(lastKlines) < limit {
@@ -233,6 +235,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			if fetchedKlines[len(fetchedKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
+
+			log.Println(fetchedKlines)
 
 		}
 	}
