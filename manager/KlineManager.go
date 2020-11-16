@@ -251,6 +251,9 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 	t := time.Now()
 
+	if len(klines) == 0 {
+		log.Println(klines)
+	}
 	log.Println("saved klines", len(klines))
 
 	stmt, err := database.DatabaseManager.Prepare(fmt.Sprintf(`INSERT INTO public.tran_candles_%d%s(symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice", volume, "quoteVolume", "takerVolume", "takerQuoteVolume")
