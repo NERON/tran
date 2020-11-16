@@ -129,6 +129,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
+		log.Println(lastKlines)
+
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, lastKlines[len(lastKlines)-1].OpenTime, 1000)
@@ -139,7 +141,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			if len(fetchedKlines) == 0 {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 1000)
-				log.Println("fetched nil,do loading to db", lastKlines[len(lastKlines)-1].OpenTime)
+				log.Println("fetched nil,do loading to db ", len(lastKlines), lastKlines[len(lastKlines)-1].OpenTime)
 				continue
 			}
 
