@@ -8,6 +8,7 @@ import (
 	"golang.org/x/time/rate"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -269,7 +270,8 @@ func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error
 		return klines, nil
 	}
 
-	if klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
+	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+		klines[len(klines)-1].PrevCloseCandleTimestamp = 0
 		return klines, nil
 	}
 
@@ -297,6 +299,10 @@ func GetKlinesNew(symbol string, interval string, ranges GetKlineRange) ([]candl
 	//if kline with smallest open time has prevCloseCandle equals 0, we should remove them
 	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
 		klines = klines[:len(klines)-1]
+	}
+
+	if len(klines) > 0 && klines[len(klines)-1].PrevCloseCandleTimestamp == math.MaxUint64 {
+		klines[len(klines)-1].PrevCloseCandleTimestamp = 0
 	}
 
 	return klines, nil
@@ -377,7 +383,7 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 
 	//if we fetch old klines and
 	if ranges.Direction == 0 && len(result) < 1000 {
-		result[len(result)-1].PrevCloseCandleTimestamp = 0
+		result[len(result)-1].PrevCloseCandleTimestamp = math.MaxUint64
 	}
 
 	return result, nil
