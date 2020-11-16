@@ -82,8 +82,6 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 	//generare interval string
 	intervalString := fmt.Sprintf("%d%s", timeframe, interval.Letter)
 
-	log.Println(intervalString, latestDBKlines)
-
 	if latestDBKlines == 0 {
 
 		klines, _ := providers.GetLastKlines(symbol, intervalString)
