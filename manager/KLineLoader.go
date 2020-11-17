@@ -172,14 +172,13 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 		return
 	}
 
-	//generate interval string
-	intervalString := fmt.Sprintf("%d%s", timeframe, interval.Letter)
-
 	counter := uint(0)
+
+	currentTimeframe := timeframe
 
 	for counter < limit {
 
-		loadedKlines, _ := providers.GetKlinesNew(symbol, intervalString, providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
+		loadedKlines, _ := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", currentTimeframe, interval.Letter), providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
 
 		if len(loadedKlines) == 0 {
 			break
@@ -187,12 +186,14 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		if interval.Letter == "m" {
 
-			correctness := checkIntervals(loadedKlines, timeframe)
+			correctness := checkIntervals(loadedKlines, currentTimeframe)
 
-			if !correctness {
+			if !correctness && currentTimeframe != 1 {
+				currentTimeframe = 1
 				log.Println("Some candles have wrong open time!")
-				intervalString = "1m"
 				continue
+			} else if !correctness && currentTimeframe == 1 {
+				log.Fatal("can't get value 1m is wrong")
 			}
 		}
 
@@ -206,7 +207,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
 		counter += uint(len(loadedKlines))
-		intervalString = fmt.Sprintf("%d%s", timeframe, interval.Letter)
+		currentTimeframe = timeframe
 
 	}
 
