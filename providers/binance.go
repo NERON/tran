@@ -281,6 +281,7 @@ func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error
 
 func GetKlinesNew(symbol string, interval string, ranges GetKlineRange) ([]candlescommon.KLine, error) {
 
+	log.Println("fetching data...", ranges)
 	klines, err := getKline(symbol, interval, ranges)
 
 	if err != nil {
