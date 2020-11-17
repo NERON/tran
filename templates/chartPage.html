@@ -184,11 +184,11 @@
             reverseRSI.addPoint(data[i].ClosePrice);
 
 
-            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI+2));
             reverseRSIPrev.addPoint(data[i].ClosePrice);
 
 
-            reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
+            reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI-2));
             reverseRSINext.addPoint(data[i].ClosePrice);
 
 
@@ -197,16 +197,16 @@
         reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
         reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
 
-        reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
-        reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
+        reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI+2));
+        reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI-2));
 
-        reverseRSIValsPrev = reverseRSIValsPrev.map(function (val, idx) {
+        /*reverseRSIValsPrev = reverseRSIValsPrev.map(function (val, idx) {
             return (reverseRSIVals30[idx] + val) / 2;
         });
 
         reverseRSIValsNext = reverseRSIValsNext.map(function (val, idx) {
             return (reverseRSIVals30[idx] + val) / 2;
-        });
+        });*/
 
 
         if (!chartInited) {
