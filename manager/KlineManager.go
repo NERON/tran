@@ -234,7 +234,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		for len(lastKlines) < limit {
 
-			log.Println("loading", len(lastKlines))
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, timestamp, 1000)
 
 			if err != nil {
@@ -243,15 +242,12 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			}
 
 			if len(fetchedKlines) == 0 && isFull {
-				log.Println("breaking...")
 				break
 			}
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
-			log.Println("after converting")
 
 			if len(fetchedKlines) == 0 {
-				log.Println("infinite loop")
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}

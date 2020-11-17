@@ -141,6 +141,19 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 
 	}
 }
+
+func checkIntervals(klines []candlescommon.KLine, minutes uint) bool {
+
+	for i := 0; i < len(klines); i++ {
+
+		if klines[i].OpenTime%uint64(minutes*60*1000) != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
 func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
 
 	//choose optimal load timeframe
@@ -172,6 +185,17 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			break
 		}
 
+		if interval.Letter == "m" {
+
+			correctness := checkIntervals(loadedKlines, timeframe)
+
+			if !correctness {
+				log.Println("Some candles have wrong open time!")
+				intervalString = "1m"
+				continue
+			}
+		}
+
 		if interval.Letter == "h" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
 		} else if interval.Letter == "m" && interval.Duration != timeframe {
@@ -182,6 +206,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
 		counter += uint(len(loadedKlines))
+		intervalString = fmt.Sprintf("%d%s", timeframe, interval.Letter)
 
 	}
 
