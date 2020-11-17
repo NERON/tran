@@ -247,6 +247,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 {
+				log.Println("infinite loop")
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
