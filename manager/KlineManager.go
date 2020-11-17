@@ -37,7 +37,7 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 
 		if prevCandleClose > 0 && prevCandleClose != kline.CloseTime {
 			rows.Close()
-			return nil, errors.New("gap found")
+			return nil, errors.New(fmt.Sprintf("gap found %d", kline.OpenTime))
 		}
 
 		kline.Closed = true
