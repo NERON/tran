@@ -242,10 +242,12 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			}
 
 			if len(fetchedKlines) == 0 && isFull {
+				log.Println("breaking...")
 				break
 			}
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
+			log.Println("after converting")
 
 			if len(fetchedKlines) == 0 {
 				log.Println("infinite loop")
