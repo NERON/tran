@@ -178,8 +178,8 @@
         for (let i = 0; i < data.length; i++) {
 
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
-            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+2));
-            reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-2));
+            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+1));
+            reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-1));
             reverseRSI.addPoint(data[i].ClosePrice);
         }
 
