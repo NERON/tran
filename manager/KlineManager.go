@@ -234,6 +234,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		for len(lastKlines) < limit {
 
+			log.Println("loading", len(lastKlines))
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, timestamp, 1000)
 
 			if err != nil {
