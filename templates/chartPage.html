@@ -178,14 +178,14 @@
         for (let i = 0; i < data.length; i++) {
 
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
-            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+1));
-            reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-1));
+            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+2));
+            reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-2));
             reverseRSI.addPoint(data[i].ClosePrice);
         }
 
         reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
-        reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+1));
-        reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-1));
+        reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+2));
+        reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-2));
 
         /*for (let i = 0; i < data.length; i++) {
 
