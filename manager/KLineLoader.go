@@ -147,6 +147,7 @@ func checkIntervals(klines []candlescommon.KLine, minutes uint) bool {
 	for i := 0; i < len(klines); i++ {
 
 		if klines[i].OpenTime%uint64(minutes*60*1000) != 0 {
+			log.Println("WRONG KLINE", klines[i].OpenTime)
 			return false
 		}
 	}
