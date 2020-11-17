@@ -183,6 +183,10 @@
             reverseRSI.addPoint(data[i].ClosePrice);
         }
 
+        reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
+        reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI+1));
+        reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(centralRSI-1));
+
         /*for (let i = 0; i < data.length; i++) {
 
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
@@ -199,6 +203,8 @@
 
 
         }
+
+
 
         reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
         reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
