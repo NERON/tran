@@ -167,28 +167,34 @@
         }, []);
 
         var reverseRSI = new RSI(RSIPeriod);
-        var reverseRSIPrev = new RSI(RSIPeriod);
-        var reverseRSINext = new RSI(RSIPeriod);
+        var reverseRSIPrev = new RSI(RSIPeriod - 1);
+        var reverseRSINext = new RSI(RSIPeriod + 1);
 
 		reverseRSIVals = [];
 		reverseRSIValsPrev = [];
 		reverseRSIValsNext = [];
 		reverseRSIVals30 = [];
 
-
-
         for (let i = 0; i < data.length; i++) {
+
+            reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
+            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(RSIValue+2));
+            reverseRSIValsNext.push(reverseRSI.predictPriceForNextCandle(RSIValue-2));
+            reverseRSI.addPoint(data[i].ClosePrice);
+        }
+
+        /*for (let i = 0; i < data.length; i++) {
 
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
             reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
             reverseRSI.addPoint(data[i].ClosePrice);
 
 
-            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI+2));
+            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
             reverseRSIPrev.addPoint(data[i].ClosePrice);
 
 
-            reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI-2));
+            reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
             reverseRSINext.addPoint(data[i].ClosePrice);
 
 
@@ -197,10 +203,10 @@
         reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
         reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
 
-        reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI+2));
-        reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI-2));
+        reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+        reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
 
-        /*reverseRSIValsPrev = reverseRSIValsPrev.map(function (val, idx) {
+        reverseRSIValsPrev = reverseRSIValsPrev.map(function (val, idx) {
             return (reverseRSIVals30[idx] + val) / 2;
         });
 
