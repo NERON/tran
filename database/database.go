@@ -46,7 +46,7 @@ func InitializeDatabase() {
 func GetDatabaseSupportedTimeframes() map[string][]uint {
 
 	return map[string][]uint{
-		"m": {5, 10, 15, 72},
+		"m": {5, 10, 12, 15, 72},
 		"h": {1, 4, 6},
 		"d": {1, 3},
 		"w": {1},
