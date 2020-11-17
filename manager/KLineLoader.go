@@ -142,19 +142,6 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 	}
 }
 
-func checkIntervals(klines []candlescommon.KLine, minutes uint) bool {
-
-	for i := 0; i < len(klines); i++ {
-
-		if klines[i].OpenTime%uint64(minutes*60*1000) != 0 {
-			log.Println("WRONG KLINE", klines[i].OpenTime)
-			return false
-		}
-	}
-
-	return true
-}
-
 func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
 
 	//choose optimal load timeframe
@@ -183,19 +170,6 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		if len(loadedKlines) == 0 {
 			break
-		}
-
-		if interval.Letter == "m" {
-
-			correctness := checkIntervals(loadedKlines, currentTimeframe)
-
-			if !correctness && currentTimeframe != 1 {
-				currentTimeframe = 1
-				log.Println("Some candles have wrong open time!")
-				continue
-			} else if !correctness && currentTimeframe == 1 {
-				log.Fatal("can't get value 1m is wrong")
-			}
 		}
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
