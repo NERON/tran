@@ -296,7 +296,11 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 		if err != nil {
 
-			log.Fatal(err.Error(), klines)
+			for _, klinee := range klines {
+				log.Println(klinee)
+			}
+			log.Fatal(err.Error(), kline)
+
 		}
 
 	}
