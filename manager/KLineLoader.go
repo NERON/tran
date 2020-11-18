@@ -223,6 +223,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			brokenKlines = append(brokenKlines, loadedKlines...)
 			loadedKlines = brokenKlines
 			brokenKlines = nil
+			log.Println("emit fixed klines")
 		}
 
 		if len(loadedKlines) == 0 {
