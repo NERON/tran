@@ -206,13 +206,11 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		loadedKlines, _ := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", timeframe, interval.Letter), providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
 
-		if len(loadedKlines) == 0 {
-			break
-		}
+		log.Println("loaded klines", len(loadedKlines))
 
 		correct := checkKlinesForInterval(loadedKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
 
-		if !correct && loadedKlines[len(loadedKlines)-1].PrevCloseCandleTimestamp != 0 {
+		if !correct && len(loadedKlines) > 0 {
 
 			brokenKlines = append(brokenKlines, loadedKlines...)
 			log.Println("Broken klines", len(brokenKlines), brokenKlines[len(brokenKlines)-1].OpenTime)
@@ -220,10 +218,15 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			continue
 
 		} else if len(brokenKlines) > 0 {
+
 			fixKlinesForInterval(brokenKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
 			brokenKlines = append(brokenKlines, loadedKlines...)
 			loadedKlines = brokenKlines
 			brokenKlines = nil
+		}
+
+		if len(loadedKlines) == 0 {
+			break
 		}
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
