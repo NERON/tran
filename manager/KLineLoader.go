@@ -241,11 +241,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 		var prevClose = uint64(0)
 		for _, loadKline := range loadedKlines {
 
-			if loadKline.OpenTime == 1557882720000 || loadKline.CloseTime == 1557891359999 {
-				log.Println(loadKline)
-			}
-
-			if prevClose != 0 && loadKline.CloseTime != prevClose {
+			if prevClose != 0 && loadKline.CloseTime != prevClose || loadKline.OpenTime == 1557882720000 {
 
 				log.Println("found gap", loadKline)
 
