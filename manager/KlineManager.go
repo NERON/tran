@@ -255,6 +255,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			lastKlines = append(lastKlines, fetchedKlines...)
 			timestamp = lastKlines[len(lastKlines)-1].OpenTime
 
+			log.Println(lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp)
+
 			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
