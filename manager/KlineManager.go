@@ -228,8 +228,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			log.Fatal(err.Error())
 		}
 
-		log.Println(timestamp, symbol, isFull, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
-
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
 		for len(lastKlines) < limit {
@@ -241,8 +239,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				return nil, err
 			}
 
-			log.Println("fetched klines", fetchedKlines)
-
 			if len(fetchedKlines) == 0 && isFull {
 				break
 			}
@@ -250,15 +246,12 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 {
-				log.Println("new cycle")
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
 
 			lastKlines = append(lastKlines, fetchedKlines...)
 			timestamp = lastKlines[len(lastKlines)-1].OpenTime
-
-			log.Println("last kline", lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp)
 
 			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
