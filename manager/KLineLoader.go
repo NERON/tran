@@ -164,7 +164,19 @@ func checkKlinesForInterval(klines []candlescommon.KLine, interval candlescommon
 
 	return true
 }
+func fixKlinesForInterval(klines []candlescommon.KLine, interval candlescommon.Interval) {
 
+	for i := 0; i < len(klines); i++ {
+
+		klines[i].OpenTime = (klines[i].OpenTime / uint64(interval.Duration*60*1000)) * uint64(interval.Duration*60*1000)
+		klines[i].CloseTime = klines[i].OpenTime + uint64(interval.Duration*60*1000) - 1
+
+		if i > 0 {
+			klines[i-1].PrevCloseCandleTimestamp = klines[i].CloseTime
+		}
+	}
+
+}
 func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
 
 	//choose optimal load timeframe
@@ -205,6 +217,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			continue
 
 		} else if correct && len(brokenKlines) > 0 {
+			fixKlinesForInterval(brokenKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
 			log.Fatal(brokenKlines)
 		}
 
