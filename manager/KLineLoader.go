@@ -221,6 +221,10 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		} else if correct && len(brokenKlines) > 0 {
 			fixKlinesForInterval(brokenKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
+
+			for _, kk := range brokenKlines {
+				log.Println(kk)
+			}
 			brokenKlines = append(brokenKlines, loadedKlines...)
 			loadedKlines = brokenKlines
 		}
