@@ -230,10 +230,30 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			break
 		}
 
+		originalKlines := loadedKlines
+
 		if interval.Letter == "h" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration))
 		} else if interval.Letter == "m" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
+		}
+
+		var prevClose = uint64(0)
+		for _, loadKline := range loadedKlines {
+
+			if prevClose != 0 && loadKline.CloseTime != prevClose {
+
+				log.Println("found gap", loadKline)
+
+				for _, originalLoad := range originalKlines {
+
+					log.Println(originalLoad)
+				}
+
+				return
+			}
+
+			prevClose = loadKline.PrevCloseCandleTimestamp
 		}
 
 		SaveCandles(loadedKlines, interval)
