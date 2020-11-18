@@ -215,7 +215,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 		if !correct {
 
 			brokenKlines = append(brokenKlines, loadedKlines...)
-			log.Println("Broken klines", len(brokenKlines))
+			log.Println("Broken klines", len(brokenKlines), brokenKlines[len(loadedKlines)-1].OpenTime)
 			firstDBKline = brokenKlines[len(loadedKlines)-1].OpenTime
 			continue
 
