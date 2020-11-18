@@ -142,6 +142,29 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 	}
 }
 
+func checkKlinesForInterval(klines []candlescommon.KLine, interval candlescommon.Interval) bool {
+
+	if interval.Letter == "m" {
+
+		for i := 0; i < len(klines); i++ {
+
+			if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
+				return false
+			}
+
+			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
+				return false
+			}
+
+			if (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
 
 	//choose optimal load timeframe
@@ -162,14 +185,27 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 	counter := uint(0)
 
-	currentTimeframe := timeframe
+	brokenKlines := make([]candlescommon.KLine, 0)
 
 	for counter < limit {
 
-		loadedKlines, _ := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", currentTimeframe, interval.Letter), providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
+		loadedKlines, _ := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", timeframe, interval.Letter), providers.GetKlineRange{FromTimestamp: firstDBKline, Direction: 0})
 
 		if len(loadedKlines) == 0 {
 			break
+		}
+
+		correct := checkKlinesForInterval(loadedKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
+
+		if !correct {
+
+			brokenKlines = append(brokenKlines, loadedKlines...)
+			log.Println("Broken klines", len(brokenKlines))
+			firstDBKline = brokenKlines[len(loadedKlines)-1].OpenTime
+			continue
+
+		} else if correct && len(brokenKlines) > 0 {
+			log.Fatal(brokenKlines)
 		}
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
@@ -182,7 +218,6 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
 		counter += uint(len(loadedKlines))
-		currentTimeframe = timeframe
 
 	}
 
