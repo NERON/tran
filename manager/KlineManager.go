@@ -55,9 +55,9 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 func convertKlinesToNewTimestamp(klines []candlescommon.KLine, interval candlescommon.Interval) []candlescommon.KLine {
 
 	if interval.Letter == "h" {
-		klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration))
+		klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration), true)
 	} else if interval.Letter == "m" {
-		klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration))
+		klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration), true)
 	}
 
 	return klines

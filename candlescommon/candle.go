@@ -73,11 +73,11 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 	return newKlines
 }
 
-func HoursGroupKlineDesc(klines []KLine, hours uint64) []KLine {
-	return MinutesGroupKlineDesc(klines, hours*60)
+func HoursGroupKlineDesc(klines []KLine, hours uint64, includeLastKline bool) []KLine {
+	return MinutesGroupKlineDesc(klines, hours*60, includeLastKline)
 }
 
-func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
+func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
 
 	//grouped klines
 	groupedKlines := make([]KLine, 0)
@@ -166,7 +166,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64) []KLine {
 	//we should handle two situations,when we should also prepend a kline
 	//first: last candle is not closed
 	//second: last original kline completes the new kline, in this situation we should check their close time
-	if currentKline.Closed == false || klines[0].CloseTime == currentKline.CloseTime {
+	if currentKline.Closed == false || klines[0].CloseTime == currentKline.CloseTime || includeLastKline {
 
 		//prepend item
 		groupedKlines = append([]KLine{currentKline}, groupedKlines...)
