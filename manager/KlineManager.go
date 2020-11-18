@@ -241,6 +241,8 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				return nil, err
 			}
 
+			log.Println("fetched klines", fetchedKlines)
+
 			if len(fetchedKlines) == 0 && isFull {
 				break
 			}
