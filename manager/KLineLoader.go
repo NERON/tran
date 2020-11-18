@@ -149,14 +149,17 @@ func checkKlinesForInterval(klines []candlescommon.KLine, interval candlescommon
 		for i := 0; i < len(klines); i++ {
 
 			if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
+				log.Println("Wrong open value", klines[i])
 				return false
 			}
 
 			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
+				log.Println("Wrong close value", klines[i])
 				return false
 			}
 
 			if (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
+				log.Println("Wrong prev close value", klines[i])
 				return false
 			}
 		}
