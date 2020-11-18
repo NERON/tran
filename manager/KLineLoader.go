@@ -223,6 +223,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			fixKlinesForInterval(brokenKlines, candlescommon.Interval{Letter: interval.Letter, Duration: timeframe})
 			brokenKlines = append(brokenKlines, loadedKlines...)
 			loadedKlines = brokenKlines
+			brokenKlines = nil
 		}
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
@@ -231,7 +232,6 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration))
 		}
 
-		log.Println("save klines", loadedKlines[0].OpenTime, loadedKlines[len(loadedKlines)-1].OpenTime)
 		SaveCandles(loadedKlines, interval)
 
 		firstDBKline = loadedKlines[len(loadedKlines)-1].OpenTime
