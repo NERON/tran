@@ -308,3 +308,57 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 	log.Println(time.Since(t))
 
 }
+
+func Test() {
+
+	klines, _ := providers.GetLastKlines("ETHUSDT", "3m")
+
+	interval := candlescommon.Interval{Duration: 3, Letter: "m"}
+
+	for i := 0; i < len(klines); i++ {
+
+		if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
+			log.Println("Wrong open value", klines[i])
+
+		}
+
+		if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
+			log.Println("Wrong close value", klines[i])
+
+		}
+
+		if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
+			log.Println("Wrong prev close value", klines[i])
+
+		}
+	}
+
+	for {
+
+		klines, _ = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
+
+		for i := 0; i < len(klines); i++ {
+
+			if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
+				log.Println("Wrong open value", klines[i])
+
+			}
+
+			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
+				log.Println("Wrong close value", klines[i])
+
+			}
+
+			if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
+				log.Println("Wrong prev close value", klines[i])
+
+			}
+		}
+
+		if len(klines) == 0 || klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
+			break
+		}
+
+	}
+
+}

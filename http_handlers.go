@@ -108,7 +108,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsiP := indicators.NewRSIMultiplePeriods(250)
 
-		candles, _ := manager.GetLastKLines(symbol, interval, 10000)
+		candles, _ := manager.GetLastKLines(symbol, interval, 100000)
 
 		candlesOld, _ := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 2000)
 
