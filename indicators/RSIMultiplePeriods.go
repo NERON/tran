@@ -1,6 +1,8 @@
 package indicators
 
-import "math"
+import (
+	"math"
+)
 
 func round(num float64) int {
 	return int(num + math.Copysign(0.5, num))
