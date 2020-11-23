@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
@@ -292,6 +293,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	rsiRev := indicators.NewRSILowReverseIndicator()
 	rsi := indicators.RSI{Period: 3}
 
+	bestSequenceList := list.New()
+
 	for idx, candle := range candles {
 
 		rsiRev.AddPoint(candle.LowPrice, candle.ClosePrice)
@@ -303,6 +306,12 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		if ok {
 
 			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+
+			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = e.Next() {
+				bestSequenceList.Remove(e)
+			}
+
+			bestSequenceList.PushFront(bestPeriod)
 
 		}
 
@@ -325,6 +334,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsi.AddPoint(candle.ClosePrice)
 
+	}
+
+	for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+		log.Println(e.Value)
 	}
 
 	byte, _ := json.Marshal(updateCandles)
