@@ -25,6 +25,8 @@
         <input type="text" id="FromPrice" size="10">
         <input type="text" id="ToPrice" size="10">
         <button id="GetPeriodsButton">Start</button>
+        <button id="SaveButton">Save</button>
+        <button id="ClearButton">Save</button>
     </div>
 </div>
 <button class="moreLoad">More</button>
@@ -136,6 +138,17 @@
 	var reverseRSIValsPrev = [];
 	var reverseRSIValsNext = [];
 	var reverseRSIVals30 = [];
+
+
+    prevVal = window.localStorage.getItem("prevPosVal") * 1
+    nextVal = window.localStorage.setItem("nextPosVal") * 1
+
+    if (prevVal > 0 && nextVal > 0) {
+
+        FromPrice = $('#FromPrice').val(prevVal);
+        ToPrice = $('#ToPrice').val(nextVal);
+
+    }
 
     function drawChart(data, excludeFilterValue, RSIValue, RSIPeriod) {
 
@@ -369,6 +382,22 @@
         ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
         drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
 
+    });
+
+    $('#SaveButton').click(function () {
+
+        var fromCandle = $('#FromCandle').val() * 1;
+
+
+        if (!fromCandle) {
+            fromCandle = chartData.length - 1;
+        }
+
+        window.localStorage.setItem("prevPosVal",reverseRSIValsPrev[fromCandle])
+        window.localStorage.setItem("nextPosVal",reverseRSIValsPrev[fromCandle])
+    })
+    $('#ClearButton').click(function () {
+        window.localStorage.clear()
     });
 
     $('#LineButton').click(function () {
