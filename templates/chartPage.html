@@ -428,6 +428,8 @@
 
         }
 
+        var lastCandleLow = 0;
+
         for (let i = 0; i < fromCandle; i++) {
 
             for (var j = 0; j < RSIs.length; j++) {
@@ -436,6 +438,7 @@
 
             }
 
+            lastCandleLow = chartData[i].LowPrice;
         }
 
 
@@ -472,7 +475,7 @@
             console.log(j + 2, up, down);
 
 
-            if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice) && up > down) {
+            if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice) && lastCandleLow >= down) {
 
                 $('#PossiblePeriods').append('<div>' + (j + 2) + '</div>');
             }
