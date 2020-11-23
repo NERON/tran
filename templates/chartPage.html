@@ -145,7 +145,7 @@
         });
 
 
-        timestamps.push(timestamps[timestamps.lengt - 1] + 1);
+        timestamps.push(timestamps[timestamps.length - 1] + 1);
 
         var candlesticks = data.map(function (val) {
             return [val.OpenPrice.toFixed(11), val.ClosePrice.toFixed(11), val.LowPrice.toFixed(11), val.HighPrice.toFixed(11)];
