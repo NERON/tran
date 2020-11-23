@@ -345,6 +345,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(e.Value)
 	}
 
+	log.Println(updateCandles)
+
 	byte, err := json.Marshal(updateCandles)
 
 	if err != nil {
