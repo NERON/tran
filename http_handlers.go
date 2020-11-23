@@ -336,7 +336,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+	for e := bestSequenceList.Back(); e != nil; e = e.Prev() {
 		log.Println(e.Value)
 	}
 
