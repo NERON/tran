@@ -472,7 +472,7 @@
             console.log(j + 2, up, down);
 
 
-            if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice)) {
+            if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice) && up > down) {
 
                 $('#PossiblePeriods').append('<div>' + (j + 2) + '</div>');
             }
