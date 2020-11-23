@@ -258,6 +258,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(candles) == 0 {
+		log.Println("candles null")
 		return
 	}
 
