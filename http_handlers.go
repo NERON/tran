@@ -244,10 +244,16 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	var candles []candlescommon.KLine
 
+	var err error
+
 	if endTimestamp > 0 {
-		candles, _ = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, endTimestamp, 1000)
+		candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, endTimestamp, 1000)
 	} else {
-		candles, _ = manager.GetLastKLines(vars["symbol"], interval, 1000)
+		candles, err = manager.GetLastKLines(vars["symbol"], interval, 1000)
+	}
+
+	if err != nil {
+		log.Println(err.Error())
 	}
 
 	if len(candles) == 0 {
@@ -256,7 +262,11 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld, _ := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	for _, candleOld := range candlesOld {
 
