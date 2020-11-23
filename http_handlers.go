@@ -262,7 +262,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(candles[len(candles)-1])
+	log.Println(candles[0], candles[len(candles)-1])
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
@@ -271,6 +271,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	log.Println(candlesOld)
 
 	for _, candleOld := range candlesOld {
 
