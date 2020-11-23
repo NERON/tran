@@ -262,8 +262,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(candles[0].OpenTime < endTimestamp)
-
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
 	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
@@ -271,8 +269,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	log.Println(len(candlesOld))
 
 	for _, candleOld := range candlesOld {
 
@@ -322,8 +318,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsiP.AddPoint(candle.ClosePrice)
 
-		calcRSI, _ := rsi.PredictForNextPoint(candle.LowPrice)
-
 		updateCandles = append(updateCandles, ChartUpdateCandle{
 			OpenTime:        candle.OpenTime,
 			CloseTime:       candle.CloseTime,
@@ -331,7 +325,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			ClosePrice:      candle.ClosePrice,
 			LowPrice:        candle.LowPrice,
 			HighPrice:       candle.HighPrice,
-			RSIValue:        calcRSI,
+			RSIValue:        0,
 			RSIBestPeriod:   bestPeriod,
 			IsRSIReverseLow: ok,
 			PrevCandleClose: candle.PrevCloseCandleTimestamp,
