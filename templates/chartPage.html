@@ -148,7 +148,7 @@
         timestamps.push(timestamps[timestamps.lengt - 1] + 1);
 
         var candlesticks = data.map(function (val) {
-            return [val.OpenPrice, val.ClosePrice, val.LowPrice, val.HighPrice];
+            return [val.OpenPrice.toFixed(11), val.ClosePrice.toFixed(11), val.LowPrice.toFixed(11), val.HighPrice.toFixed(11)];
         });
 
         var markPoints = data.reduce(function (filtered, candlestick, index) {
