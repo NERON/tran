@@ -307,7 +307,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
-			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = e.Next() {
+			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
 				bestSequenceList.Remove(e)
 			}
 
