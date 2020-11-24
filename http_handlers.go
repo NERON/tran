@@ -300,12 +300,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsi.AddPoint(candle.ClosePrice)
 
-		log.Println(updateCandles[len(updateCandles)-1])
-
-	}
-
-	for e := bestSequenceList.Back(); e != nil; e = e.Prev() {
-		log.Println(e.Value)
 	}
 
 	byte, err := json.Marshal(updateCandles)
