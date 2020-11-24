@@ -1,17 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"container/list"
 	"encoding/json"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
 	"github.com/NERON/tran/manager"
-	"github.com/NERON/tran/providers"
 	"github.com/gorilla/mux"
 	"log"
-	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,60 +25,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	TemplateManager.ExecuteTemplate(w, "chartPage.html", Data{vars["symbol"], vars["interval"], vars["centralRSI"]})
-}
-func RSIJSONHandler(w http.ResponseWriter, r *http.Request) {
-
-	WINDOW := 24
-
-	candles := providers.GetKlines("ETHUSDT", "1h", 0, 0, false)
-
-	rsi := indicators.RSI{Period: 14}
-
-	RSIs := make([]float64, 0)
-
-	for _, candle := range candles {
-
-		rsi.AddPoint(candle.ClosePrice)
-		rsiVal, ok := rsi.Calculate()
-
-		if ok {
-			RSIs = append(RSIs, math.Round(rsiVal*1000)/1000)
-		}
-	}
-
-	currentWindow := make([][]float64, 2)
-	RSIsWindowed := make([][][]float64, 0)
-
-	i := 0
-
-	for ; i < WINDOW && i < len(RSIs); i++ {
-		currentWindow[0] = append(currentWindow[0], RSIs[i])
-	}
-
-	i++
-
-	for ; i < len(RSIs); i++ {
-
-		currentWindow[1] = make([]float64, 1)
-		currentWindow[1][0] = RSIs[i]
-
-		RSIsWindowed = append(RSIsWindowed, currentWindow)
-
-		currentWindowNew := make([][]float64, 2)
-		currentWindowNew[0] = append(currentWindowNew[0], currentWindow[0][1:]...)
-		currentWindowNew[0] = append(currentWindowNew[0], RSIs[i])
-
-		currentWindow = currentWindowNew
-
-	}
-
-	//output json
-	byte, _ := json.Marshal(RSIsWindowed)
-
-	w.Header().Add("Content-Disposition", "Attachment")
-
-	http.ServeContent(w, r, "BTCUSDT.json", time.Now(), bytes.NewReader(byte))
-
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
@@ -280,6 +223,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	lowsMap := make(map[int]struct{})
+
+	if len(candlesOld) > 0 {
+		lowReverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
+	}
 
 	for idx, candle := range candles {
 
