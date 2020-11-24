@@ -181,6 +181,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	endTimestamp := uint64(0)
 
 	if len(r.URL.Query()["endTimestamp"]) > 0 {
+
 		endTimestamp, _ = strconv.ParseUint(r.URL.Query()["endTimestamp"][0], 10, 64)
 	}
 
@@ -191,7 +192,18 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if endTimestamp > 0 {
-		candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, endTimestamp, 1000)
+
+		calcEnd := endTimestamp
+
+		if interval.Letter == "h" {
+			calcEnd = (endTimestamp/uint64(interval.Duration)/3600/1000 + 1) * uint64(interval.Duration) * 3600 * 1000
+
+		} else if interval.Letter == "m" {
+			calcEnd = (endTimestamp/uint64(interval.Duration)/60/1000 + 1) * uint64(interval.Duration) * 60 * 1000
+		}
+
+		candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, calcEnd, 1000)
+
 	} else {
 		candles, err = manager.GetLastKLines(vars["symbol"], interval, 1000)
 	}
@@ -238,6 +250,12 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			lowsMap[idx] = struct{}{}
 		}
 
+	}
+
+	//TODO: Get low reverse for last element
+	if endTimestamp > 0 && candles[len(candles)-1].OpenTime == endTimestamp {
+		log.Println("Remove last element")
+		candles = candles[:len(candles)-1]
 	}
 
 	rsiRev := indicators.NewRSILowReverseIndicator()
