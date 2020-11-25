@@ -108,24 +108,25 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			for e := seqStack.Front(); e != nil && e.Value.(int) <= sequence[i]+1; e = seqStack.Front() {
+			bestVal := 0
 
-				_, ok := transitionMap[e.Value.(int)]
+			for e := seqStack.Front(); e != nil && e.Value.(int) <= sequence[i]; e = seqStack.Front() {
+
+				bestVal = e.Value.(int)
+				seqStack.Remove(e)
+
+			}
+
+			if bestVal > 0 {
+
+				_, ok := transitionMap[bestVal]
 
 				if !ok {
 
-					transitionMap[e.Value.(int)] = make(map[int]int)
+					transitionMap[bestVal] = make(map[int]int)
 				}
 
-				transitionMap[e.Value.(int)][sequence[i]]++
-
-				if e.Value.(int) <= sequence[i] {
-					seqStack.Remove(e)
-				} else {
-					log.Println(e.Value.(int), sequence[i])
-					break
-				}
-
+				transitionMap[bestVal][sequence[i]]++
 			}
 
 			counter, _ := counterMap[sequence[i]]
