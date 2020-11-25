@@ -104,6 +104,10 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 		for i := 0; i < len(sequence); i++ {
 
+			if sequence[i] == 0 {
+				continue
+			}
+
 			for e := seqStack.Front(); e != nil && e.Value.(int) <= sequence[i]; e = seqStack.Front() {
 
 				_, ok := transitionMap[e.Value.(int)]
