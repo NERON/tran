@@ -122,6 +122,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				if e.Value.(int) <= sequence[i] {
 					seqStack.Remove(e)
 				} else {
+					log.Println(e.Value.(int), sequence[i])
 					break
 				}
 
