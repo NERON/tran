@@ -129,6 +129,20 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				transitionMap[bestVal][sequence[i]]++
 			}
 
+			frontVal := seqStack.Front()
+
+			if frontVal != nil && frontVal.Value.(int)-1 == sequence[i] {
+
+				_, ok := transitionMap[frontVal.Value.(int)]
+
+				if !ok {
+
+					transitionMap[frontVal.Value.(int)] = make(map[int]int)
+				}
+
+				transitionMap[frontVal.Value.(int)][sequence[i]]++
+			}
+
 			counter, _ := counterMap[sequence[i]]
 			counter.Counter++
 
