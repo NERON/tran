@@ -117,18 +117,6 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
-			if bestVal > 0 {
-
-				_, ok := transitionMap[bestVal]
-
-				if !ok {
-
-					transitionMap[bestVal] = make(map[int]int)
-				}
-
-				transitionMap[bestVal][sequence[i]]++
-			}
-
 			frontVal := seqStack.Front()
 
 			if frontVal != nil && frontVal.Value.(int)-1 == sequence[i] {
@@ -141,6 +129,17 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 				}
 
 				transitionMap[frontVal.Value.(int)][sequence[i]]++
+
+			} else if bestVal > 0 {
+
+				_, ok := transitionMap[bestVal]
+
+				if !ok {
+
+					transitionMap[bestVal] = make(map[int]int)
+				}
+
+				transitionMap[bestVal][sequence[i]]++
 			}
 
 			counter, _ := counterMap[sequence[i]]
