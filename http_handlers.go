@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,33 +100,31 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		seqStack := list.New()
+
 		for i := 0; i < len(sequence); i++ {
 
-			j := i + 1
+			for e := seqStack.Front(); e != nil && e.Value.(int) <= sequence[i]; e = seqStack.Front() {
 
-			counterV := counterMap[sequence[i]]
-			counterV.Counter += 1
-			counterV.LastKline = klinesSeq[i]
-			counterMap[sequence[i]] = counterV
-
-			for j < len(sequence) && sequence[i] > sequence[j] {
-				j++
-			}
-
-			if j < len(sequence) {
-
-				_, ok := transitionMap[sequence[i]]
+				_, ok := transitionMap[e.Value.(int)]
 
 				if !ok {
-					transitionMap[sequence[i]] = make(map[int]int)
+
+					transitionMap[e.Value.(int)] = make(map[int]int)
 				}
 
-				transitionMap[sequence[i]][sequence[j]]++
+				transitionMap[e.Value.(int)][sequence[i]]++
+
+				seqStack.Remove(e)
 			}
 
-		}
+			counter, _ := counterMap[sequence[i]]
+			counter.Counter++
 
-		time.Sleep(time.Second * 30)
+			counterMap[sequence[i]] = counter
+
+			seqStack.PushFront(sequence[i])
+		}
 
 	}
 
@@ -314,59 +311,4 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
-	/*
-		time, _ := strconv.ParseUint(vars["time"], 10, 64)
-
-		var klines []candlescommon.KLine
-		var err error
-
-		if time == 0 {
-			klines, err = providers.GetLastKlines("ETHUSDT", "3m")
-		} else {
-
-			direction, _ := strconv.ParseUint(vars["direction"], 10, 64)
-
-			if direction == 0 {
-				klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: time})
-			} else {
-				klines, err = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 1, FromTimestamp: time})
-			}
-
-		}
-
-		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		}
-		klines = candlescommon.MinutesGroupKlineDesc(klines, 72)
-
-		byte, _ := json.Marshal(klines)
-
-		w.Write(byte)*/
-
-	vars := mux.Vars(r)
-	time, _ := strconv.ParseUint(vars["time"], 10, 64)
-
-	intervalStr := vars["interval"]
-	interval := candlescommon.IntervalFromStr(intervalStr)
-
-	log.Println(intervalStr, interval)
-
-	var klines []candlescommon.KLine
-	var err error
-
-	if time == 0 {
-		klines, err = manager.GetLastKLines("ETHUSDT", interval, 1000)
-	} else {
-		klines, err = manager.GetLastKLinesFromTimestamp("ETHUSDT", interval, time, 1000)
-	}
-
-	if err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	byte, _ := json.Marshal(klines)
-
-	w.Write(byte)
 }
