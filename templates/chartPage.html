@@ -508,6 +508,8 @@
 
         if (params.seriesName == "cnd_data") {
             $('#FromCandle').val(params.data[0]);
+            $('.priceValue').text(100 - 100 * reverseRSIValsPrev[params.data[0]] / reverseRSIValsNext[params.data[0]] )
+
 
         } else {
 
