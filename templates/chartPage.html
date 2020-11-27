@@ -222,6 +222,8 @@
             return (reverseRSIVals30[idx] + val) / 2;
         });
 
+        $('.priceValue').text(100 - 100 * reverseRSIValsPrev[reverseRSIValsPrev.length - 2] / reverseRSIValsNext[reverseRSIValsNext.length - 2] )
+
 
         if (!chartInited) {
 
@@ -506,7 +508,6 @@
 
         if (params.seriesName == "cnd_data") {
             $('#FromCandle').val(params.data[0]);
-            $('.priceValue').text(reverseRSIValsPrev[params.data[0]] - reverseRSIValsNext[params.data[0]])
 
         } else {
 
