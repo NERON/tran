@@ -192,13 +192,16 @@
 
         for (let i = 0; i < data.length; i++) {
 
+            if (RSIPeriod > 2) {
+                reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+                reverseRSIPrev.addPoint(data[i].ClosePrice);
+            } else {
+                reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI));
+            }
+
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
             reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
             reverseRSI.addPoint(data[i].ClosePrice);
-
-
-            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
-            reverseRSIPrev.addPoint(data[i].ClosePrice);
 
 
             reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
@@ -212,7 +215,13 @@
         reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
         reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
 
-        reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+        if (RSIPeriod > 2) {
+            reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
+        } else {
+            reverseRSIValsPrev.push(reverseRSI.predictPriceForNextCandle(centralRSI));
+        }
+
+
         reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
 
         reverseRSIValsPrev = reverseRSIValsPrev.map(function (val, idx) {
