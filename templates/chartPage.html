@@ -165,6 +165,8 @@
             return [val.OpenPrice.toFixed(11), val.ClosePrice.toFixed(11), val.LowPrice.toFixed(11), val.HighPrice.toFixed(11)];
         });
 
+        var markPointsStack = [];
+
         var markPoints = data.reduce(function (filtered, candlestick, index) {
 
             if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > excludeFilterValue) {
@@ -175,10 +177,24 @@
                     xAxis: index,
                     yAxis: candlestick.LowPrice
                 });
+
+                for (let j =markPointsStack.length - 1; j >=0;j--) {
+
+                    if (markPointsStack[j] <= candlestick.RSIBestPeriod) {
+                        markPointsStack.pop()
+                    }
+                }
+
+                markPointsStack.push(candlestick.RSIBestPeriod)
+
+
             }
 
             return filtered;
         }, []);
+
+        console.log(markPointsStack)
+
 
         var reverseRSI = new RSI(RSIPeriod);
         var reverseRSIPrev = new RSI(RSIPeriod > 1 ? RSIPeriod - 1 : 1);
