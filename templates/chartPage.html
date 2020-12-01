@@ -26,6 +26,7 @@
         <input type="text" id="ToPrice" size="10">
         <button id="GetPeriodsButton">Start</button>
         <button id="SaveButton">Save</button>
+        <button id="SaveMerge">Save</button>
         <button id="ClearButton">Clear</button>
     </div>
 </div>
@@ -415,6 +416,21 @@
         window.localStorage.setItem("prevPosVal",reverseRSIValsPrev[fromCandle])
         window.localStorage.setItem("nextPosVal",reverseRSIValsNext[fromCandle])
     })
+    $('#SaveMerge').click(function () {
+
+        var fromCandle = $('#FromCandle').val() * 1;
+        FromPrice = $('#FromPrice').val() * 1 || 0;
+        ToPrice = $('#ToPrice').val() * 1 || 0;
+
+
+        if (!fromCandle) {
+            fromCandle = chartData.length;
+        }
+
+        window.localStorage.setItem("prevPosVal",Math.min(reverseRSIValsPrev[fromCandle],FromPrice))
+        window.localStorage.setItem("nextPosVal",Math.max(reverseRSIValsNext[fromCandle],ToPrice ))
+    })
+
     $('#ClearButton').click(function () {
         window.localStorage.clear()
     });
