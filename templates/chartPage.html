@@ -522,6 +522,8 @@
         var idx = markPointsStack.length - 1;
         var idx1 = 0;
 
+        console.log('supported period', supportedPeriods)
+
         while (idx >= 0 && idx1 < supportedPeriods.length) {
 
             if (supportedPeriods[idx1] === markPointsStack[idx] || supportedPeriods[idx1] === markPointsStack[idx] - 1) {
