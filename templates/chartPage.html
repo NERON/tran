@@ -531,7 +531,7 @@
 
 
             if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice) && lastCandleLow >= down) {
-                $('#PossiblePeriods').append('<div>' + (j+2) + '</div>');
+
 
                 supportedPeriods.push(j+2)
 
@@ -546,10 +546,10 @@
         while (idx >= 0 && idx1 < supportedPeriods.length) {
 
             if (supportedPeriods[idx1] === markPointsStack[idx] || supportedPeriods[idx1] === markPointsStack[idx] - 1) {
-                console.log(supportedPeriods[idx1]);
+                $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
                 idx1++;
             } else  if (supportedPeriods[idx1] === markPointsStack[idx]  + 1) {
-                console.log(supportedPeriods[idx1]);
+                $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
                 idx1++;
                 idx--;
             } else if (markPointsStack[idx] < supportedPeriods[idx1] ) {
