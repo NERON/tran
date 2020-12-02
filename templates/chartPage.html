@@ -141,6 +141,7 @@
 	var reverseRSIValsNext = [];
 	var reverseRSIVals30 = [];
 
+    var markPointsStack = [];
 
     prevVal = window.localStorage.getItem("prevPosVal") * 1
     nextVal = window.localStorage.getItem("nextPosVal") * 1
@@ -166,7 +167,7 @@
             return [val.OpenPrice.toFixed(11), val.ClosePrice.toFixed(11), val.LowPrice.toFixed(11), val.HighPrice.toFixed(11)];
         });
 
-        var markPointsStack = [];
+
 
         var markPoints = data.reduce(function (filtered, candlestick, index) {
 
@@ -480,6 +481,7 @@
         FromPrice = $('#FromPrice').val() * 1 || 0;
         ToPrice = $('#ToPrice').val() * 1 || 0;
 
+        var supportedPeriods = [];
 
         for (var j = 0; j < RSIs.length; j++) {
 
@@ -507,14 +509,35 @@
 
             }
 
-            console.log(j + 2, up, down);
+
 
 
             if (!isNaN(down) && !isNaN(up) && !(down > FromPrice || up < ToPrice) && lastCandleLow >= down) {
 
-                $('#PossiblePeriods').append('<div>' + (j + 2) + '</div>');
+                supportedPeriods.push(j+2)
+
             }
         }
+
+        var idx = markPointsStack.length - 1;
+        var idx1 = 0;
+
+        while (idx >= 0 && idx1 < supportedPeriods) {
+
+            if (supportedPeriods[idx1] === markPointsStack[idx] || supportedPeriods[idx1] === markPointsStack[idx] - 1) {
+                $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
+                idx1++;
+            } else  if (supportedPeriods[idx1] === idx1++ + 1) {
+                $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
+                idx1++;
+                idx--;
+            } else if (markPointsStack[idx] < supportedPeriods[idx1] ) {
+                idx--;
+            } else {
+                idx++;
+            }
+        }
+
 
 
     });
