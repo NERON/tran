@@ -141,7 +141,7 @@
 	var reverseRSIValsNext = [];
 	var reverseRSIVals30 = [];
 
-    var markPointsStack = [];
+
 
     prevVal = window.localStorage.getItem("prevPosVal") * 1
     nextVal = window.localStorage.getItem("nextPosVal") * 1
@@ -206,6 +206,8 @@
 		reverseRSIValsPrev = [];
 		reverseRSIValsNext = [];
 		reverseRSIVals30 = [];
+
+        var markPointsStack = [];
 
 
         for (let i = 0; i < data.length; i++) {
@@ -466,6 +468,8 @@
 
         var lastCandleLow = 0;
 
+        var markPointsStack = [];
+
         for (let i = 0; i < fromCandle; i++) {
 
             for (var j = 0; j < RSIs.length; j++) {
@@ -473,6 +477,15 @@
                 RSIs[j].addPoint(chartData[i].ClosePrice);
 
             }
+
+            for (let j =markPointsStack.length - 1; j >=0;j--) {
+
+                if (markPointsStack[j] <= chartData[i].RSIBestPeriod) {
+                    markPointsStack.pop()
+                }
+            }
+
+            markPointsStack.push(chartData[i].RSIBestPeriod)
 
             lastCandleLow = chartData[i].LowPrice;
         }
@@ -523,7 +536,7 @@
         var idx = markPointsStack.length - 1;
         var idx1 = 0;
 
-        console.log('supported period', supportedPeriods)
+        console.log('supported period', supportedPeriods,markPointsStack)
 
         while (idx >= 0 && idx1 < supportedPeriods.length) {
 
