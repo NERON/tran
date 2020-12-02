@@ -477,15 +477,20 @@
                 RSIs[j].addPoint(chartData[i].ClosePrice);
 
             }
+            if (chartData[i].RSIBestPeriod > 0 ) {
 
-            for (let j =markPointsStack.length - 1; j >=0;j--) {
+                for (let j =markPointsStack.length - 1; j >=0;j--) {
 
-                if (markPointsStack[j] <= chartData[i].RSIBestPeriod) {
-                    markPointsStack.pop()
+                    if (markPointsStack[j] <= chartData[i].RSIBestPeriod) {
+                        markPointsStack.pop()
+                    }
                 }
+
+                markPointsStack.push(chartData[i].RSIBestPeriod)
+
+
             }
 
-            markPointsStack.push(chartData[i].RSIBestPeriod)
 
             lastCandleLow = chartData[i].LowPrice;
         }
