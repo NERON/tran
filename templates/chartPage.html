@@ -167,7 +167,7 @@
             return [val.OpenPrice.toFixed(11), val.ClosePrice.toFixed(11), val.LowPrice.toFixed(11), val.HighPrice.toFixed(11)];
         });
 
-
+        var markPointsStack = [];
 
         var markPoints = data.reduce(function (filtered, candlestick, index) {
 
@@ -207,7 +207,7 @@
 		reverseRSIValsNext = [];
 		reverseRSIVals30 = [];
 
-        var markPointsStack = [];
+
 
 
         for (let i = 0; i < data.length; i++) {
