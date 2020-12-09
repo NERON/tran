@@ -97,6 +97,10 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" || databaseInterval == 0 {
 
+		if interval.Letter == "d" || interval.Letter == "w" {
+			limit = 10000000000000
+		}
+
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter), providers.GetKlineRange{Direction: 0, FromTimestamp: lastKlines[len(lastKlines)-1].OpenTime})
@@ -119,6 +123,10 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			if lastKlines[len(lastKlines)-1].PrevCloseCandleTimestamp == 0 {
 				break
 			}
+		}
+
+		if (interval.Letter == "d" || interval.Letter == "w") && interval.Duration != loadInterval {
+			lastKlines = candlescommon.GroupKline(lastKlines, int(interval.Duration))
 		}
 
 	} else {
