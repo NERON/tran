@@ -125,10 +125,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			}
 		}
 
-		if (interval.Letter == "d" || interval.Letter == "w") && interval.Duration != loadInterval {
-			lastKlines = candlescommon.GroupKline(lastKlines, int(interval.Duration))
-		}
-
 	} else {
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
@@ -173,6 +169,10 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 	for i := 0; i < len(lastKlines)/2; i++ {
 		j := len(lastKlines) - i - 1
 		lastKlines[i], lastKlines[j] = lastKlines[j], lastKlines[i]
+	}
+
+	if (interval.Letter == "d" || interval.Letter == "w") && interval.Duration != loadInterval {
+		lastKlines = candlescommon.GroupKline(lastKlines, int(interval.Duration))
 	}
 
 	return lastKlines, nil
