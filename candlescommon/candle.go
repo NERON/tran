@@ -70,6 +70,10 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 
 	}
 
+	if newKline.OpenTime > 0 {
+		newKlines = append(newKlines, newKline)
+	}
+
 	return newKlines
 }
 
