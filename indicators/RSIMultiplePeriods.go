@@ -57,8 +57,6 @@ func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float
 		price, ok := rsip.RSIs[i].PredictPrice(centralRSI)
 		rsiVal, _ := rsip.RSIs[i].PredictForNextPoint(priceFor)
 
-		price = toFixed(price, 8)
-
 		if !ok {
 			return bestPeriod, bestRSIVal
 		}
