@@ -548,10 +548,8 @@
             if (supportedPeriods[idx1] === markPointsStack[idx]) {
                 $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
                 idx1++;
-            } else  if (supportedPeriods[idx1] === markPointsStack[idx]  + 1) {
-                $('#PossiblePeriods').append('<div>' + supportedPeriods[idx1] + '</div>');
-                idx1++;
                 idx--;
+
             } else if (markPointsStack[idx] < supportedPeriods[idx1] ) {
                 idx--;
             } else {
