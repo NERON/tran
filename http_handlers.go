@@ -391,7 +391,7 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 		up, down := rsiP.GetIntervalForPeriod(2, float64(centralRSI))
 
-		results = append(results, Result{Interval: intervalStr, Up: up, Down: down, Percent: ((down-up)/up - 1) * 100})
+		results = append(results, Result{Interval: intervalStr, Up: up, Down: down, Percent: (down/up - 1) * 100})
 
 	}
 
