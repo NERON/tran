@@ -342,6 +342,20 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 		"40m",
 		"45m",
 		"48m",
+		"1h",
+		"72m",
+		"80m",
+		"90m",
+		"96m",
+		"2h",
+		"144m",
+		"160m",
+		"3h",
+		"4h",
+		"288m",
+		"6h",
+		"8h",
+		"12h",
 	}
 
 	type Result struct {
