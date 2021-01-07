@@ -21,6 +21,7 @@ func InitRouting() *mux.Router {
 	r.HandleFunc("/chart/{symbol}/{interval}/{centralRSI}", ChartUpdateHandler)
 	r.HandleFunc("/test/{symbol}/{interval}/{centralRSI}", TestHandler)
 	r.HandleFunc("/load/{interval}/{time}", SaveCandlesHandler)
+	r.HandleFunc("/getInter/{symbol}/{centralRSI}", GetIntervalHandler)
 
 	return r
 }

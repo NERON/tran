@@ -317,7 +317,93 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(byte)
 
 }
+func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
+	if centralRSI == 0 {
+		centralRSI = 20
+	}
+
+	intervals := []string{
+		"6m",
+		"8m",
+		"9m",
+		"10m",
+		"12m",
+		"15m",
+		"16m",
+		"20m",
+		"24m",
+		"30m",
+		"32m",
+		"36m",
+		"40m",
+		"45m",
+		"48m",
+	}
+
+	type Result struct {
+		Interval string
+		Up       float64
+		Down     float64
+		Percent  float64
+	}
+
+	results := make([]Result, 0)
+
+	for _, intervalStr := range intervals {
+
+		interval := candlescommon.IntervalFromStr(intervalStr)
+
+		candles, err := manager.GetLastKLines(vars["symbol"], interval, 1000)
+
+		if err != nil {
+
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+
+		if err != nil {
+
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		rsiP := indicators.NewRSIMultiplePeriods(250)
+
+		for _, candleOld := range candlesOld {
+
+			rsiP.AddPoint(candleOld.ClosePrice)
+
+		}
+
+		for _, candle := range candles {
+
+			if candle.Closed {
+				rsiP.AddPoint(candle.ClosePrice)
+			}
+
+		}
+
+		up, down := rsiP.GetIntervalForPeriod(2, float64(centralRSI))
+
+		results = append(results, Result{Interval: intervalStr, Up: up, Down: down, Percent: ((down-up)/up - 1) * 100})
+
+	}
+
+	byte, err := json.Marshal(results)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	w.Write(byte)
+
+}
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 }
