@@ -243,7 +243,7 @@
             return (reverseRSIVals30[idx] + val) / 2;
         });
 
-        $('.priceValue').text(100 - 100 * reverseRSIValsPrev[reverseRSIValsPrev.length - 2] / reverseRSIValsNext[reverseRSIValsNext.length - 2] )
+        $('.priceValue').text((reverseRSIValsNext[reverseRSIValsPrev.length - 2] / reverseRSIValsPrev[reverseRSIValsNext.length - 2] - 1) * 100)
 
 
         if (!chartInited) {
