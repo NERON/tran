@@ -8,6 +8,7 @@ import (
 	"github.com/NERON/tran/indicators"
 	"github.com/NERON/tran/manager"
 	"github.com/gorilla/mux"
+	"gonum.org/v1/gonum/stat/combin"
 	"log"
 	"net/http"
 	"sort"
@@ -578,7 +579,42 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return segments[i].Value > segments[j].Value
 	})
 
-	byte, err := json.Marshal(segments)
+	test := make([][]int, 0)
+
+	intersectionList := make([]string, 0)
+
+	for _, end := range segments {
+
+		if end.Type == 0 {
+			intersectionList = append(intersectionList, end.ID)
+
+		} else {
+
+			index := 0
+
+			for idx, val := range intersectionList {
+
+				if val == end.ID {
+					break
+				}
+
+				index = idx
+			}
+
+			//remove data
+			intersectionList[index] = intersectionList[len(intersectionList)-1]
+			intersectionList = intersectionList[:len(intersectionList)-1]
+
+			//generate combinations
+			gen := combin.NewCombinationGenerator(len(intersectionList), 2)
+
+			for gen.Next() {
+				test = append(test, gen.Combination(nil))
+			}
+		}
+	}
+
+	byte, err := json.Marshal(test)
 
 	if err != nil {
 		log.Println(err.Error())
