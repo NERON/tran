@@ -264,14 +264,9 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		candles = candles[:len(candles)-1]
 	}
 
-	rsiRev := indicators.NewRSILowReverseIndicator()
-	rsi := indicators.RSI{Period: 3}
-
 	bestSequenceList := list.New()
 
 	for idx, candle := range candles {
-
-		rsiRev.AddPoint(candle.LowPrice, candle.ClosePrice)
 
 		_, ok := lowsMap[idx]
 
@@ -303,9 +298,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			IsRSIReverseLow: ok,
 			PrevCandleClose: candle.PrevCloseCandleTimestamp,
 		})
-
-		rsi.AddPoint(candle.ClosePrice)
-
 	}
 
 	byte, err := json.Marshal(updateCandles)
@@ -419,5 +411,123 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
+	if centralRSI == 0 {
+		centralRSI = 20
+	}
+
+	intervals := []string{
+		"1h",
+		"72m",
+		"80m",
+		"90m",
+		"96m",
+		"2h",
+		"144m",
+	}
+
+	type SequenceResult struct {
+		Interval string
+		Val      interface{}
+	}
+
+	results := make([]SequenceResult, 0)
+
+	for _, intervalStr := range intervals {
+
+		interval := candlescommon.IntervalFromStr(intervalStr)
+
+		candles, err := manager.GetLastKLines(vars["symbol"], interval, 1000)
+
+		if err != nil {
+
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if len(candles) == 0 {
+			w.Write([]byte("Data not exist"))
+			return
+		}
+
+		if candles[len(candles)-1].Closed == false {
+			candles = candles[:len(candles)-1]
+		}
+
+		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+
+		if err != nil {
+
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		lowReverse := indicators.NewRSILowReverseIndicator()
+		lowsMap := make(map[int]struct{})
+
+		if len(candlesOld) > 0 {
+			lowReverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
+		}
+
+		for idx, candle := range candles {
+
+			lowReverse.AddPoint(candle.LowPrice, 0)
+
+			if lowReverse.IsPreviousLow() {
+				lowsMap[idx-1] = struct{}{}
+			} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
+				lowsMap[idx] = struct{}{}
+			}
+
+		}
+
+		rsiP := indicators.NewRSIMultiplePeriods(250)
+
+		for _, candleOld := range candlesOld {
+
+			rsiP.AddPoint(candleOld.ClosePrice)
+
+		}
+
+		bestSequenceList := list.New()
+
+		for idx, candle := range candles {
+
+			_, ok := lowsMap[idx]
+
+			bestPeriod := 0
+
+			if ok {
+
+				bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+
+				for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
+					bestSequenceList.Remove(e)
+				}
+
+				bestSequenceList.PushFront(bestPeriod)
+
+			}
+
+			rsiP.AddPoint(candle.ClosePrice)
+
+		}
+
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+			results = append(results, SequenceResult{Interval: intervalStr, Val: e.Value})
+		}
+
+	}
+
+	byte, err := json.Marshal(results)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	w.Write(byte)
 
 }
