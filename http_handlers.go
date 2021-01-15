@@ -548,6 +548,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			if previousAddedSeq != sequenceData.Sequence {
 
 				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+
+				if up <= down {
+					continue
+				}
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
 				results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
@@ -555,9 +559,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if sequenceData.LowCentralPrice && previousAddedSeq != sequenceData.Sequence+1 {
+
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
+
 				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+
+				if up <= down {
+					continue
+				}
 
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
