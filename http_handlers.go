@@ -442,7 +442,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Down     float64
 	}
 
+	type IntervalEnds struct {
+		ID    string
+		Value float64
+		Type  int
+	}
+
 	results := make([]SequenceResult, 0)
+
+	segments := make([]IntervalEnds, 0)
 
 	for _, intervalStr := range intervals {
 
@@ -533,19 +541,25 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(SequenceValue)
 			up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+			segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
+			segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
 			results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
 
 			if sequenceData.LowCentralPrice {
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
+
 				results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
 			}
 		}
 
 	}
 
-	byte, err := json.Marshal(results)
+	byte, err := json.Marshal(segments)
 
 	if err != nil {
 		log.Println(err.Error())
