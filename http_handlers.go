@@ -601,6 +601,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				index = idx
 			}
 
+			if index >= len(intersectionList) {
+				log.Println("Error")
+				return
+			}
+
 			//remove data
 			intersectionList[index] = intersectionList[len(intersectionList)-1]
 			intersectionList = intersectionList[:len(intersectionList)-1]
