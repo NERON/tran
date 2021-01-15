@@ -538,15 +538,22 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		previousAddedSeq := 0
+
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(SequenceValue)
-			up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
-			segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
-			segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
-			results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
 
-			if sequenceData.LowCentralPrice {
+			if previousAddedSeq != sequenceData.Sequence {
+
+				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
+				results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
+				previousAddedSeq = sequenceData.Sequence
+			}
+
+			if sequenceData.LowCentralPrice && previousAddedSeq != sequenceData.Sequence+1 {
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
@@ -555,6 +562,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
 
 				results = append(results, SequenceResult{Interval: intervalStr, Val: sequenceData, Up: up, Down: down})
+
+				previousAddedSeq = sequenceData.Sequence
 			}
 		}
 
