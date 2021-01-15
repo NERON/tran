@@ -602,7 +602,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if index >= len(intersectionList) {
-				log.Println("Error", end.ID, intersectionList)
+				log.Println("Error", end.ID, intersectionList, segments)
 				return
 			}
 
