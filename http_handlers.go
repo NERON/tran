@@ -432,6 +432,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	type SequenceValue struct {
 		Sequence        int
 		LowCentralPrice bool
+		CentralPrice    float64
 	}
 
 	type SequenceResult struct {
@@ -520,7 +521,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					bestSequenceList.Remove(e)
 				}
 
-				bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: bestPeriod})
+				bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: bestPeriod, CentralPrice: centralPrice})
 
 			}
 
