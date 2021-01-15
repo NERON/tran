@@ -431,7 +431,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	type SequenceResult struct {
 		Interval string
-		Val      interface{}
+		Val      int
+		Up       float64
+		Down     float64
 	}
 
 	results := make([]SequenceResult, 0)
@@ -517,7 +519,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
-			results = append(results, SequenceResult{Interval: intervalStr, Val: e.Value})
+			up, down := rsiP.GetIntervalForPeriod(e.Value.(int), float64(centralRSI))
+			results = append(results, SequenceResult{Interval: intervalStr, Val: e.Value.(int), Up: up, Down: down})
 		}
 
 	}
