@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 )
 
@@ -558,6 +559,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+
+	sort.Slice(segments, func(i, j int) bool {
+
+		if segments[i].Value == segments[j].Value {
+			return segments[i].Type < segments[j].Type
+		}
+
+		return segments[i].Value > segments[j].Value
+	})
 
 	byte, err := json.Marshal(segments)
 
