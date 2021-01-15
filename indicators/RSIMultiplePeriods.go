@@ -46,10 +46,11 @@ func (rsip *RSIMultiplePeriods) GetBestPeriodByRSIValue(priceFor float64, centra
 	return bestPeriod
 
 }
-func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float64) (int, float64) {
+func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float64) (int, float64, float64) {
 
 	bestDiff := 10000000000000000.0
 	bestPeriod := 1
+	bestPrice := 0.0
 	bestRSIVal := 0.0
 
 	for i := 0; i < len(rsip.RSIs); i++ {
@@ -58,18 +59,19 @@ func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float
 		rsiVal, _ := rsip.RSIs[i].PredictForNextPoint(priceFor)
 
 		if !ok {
-			return bestPeriod, bestRSIVal
+			return bestPeriod, bestRSIVal, bestPrice
 		}
 
 		if math.Abs(price-priceFor) < bestDiff && rsip.RSIs[i].Period > 1 {
 			bestPeriod = int(rsip.RSIs[i].Period)
+			bestPrice = price
 			bestDiff = math.Abs(price - priceFor)
 			bestRSIVal = rsiVal
 		}
 
 	}
 
-	return bestPeriod, bestRSIVal
+	return bestPeriod, bestRSIVal, bestPrice
 }
 
 func (rsip *RSIMultiplePeriods) GetIntervalForPeriod(period int, centralRSI float64) (float64, float64) {

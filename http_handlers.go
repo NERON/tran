@@ -82,7 +82,7 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if ok {
 
-				bestPeriod, rsiVal := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+				bestPeriod, rsiVal, _ := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 				sequence = append(sequence, bestPeriod)
 				klinesSeq = append(klinesSeq, candle)
 
@@ -274,7 +274,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+			bestPeriod, _, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
 			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
 				bestSequenceList.Remove(e)
@@ -429,9 +429,14 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		"144m",
 	}
 
+	type SequenceValue struct {
+		Sequence        int
+		LowCentralPrice bool
+	}
+
 	type SequenceResult struct {
 		Interval string
-		Val      int
+		Val      SequenceValue
 		Up       float64
 		Down     float64
 	}
@@ -500,17 +505,22 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			_, ok := lowsMap[idx]
 
-			bestPeriod := 0
-
 			if ok {
 
-				bestPeriod, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
-				for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
+				lowCentral := candle.LowPrice < centralPrice
+
+				for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= bestPeriod; e = bestSequenceList.Front() {
+
+					if e.Value.(SequenceValue).Sequence == bestPeriod {
+						lowCentral = lowCentral || e.Value.(SequenceValue).LowCentralPrice
+					}
+
 					bestSequenceList.Remove(e)
 				}
 
-				bestSequenceList.PushFront(bestPeriod)
+				bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: bestPeriod})
 
 			}
 
@@ -520,7 +530,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 			up, down := rsiP.GetIntervalForPeriod(e.Value.(int), float64(centralRSI))
-			results = append(results, SequenceResult{Interval: intervalStr, Val: e.Value.(int), Up: up, Down: down})
+			results = append(results, SequenceResult{Interval: intervalStr, Val: e.Value.(SequenceValue), Up: up, Down: down})
 		}
 
 	}
