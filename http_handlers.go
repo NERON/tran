@@ -644,7 +644,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 						val, _ := segmentsMap[comb]
 						up = math.Min(up, val.Up)
-						down = math.Min(down, val.Down)
+						down = math.Max(down, val.Down)
 					}
 					test = append(test, Res{combination, up, down})
 
@@ -655,7 +655,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	byte, err := json.Marshal(test)
+	byte, err := json.Marshal(segments)
 
 	if err != nil {
 		log.Println(err.Error())
