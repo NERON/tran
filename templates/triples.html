@@ -76,13 +76,22 @@
         window.localStorage.clear()
     });
 
+    $(body).on('click','.save_button',function() {
+
+        var from = $(this).parent('.triple_element')
+
+
+        window.localStorage.setItem("prevPosVal",from.attr('data-up'))
+        window.localStorage.setItem("nextPosVal",from.attr('data-down'))
+
+    });
 
 
 
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI, function (data) {
 
         for (var r in data) {
-            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).attr('data-up',data[r].Up).attr('data-down',data[r].Down))
+            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down))
         }
 
     });
