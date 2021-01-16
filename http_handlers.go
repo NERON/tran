@@ -690,6 +690,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if len(maxVal.Combination) == 0 {
+		exclude = append(exclude, maxVal)
+	}
+
 	type Test struct {
 		A []Res
 		B []Res
