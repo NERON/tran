@@ -673,25 +673,19 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	exclude := make([]Res, 0)
 
-	maxVal := Res{}
+	currentDown := 0.0
 
 	for _, val := range test {
-
-		if maxVal.Down != val.Down && len(maxVal.Combination) != 0 {
-			exclude = append(exclude, maxVal)
-			maxVal = Res{}
-		}
 
 		if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
-		} else if len(maxVal.Combination) == 0 {
-			maxVal = val
-		}
-	}
+		} else if currentDown != val.Down {
 
-	if len(maxVal.Combination) == 0 {
-		exclude = append(exclude, maxVal)
+			exclude = append(exclude, val)
+			currentDown = val.Down
+
+		}
 	}
 
 	type Test struct {
