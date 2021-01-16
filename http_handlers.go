@@ -693,7 +693,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		B []Res
 	}
 
-	byte, err := json.Marshal(Test{exclude, test})
+	byte, err := json.Marshal(exclude)
 
 	if err != nil {
 		log.Println(err.Error())
