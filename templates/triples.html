@@ -77,7 +77,7 @@
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI, function (data) {
 
         for (var r in data) {
-            $('#Vals').append($("<div></div>").append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)))
+            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).attr('data-up',data[r].Up).attr('data-down',data[r].Down))
         }
 
     });
