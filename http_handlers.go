@@ -671,7 +671,26 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return test[i].Down > test[j].Down
 	})
 
-	byte, err := json.Marshal(test)
+	exclude := make([]Res, 0)
+
+	maxVal := Res{}
+
+	for _, val := range test {
+
+		if maxVal.Down != val.Down && maxVal.Percentage > 0 {
+			exclude = append(exclude, maxVal)
+		}
+
+		if val.Percentage < -3 {
+			exclude = append(exclude, val)
+
+		} else {
+
+			maxVal = val
+		}
+	}
+
+	byte, err := json.Marshal(exclude)
 
 	if err != nil {
 		log.Println(err.Error())
