@@ -585,7 +585,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return segments[i].Value > segments[j].Value
 	})
 
-	test := make([][]int, 0)
+	test := make([][]string, 0)
 
 	intersectionList := make([]string, 0)
 
@@ -622,7 +622,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				gen := combin.NewCombinationGenerator(len(intersectionList), 2)
 
 				for gen.Next() {
-					test = append(test, gen.Combination(nil))
+
+					combinations := gen.Combination(nil)
+					test = append(test, []string{intersectionList[combinations[0]], intersectionList[combinations[1]], end.ID})
+
 				}
 
 			}
@@ -630,7 +633,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	byte, err := json.Marshal(segments)
+	byte, err := json.Marshal(test)
 
 	if err != nil {
 		log.Println(err.Error())
