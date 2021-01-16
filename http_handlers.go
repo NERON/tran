@@ -610,11 +610,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			for idx, val := range intersectionList {
 
+				index = idx
+
 				if val == end.ID {
 					break
 				}
-
-				index = idx
 			}
 
 			if index >= len(intersectionList) {
@@ -636,7 +636,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					combinations := gen.Combination(nil)
 
 					up := 99999999999999999999999.0
-					down := 9999999999999999999999999999.0
+					down := 0.0
 
 					combination := []string{intersectionList[combinations[0]], intersectionList[combinations[1]], end.ID}
 
