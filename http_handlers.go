@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"gonum.org/v1/gonum/stat/combin"
 	"log"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -439,7 +440,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	type SequenceResult struct {
 		Interval string
-		Val      SequenceValue
+		Val      int
 		Up       float64
 		Down     float64
 	}
@@ -451,6 +452,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	segments := make([]IntervalEnds, 0)
+	segmentsMap := make(map[string]SequenceResult, 0)
 
 	for _, intervalStr := range intervals {
 
@@ -552,7 +554,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
-
+				segmentsMap[fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
 			}
 
 			if sequenceData.LowCentralPrice {
@@ -569,11 +571,19 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
 
+				segmentsMap[fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
+
 			}
 
 			previousAddedSeq = sequenceData.Sequence
 		}
 
+	}
+
+	type Res struct {
+		Combination []string
+		Up          float64
+		Down        float64
 	}
 
 	sort.Slice(segments, func(i, j int) bool {
@@ -585,7 +595,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return segments[i].Value > segments[j].Value
 	})
 
-	test := make([][]string, 0)
+	test := make([]Res, 0)
 
 	intersectionList := make([]string, 0)
 
@@ -624,7 +634,19 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				for gen.Next() {
 
 					combinations := gen.Combination(nil)
-					test = append(test, []string{intersectionList[combinations[0]], intersectionList[combinations[1]], end.ID})
+
+					up := 99999999999999999999999.0
+					down := 9999999999999999999999999999.0
+
+					combination := []string{intersectionList[combinations[0]], intersectionList[combinations[1]], end.ID}
+
+					for _, comb := range combination {
+
+						val, _ := segmentsMap[comb]
+						up = math.Min(up, val.Up)
+						down = math.Min(down, val.Down)
+					}
+					test = append(test, Res{combination, up, down})
 
 				}
 
