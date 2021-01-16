@@ -430,6 +430,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		"96m",
 		"2h",
 		"144m",
+		"160m",
+		"3h",
+		"4h",
+		"6h",
+		"8h",
+		"12h",
 	}
 
 	type SequenceValue struct {
