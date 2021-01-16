@@ -29,6 +29,18 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	TemplateManager.ExecuteTemplate(w, "chartPage.html", Data{vars["symbol"], vars["interval"], vars["centralRSI"]})
 }
 
+func GetTriplesHandler(w http.ResponseWriter, r *http.Request) {
+
+	type Data struct {
+		Symbol     string
+		CentralRSI string
+	}
+
+	vars := mux.Vars(r)
+
+	TemplateManager.ExecuteTemplate(w, "triples.html", Data{vars["symbol"], vars["centralRSI"]})
+}
+
 func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

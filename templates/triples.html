@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+<div>
+
+    <div>
+        <input type="text" id="FromCandle" size="10">
+        <input type="text" id="FromPrice" size="10">
+        <input type="text" id="ToPrice" size="10">
+        <button id="GetPeriodsButton">Start</button>
+        <button id="SaveButton">Save</button>
+        <button id="SaveMerge">Save Merge</button>
+        <button id="ClearButton">Clear</button>
+    </div>
+</div>
+
+<div id="Vals"></div>
+
+<script type="text/javascript">
+
+
+    var centralRSI = {{.CentralRSI}} * 1;
+    var symbol = "{{.Symbol}}";
+
+    prevVal = window.localStorage.getItem("prevPosVal") * 1
+    nextVal = window.localStorage.getItem("nextPosVal") * 1
+
+    if (prevVal > 0 && nextVal > 0) {
+
+        FromPrice = $('#FromPrice').val(prevVal);
+        ToPrice = $('#ToPrice').val(nextVal);
+
+    }
+
+
+    $('#SaveButton').click(function () {
+
+        var fromCandle = $('#FromCandle').val() * 1;
+
+
+        if (!fromCandle) {
+            fromCandle = chartData.length;
+        }
+
+        window.localStorage.setItem("prevPosVal",reverseRSIValsPrev[fromCandle])
+        window.localStorage.setItem("nextPosVal",reverseRSIValsNext[fromCandle])
+    })
+    $('#SaveMerge').click(function () {
+
+        var fromCandle = $('#FromCandle').val() * 1;
+        FromPrice = $('#FromPrice').val() * 1 || 0;
+        ToPrice = $('#ToPrice').val() * 1 || 0;
+
+
+        if (!fromCandle) {
+            fromCandle = chartData.length;
+        }
+
+        window.localStorage.setItem("prevPosVal",Math.min(reverseRSIValsPrev[fromCandle],FromPrice))
+        window.localStorage.setItem("nextPosVal",Math.max(reverseRSIValsNext[fromCandle],ToPrice ))
+    })
+
+    $('#ClearButton').click(function () {
+        window.localStorage.clear()
+    });
+
+
+
+
+    $.getJSON("/getDD/" + symbol  + "/" + centralRSI, function (data) {
+
+        for (var r in data) {
+            $('#Val').append($("<div></div>").append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)))
+        }
+
+    });
+
+
+
+
+
+
+</script>
+</body>
+
+</html>
