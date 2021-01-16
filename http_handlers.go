@@ -690,7 +690,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	byte, err := json.Marshal(test)
+	type Test struct {
+		A []Res
+		B []Res
+	}
+
+	byte, err := json.Marshal(Test{exclude, test})
 
 	if err != nil {
 		log.Println(err.Error())
