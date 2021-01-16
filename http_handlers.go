@@ -493,7 +493,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			candles = candles[:len(candles)-1]
 		}
 
-		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+		/*candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
 
 		if err != nil {
 
@@ -594,7 +594,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			previousAddedSeq = sequenceData.Sequence
-		}
+		}*/
 
 	}
 
