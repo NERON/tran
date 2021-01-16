@@ -45,33 +45,6 @@
     }
 
 
-    $('#SaveButton').click(function () {
-
-        var fromCandle = $('#FromCandle').val() * 1;
-
-
-        if (!fromCandle) {
-            fromCandle = chartData.length;
-        }
-
-        window.localStorage.setItem("prevPosVal",reverseRSIValsPrev[fromCandle])
-        window.localStorage.setItem("nextPosVal",reverseRSIValsNext[fromCandle])
-    })
-    $('#SaveMerge').click(function () {
-
-        var fromCandle = $('#FromCandle').val() * 1;
-        FromPrice = $('#FromPrice').val() * 1 || 0;
-        ToPrice = $('#ToPrice').val() * 1 || 0;
-
-
-        if (!fromCandle) {
-            fromCandle = chartData.length;
-        }
-
-        window.localStorage.setItem("prevPosVal",Math.min(reverseRSIValsPrev[fromCandle],FromPrice))
-        window.localStorage.setItem("nextPosVal",Math.max(reverseRSIValsNext[fromCandle],ToPrice ))
-    })
-
     $('#ClearButton').click(function () {
         window.localStorage.clear()
     });
@@ -86,6 +59,25 @@
 
     });
 
+    $('#GetPeriodsButton').click(function() {
+
+
+        FromPrice = $('#FromPrice').val() * 1;
+        ToPrice = $('#ToPrice').val() * 1;
+
+        $("#Vals").children().each(function () {
+
+            var up = $(this).attr('data-up') * 1;
+            var down = $(this).attr('data-down') * 1;
+
+            if (up < ToPrice || down > FromPrice) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+
+        })
 
 
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI, function (data) {
