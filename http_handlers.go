@@ -590,6 +590,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Combination []string
 		Up          float64
 		Down        float64
+		Percentage  float64
 	}
 
 	sort.Slice(segments, func(i, j int) bool {
@@ -652,7 +653,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						up = math.Min(up, val.Up)
 						down = math.Max(down, val.Down)
 					}
-					test = append(test, Res{combination, up, down})
+					test = append(test, Res{combination, up, down, (down/up - 1) * 100})
 
 				}
 
@@ -660,6 +661,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 	}
+
+	sort.Slice(test, func(i, j int) bool {
+		return test[i].Percentage < test[j].Percentage
+	})
 
 	byte, err := json.Marshal(test)
 
