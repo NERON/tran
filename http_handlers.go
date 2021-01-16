@@ -679,14 +679,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		if maxVal.Down != val.Down && len(maxVal.Combination) != 0 {
 			exclude = append(exclude, maxVal)
+			maxVal = val
 		}
 
 		if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
-		} else {
-
-			maxVal = val
 		}
 	}
 
