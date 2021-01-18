@@ -222,8 +222,6 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 
 		}
 
-		log.Println(len(brokenKlines), len(loadedKlines))
-
 		if len(loadedKlines) == 0 {
 			break
 		}
