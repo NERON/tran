@@ -10,7 +10,9 @@ import (
 )
 
 type symbolKlines struct {
-	symbolName string
+	symbolName        string
+	intervalTimeframe string
+	archiveLength     uint
 
 	archivedKlines []candlescommon.KLine
 	activeKline    candlescommon.KLine
@@ -60,7 +62,7 @@ func (s *symbolKlines) SetActiveKline(kline candlescommon.KLine) {
 			//append kline to archive
 			s.archivedKlines = append(s.archivedKlines, s.activeKline)
 
-			if len(s.archivedKlines) > 1500 {
+			if len(s.archivedKlines) > int(s.archiveLength) {
 				s.archivedKlines = s.archivedKlines[1:]
 			}
 
@@ -156,7 +158,7 @@ func (s *symbolKlines) loadProcedure() {
 	//iterate while not receive success
 	for !success {
 
-		klines, err := providers.GetLastKlines(s.symbolName, "1m")
+		klines, err := providers.GetLastKlines(s.symbolName, s.intervalTimeframe)
 
 		if err != nil {
 
@@ -166,9 +168,9 @@ func (s *symbolKlines) loadProcedure() {
 
 		var oldKlines []candlescommon.KLine
 
-		for len(klines) < 1440 {
+		for len(klines) < int(s.archiveLength) {
 
-			oldKlines, err = providers.GetKlinesNew(s.symbolName, "1m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
+			oldKlines, err = providers.GetKlinesNew(s.symbolName, s.intervalTimeframe, providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
 
 			if err != nil {
 				break
@@ -234,9 +236,9 @@ func (s *symbolKlines) loadProcedure() {
 
 }
 
-func newSymbolKLines(symbol string) *symbolKlines {
+func newSymbolKLines(symbol string, timeframe string, archiveLength uint) *symbolKlines {
 
-	return &symbolKlines{mu: &sync.RWMutex{}, symbolName: symbol}
+	return &symbolKlines{mu: &sync.RWMutex{}, symbolName: symbol, intervalTimeframe: timeframe, archiveLength: archiveLength}
 
 }
 
@@ -289,7 +291,8 @@ func NewLastKlinesCacher(symbols []string) (*LastKlinesCaches, error) {
 	}
 
 	for _, symbol := range symbols {
-		klines.symbols[symbol] = newSymbolKLines(symbol)
+
+		klines.symbols[symbol] = newSymbolKLines(symbol, "1m", 1500)
 	}
 
 	klines.ws = providers.NewBinanceWebSocketProvider(func(messageID uint64, wsKline providers.WsKline) {
