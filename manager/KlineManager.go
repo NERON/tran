@@ -129,7 +129,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
-		_, min, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+		_, min, err := IsAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
 
 		if err != nil {
 			log.Fatal(err.Error())
@@ -230,13 +230,15 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
-		_, min, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+		max, min, err := IsAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
 
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
-		FillDatabaseToLatestValues(symbol, databaseIn)
+		if timestamp > uint64(max) {
+			FillDatabaseToLatestValues(symbol, databaseIn)
+		}
 
 		for len(lastKlines) < limit {
 

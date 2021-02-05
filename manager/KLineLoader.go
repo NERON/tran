@@ -65,7 +65,7 @@ func GetOptimalDatabaseTimeframe(interval candlescommon.Interval) uint {
 	return optimalTimeFrame
 }
 
-func isAllCandlesLoaded(symbol string, timeframe string) (int64, int64, error) {
+func IsAllCandlesLoaded(symbol string, timeframe string) (int64, int64, error) {
 
 	max, min := sql.NullInt64{}, sql.NullInt64{}
 
