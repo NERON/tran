@@ -129,7 +129,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
-		isFull, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+		_, min, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
 
 		if err != nil {
 			log.Fatal(err.Error())
@@ -147,7 +147,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
-			if len(fetchedKlines) == 0 && !isFull {
+			if len(fetchedKlines) == 0 && min != 0 {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
@@ -230,7 +230,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
 
-		isFull, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+		_, min, err := isAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
 
 		if err != nil {
 			log.Fatal(err.Error())
@@ -247,7 +247,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				return nil, err
 			}
 
-			if len(fetchedKlines) == 0 && isFull {
+			if len(fetchedKlines) == 0 && min == 0 {
 				break
 			}
 
@@ -319,9 +319,9 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 func Test() {
 
-	klines, _ := providers.GetLastKlines("ETHUSDT", "3m")
+	klines, _ := providers.GetLastKlines("ETHUSDT", "5m")
 
-	interval := candlescommon.Interval{Duration: 3, Letter: "m"}
+	interval := candlescommon.Interval{Duration: 5, Letter: "m"}
 
 	for i := 0; i < len(klines); i++ {
 
@@ -331,19 +331,24 @@ func Test() {
 		}
 
 		if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
-			log.Println("Wrong close value", klines[i])
+			//log.Println("Wrong close value", klines[i])
+
+		}
+
+		if klines[i].CloseTime < klines[i].OpenTime {
+			//log.Println("close time fucked", klines[i])
 
 		}
 
 		if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
-			log.Println("Wrong prev close value", klines[i])
+			//log.Println("Wrong prev close value", klines[i])
 
 		}
 	}
 
 	for {
 
-		klines, _ = providers.GetKlinesNew("ETHUSDT", "3m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
+		klines, _ = providers.GetKlinesNew("ETHUSDT", "5m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
 
 		for i := 0; i < len(klines); i++ {
 
@@ -353,12 +358,17 @@ func Test() {
 			}
 
 			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
-				log.Println("Wrong close value", klines[i])
+				//log.Println("Wrong close value", klines[i])
+
+			}
+
+			if klines[i].CloseTime < klines[i].OpenTime {
+				//log.Println("close time fucked", klines[i])
 
 			}
 
 			if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
-				log.Println("Wrong prev close value", klines[i])
+				//log.Println("Wrong prev close value", klines[i])
 
 			}
 		}

@@ -28,8 +28,8 @@ type GetKlineRange struct {
 func GetSupportedTimeframes() map[string][]uint {
 
 	return map[string][]uint{
-		"m": {1, 3, 5, 15, 30},
-		"h": {1, 2, 4, 6, 8, 12},
+		"m": {1},
+		"h": {1},
 		"d": {1, 3},
 		"w": {1},
 		"M": {1},
@@ -169,13 +169,13 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 		kline.TakerBuyQuoteVolume = toFloat(k[10].(string))
 		kline.Closed = true
 
+		if kline.OpenTime > kline.CloseTime {
+			kline.CloseTime = kline.OpenTime
+		}
+
 		if len(result) > 0 {
 
 			result[len(result)-1].PrevCloseCandleTimestamp = kline.CloseTime
-		}
-
-		if kline.OpenTime > kline.CloseTime {
-			kline.CloseTime = kline.OpenTime
 		}
 
 		result = append(result, kline)
