@@ -262,6 +262,11 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
+			if len(fetchedKlines) == 0 {
+				log.Println("NULL AFTER")
+				break
+			}
+
 			lastKlines = append(lastKlines, fetchedKlines...)
 			timestamp = lastKlines[len(lastKlines)-1].OpenTime
 
