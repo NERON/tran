@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/providers"
 	"log"
@@ -243,7 +244,7 @@ func newSymbolKLines(symbol string, timeframe string, archiveLength uint) *symbo
 }
 
 type LastKlinesCaches struct {
-	symbols map[string]*symbolKlines
+	symbols map[string]map[string]*symbolKlines
 	ws      *providers.BinanceWebsocketProvider
 }
 
@@ -260,7 +261,7 @@ func toFloat(value string) float64 {
 }
 func (s *LastKlinesCaches) GetLatestKLines(symbol string, interval candlescommon.Interval) ([]candlescommon.KLine, bool) {
 
-	klineCacher, ok := s.symbols[symbol]
+	klineCacher, ok := s.symbols[fmt.Sprintf("1%s", interval.Letter)][symbol]
 
 	if !ok {
 		return nil, false
@@ -287,20 +288,35 @@ func (s *LastKlinesCaches) GetLatestKLines(symbol string, interval candlescommon
 func NewLastKlinesCacher(symbols []string) (*LastKlinesCaches, error) {
 
 	klines := &LastKlinesCaches{
-		symbols: make(map[string]*symbolKlines),
+		symbols: make(map[string]map[string]*symbolKlines),
 	}
 
-	for _, symbol := range symbols {
+	archiveLengths := []uint{1500, 50}
 
-		klines.symbols[symbol] = newSymbolKLines(symbol, "1m", 1500)
+	for idx, interval := range []string{"1m", "1h"} {
+
+		klines.symbols[interval] = make(map[string]*symbolKlines)
+
+		for _, symbol := range symbols {
+
+			klines.symbols[interval][symbol] = newSymbolKLines(symbol, interval, archiveLengths[idx])
+		}
+
 	}
 
 	klines.ws = providers.NewBinanceWebSocketProvider(func(messageID uint64, wsKline providers.WsKline) {
 
-		klineCacher, ok := klines.symbols[wsKline.Symbol]
+		IntervalCacher, ok := klines.symbols[wsKline.Interval]
 
 		if !ok {
-			log.Println("Cache not exist ", wsKline.Symbol)
+			log.Println("Interval not exist ", wsKline.Symbol)
+			return
+		}
+
+		klineCacher, ok := IntervalCacher[wsKline.Symbol]
+
+		if !ok {
+			log.Println("Interval not exist ", wsKline.Symbol)
 			return
 		}
 
@@ -328,7 +344,7 @@ func NewLastKlinesCacher(symbols []string) (*LastKlinesCaches, error) {
 		symbols[idx] = strings.ToLower(str)
 	}
 
-	err := klines.ws.Start(symbols)
+	err := klines.ws.Start(symbols, []string{"1m", "1h"})
 
 	if err != nil {
 		return nil, err

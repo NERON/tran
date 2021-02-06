@@ -37,7 +37,7 @@ type BinanceWebsocketProvider struct {
 	handler func(messageID uint64, kline WsKline)
 }
 
-func (p *BinanceWebsocketProvider) Start(streams []string) error {
+func (p *BinanceWebsocketProvider) Start(symbols []string, intervals []string) error {
 
 	c, _, err := websocket.DefaultDialer.Dial("wss://stream.binance.com:9443/ws", nil)
 
@@ -53,9 +53,13 @@ func (p *BinanceWebsocketProvider) Start(streams []string) error {
 
 	subscribe := WSMethod{Method: "SUBSCRIBE", ID: 1}
 
-	for _, stream := range streams {
+	for _, stream := range symbols {
 
-		subscribe.Params = append(subscribe.Params, fmt.Sprintf("%s@kline_1m", stream))
+		for _, interval := range intervals {
+
+			subscribe.Params = append(subscribe.Params, fmt.Sprintf("%s@kline_%s", stream, interval))
+		}
+
 	}
 
 	err = c.WriteJSON(subscribe)
