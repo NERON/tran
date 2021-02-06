@@ -81,7 +81,7 @@ func HoursGroupKlineDesc(klines []KLine, hours uint64, includeLastKline bool) []
 	return MinutesGroupKlineDesc(klines, hours*60, includeLastKline)
 }
 
-func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
+func MinutesGroupKlineDescoLD(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
 
 	//grouped klines
 	groupedKlines := make([]KLine, 0)
@@ -180,7 +180,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 	return groupedKlines
 
 }
-func MinutesGroupKlineDescN(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
+func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
 
 	//grouped klines
 	groupedKlines := make([]KLine, 0)
@@ -206,6 +206,7 @@ func MinutesGroupKlineDescN(klines []KLine, minutes uint64, includeLastKline boo
 			if newDivision > division {
 				break
 			}
+
 		}
 
 	}
@@ -233,6 +234,8 @@ func MinutesGroupKlineDescN(klines []KLine, minutes uint64, includeLastKline boo
 			currentKline = klines[index]
 
 		}
+
+		currentKline.CloseTime = klines[index].CloseTime
 
 		//set close price to current
 		currentKline.ClosePrice = klines[index].ClosePrice

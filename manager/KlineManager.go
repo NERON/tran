@@ -321,7 +321,44 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 
 func Test() {
 
-	klines, _ := providers.GetLastKlines("ETHUSDT", "5m")
+	klines, err := providers.GetLastKlines("ETHUSDT", "1m")
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	klines = candlescommon.MinutesGroupKlineDesc(klines, 5, true)
+
+	for {
+
+		oklines, err := providers.GetKlinesNew("ETHUSDT", "1m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		oklines = candlescommon.MinutesGroupKlineDesc(oklines, 5, true)
+		klines = append(klines, oklines...)
+
+		prevClose := uint64(0)
+
+		for i := 0; i < len(klines); i++ {
+
+			if prevClose > 0 && klines[i].CloseTime != prevClose {
+
+				for j := 0; j <= i; j++ {
+					log.Println(j, klines[j])
+				}
+				log.Fatal("END")
+			}
+			prevClose = klines[i].PrevCloseCandleTimestamp
+
+		}
+
+		if len(oklines) == 0 || oklines[len(oklines)-1].PrevCloseCandleTimestamp == 0 {
+			break
+		}
+
+	}
 
 	interval := candlescommon.Interval{Duration: 5, Letter: "m"}
 
@@ -346,39 +383,6 @@ func Test() {
 			//log.Println("Wrong prev close value", klines[i])
 
 		}
-	}
-
-	for {
-
-		klines, _ = providers.GetKlinesNew("ETHUSDT", "5m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
-
-		for i := 0; i < len(klines); i++ {
-
-			if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
-				log.Println("Wrong open value", klines[i])
-
-			}
-
-			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
-				//log.Println("Wrong close value", klines[i])
-
-			}
-
-			if klines[i].CloseTime < klines[i].OpenTime {
-				//log.Println("close time fucked", klines[i])
-
-			}
-
-			if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
-				//log.Println("Wrong prev close value", klines[i])
-
-			}
-		}
-
-		if len(klines) == 0 || klines[len(klines)-1].PrevCloseCandleTimestamp == 0 {
-			break
-		}
-
 	}
 
 }
