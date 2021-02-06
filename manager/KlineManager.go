@@ -256,6 +256,10 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				continue
 			}
 
+			if len(fetchedKlines) == 0 {
+				break
+			}
+
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			lastKlines = append(lastKlines, fetchedKlines...)
