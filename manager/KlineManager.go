@@ -137,8 +137,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
-		fetchKlineBefore := 0
-
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, lastKlines[len(lastKlines)-1].OpenTime, 1000)
@@ -147,17 +145,11 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 				return nil, err
 			}
 
-			fetchKlineBefore = len(fetchedKlines)
-
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 && min != 0 {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
-			}
-
-			if len(fetchedKlines) == 0 {
-				log.Println("fetch before", fetchKlineBefore)
 			}
 
 			lastKlines = append(lastKlines, fetchedKlines...)

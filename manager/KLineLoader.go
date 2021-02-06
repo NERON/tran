@@ -72,7 +72,7 @@ func IsAllCandlesLoaded(symbol string, timeframe string) (int64, int64, error) {
 	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT max("openTime"),min("prevCandle") FROM public.tran_candles_%s WHERE symbol =$1`, timeframe), symbol).Scan(&max, &min)
 
 	if err != nil && err != sql.ErrNoRows || !max.Valid {
-		return 0, 0, err
+		return 0, -1, err
 	}
 
 	return max.Int64, min.Int64, nil
