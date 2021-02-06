@@ -259,6 +259,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
 			}
+			log.Println("debug", min, len(fetchedKlines))
 
 			lastKlines = append(lastKlines, fetchedKlines...)
 			timestamp = lastKlines[len(lastKlines)-1].OpenTime
