@@ -157,7 +157,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 			}
 
 			if len(fetchedKlines) == 0 {
-				log.Println(fetchKlineBefore)
+				log.Println("fetch before", fetchKlineBefore)
 			}
 
 			lastKlines = append(lastKlines, fetchedKlines...)
