@@ -486,7 +486,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		candles, ok := KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		log.Println(interval, candles[0])
-
+		return
 		var err error
 
 		if ok {
