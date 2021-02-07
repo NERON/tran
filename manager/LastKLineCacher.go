@@ -153,6 +153,7 @@ func (s *symbolKlines) FillCache() {
 
 func (s *symbolKlines) loadProcedure() {
 
+	log.Println("Load data")
 	//loop variable
 	success := false
 
