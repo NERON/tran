@@ -485,7 +485,17 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		candles, ok := KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
-		log.Println(candles[len(candles)-1].ClosePrice)
+		prevClose := uint64(0)
+
+		for i := 0; i < len(candles); i++ {
+
+			if prevClose > 0 && candles[i].PrevCloseCandleTimestamp != prevClose {
+
+				log.Fatal(candles)
+			}
+			prevClose = candles[i].CloseTime
+
+		}
 
 		var err error
 
