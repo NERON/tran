@@ -153,7 +153,6 @@ func (s *symbolKlines) FillCache() {
 
 func (s *symbolKlines) loadProcedure() {
 
-	log.Println("Load data")
 	//loop variable
 	success := false
 
@@ -211,6 +210,9 @@ func (s *symbolKlines) loadProcedure() {
 
 			//set archive filled to true
 			s.archiveFilled = true
+
+			//set prev closed
+			s.activeKline.PrevCloseCandleTimestamp = klines[len(klines)-1].PrevCloseCandleTimestamp
 
 			//set success to true
 			success = true
