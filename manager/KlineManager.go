@@ -258,7 +258,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
 
 			if len(fetchedKlines) == 0 {
-				log.Println("NULL AFTER", ff)
+				log.Println("NULL AFTER", timestamp, interval, ff)
 				break
 			}
 
