@@ -30,8 +30,6 @@ func (s *symbolKlines) SetActiveKline(kline candlescommon.KLine) {
 	//try to lock access to structure
 	s.mu.Lock()
 
-	log.Println("change value")
-
 	//check if equal open time or it first set
 	if s.activeKline.OpenTime == kline.OpenTime || s.activeKline.OpenTime == 0 {
 
