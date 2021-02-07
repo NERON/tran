@@ -489,8 +489,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			firstKline := candles[0]
-
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
 
 			if err == nil {
@@ -499,25 +497,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
-			prevClose := uint64(0)
-
-			for i := 0; i < len(candles); i++ {
-
-				if prevClose > 0 && candles[i].PrevCloseCandleTimestamp != prevClose {
-
-					for j := 0; j <= i; j++ {
-						log.Println(candles[j])
-
-					}
-					log.Fatal(interval, firstKline)
-				}
-				prevClose = candles[i].CloseTime
-
-			}
-
 		} else {
 
 			candles, err = manager.GetLastKLines(vars["symbol"], interval, 1000)
+		}
+
+		isCorrect := candlescommon.CheckCandles(candles)
+
+		if !isCorrect {
+			log.Fatal(candles)
 		}
 
 		if err != nil {
@@ -744,11 +732,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			currentDown = val.Down
 
 		}
-	}
-
-	type Test struct {
-		A []Res
-		B []Res
 	}
 
 	byte, err := json.Marshal(exclude)

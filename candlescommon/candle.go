@@ -81,104 +81,21 @@ func HoursGroupKlineDesc(klines []KLine, hours uint64, includeLastKline bool) []
 	return MinutesGroupKlineDesc(klines, hours*60, includeLastKline)
 }
 
-func MinutesGroupKlineDescoLD(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
+func CheckCandles(klines []KLine) bool {
 
-	//grouped klines
-	groupedKlines := make([]KLine, 0)
+	prevClose := uint64(0)
 
-	//check if it's not null
-	if len(klines) == 0 {
-		return groupedKlines
-	}
+	for i := 0; i < len(klines); i++ {
 
-	//set index
-	index := len(klines) - 1
+		if prevClose > 0 && klines[i].PrevCloseCandleTimestamp != prevClose {
 
-	//if first kline in array isn't have start open time iterating...
-	if klines[index].OpenTime%(minutes*60*1000) != 0 && klines[index].PrevCloseCandleTimestamp != 0 {
-
-		division := klines[index].OpenTime / (minutes * 60 * 1000)
-
-		for ; index >= 0; index-- {
-
-			newDivision := klines[index].OpenTime / (minutes * 60 * 1000)
-
-			//find next open time start...
-			if newDivision > division {
-				break
-			}
+			return false
 		}
+		prevClose = klines[i].CloseTime
 
 	}
 
-	currentKline := KLine{Closed: true}
-
-	var division = uint64(0)
-
-	//iterate over next values
-	for ; index >= 0; index-- {
-
-		newDivision := klines[index].OpenTime / (minutes * 60 * 1000)
-
-		//if we find, that divisor have been increased, we should create new Kline
-		if newDivision > division {
-
-			//if it's not first kline, save previous first kline
-			if currentKline.OpenTime > 0 {
-				//prepend item
-				groupedKlines = append([]KLine{currentKline}, groupedKlines...)
-			}
-
-			//assign new kline
-			currentKline = klines[index]
-
-			//open time set to start interval
-			currentKline.OpenTime = newDivision * (minutes * 60 * 1000)
-
-			//close time is set to as open time + minutes - 1 ms
-			currentKline.CloseTime = (newDivision+1)*(minutes*60*1000) - 1
-
-			//calculate start time for previous kline
-			prevCandleDivisor := currentKline.PrevCloseCandleTimestamp / (minutes * 60 * 1000)
-			currentKline.PrevCloseCandleTimestamp = (prevCandleDivisor+1)*(minutes*60*1000) - 1
-		}
-
-		if klines[index].PrevCloseCandleTimestamp == 0 {
-			currentKline.PrevCloseCandleTimestamp = 0
-		}
-
-		//set close price to current
-		currentKline.ClosePrice = klines[index].ClosePrice
-		//choose max price
-		currentKline.HighPrice = math.Max(currentKline.HighPrice, klines[index].HighPrice)
-		//choose min price
-		currentKline.LowPrice = math.Min(currentKline.LowPrice, klines[index].LowPrice)
-
-		//add volume data...
-		currentKline.BaseVolume += klines[index].BaseVolume
-		currentKline.TakerBuyBaseVolume += klines[index].TakerBuyBaseVolume
-		currentKline.QuoteVolume += klines[index].QuoteVolume
-		currentKline.TakerBuyQuoteVolume += klines[index].TakerBuyQuoteVolume
-
-		//closed status sets based on last kline
-		currentKline.Closed = klines[index].Closed
-
-		division = newDivision
-
-	}
-
-	//we should handle two situations,when we should also prepend a kline
-	//first: last candle is not closed
-	//second: last original kline completes the new kline, in this situation we should check their close time
-	if currentKline.Closed == false || klines[0].CloseTime == currentKline.CloseTime || (includeLastKline && len(groupedKlines) > 0) {
-
-		//prepend item
-		groupedKlines = append([]KLine{currentKline}, groupedKlines...)
-
-	}
-
-	return groupedKlines
-
+	return true
 }
 func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
 
