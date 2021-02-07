@@ -249,16 +249,13 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 				return nil, err
 			}
 
+			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
+
 			if len(fetchedKlines) == 0 && min != 0 {
 				FillDatabaseWithPrevValues(symbol, databaseIn, 900)
 				continue
-			}
-
-			ff := fetchedKlines
-			fetchedKlines = convertKlinesToNewTimestamp(fetchedKlines, interval)
-
-			if len(fetchedKlines) == 0 {
-				log.Println("NULL AFTER", timestamp, databaseIn, interval, min, ff)
+			} else if len(fetchedKlines) == 0 {
+				log.Println("break because no more data")
 				break
 			}
 
