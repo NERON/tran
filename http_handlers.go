@@ -612,6 +612,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				if up <= down {
 					continue
 				}
+
+				log.Println(intervalStr, up, down, sequenceData.Sequence)
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
 				segmentsMap[fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
