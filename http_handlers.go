@@ -503,7 +503,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				if prevClose > 0 && candles[i].PrevCloseCandleTimestamp != prevClose {
 
-					log.Fatal(candles[i-1], candles[i], i, candlesGet[len(candlesGet)-1], interval)
+					for j := 0; j <= i; j++ {
+						log.Println(candles[j])
+
+					}
+					log.Fatal("1")
 				}
 				prevClose = candles[i].CloseTime
 
