@@ -488,7 +488,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		var err error
 
 		if ok {
-			log.Println(candles[0])
+			firstKline := candles[0]
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
 
 			if err == nil {
@@ -507,7 +507,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						log.Println(candles[j])
 
 					}
-					log.Fatal("1")
+					log.Fatal(firstKline)
 				}
 				prevClose = candles[i].CloseTime
 
