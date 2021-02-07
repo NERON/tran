@@ -237,6 +237,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 		}
 
 		if timestamp > uint64(max) {
+			log.Println("Load data")
 			FillDatabaseToLatestValues(symbol, databaseIn)
 		}
 
