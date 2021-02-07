@@ -50,7 +50,7 @@ func (s *symbolKlines) SetActiveKline(kline candlescommon.KLine) {
 		//if don't receive message about kline closing or not all fields filled, we have inconsistency
 		if s.activeKline.Closed != true || s.activeKline.PrevCloseCandleTimestamp == 0 {
 
-			log.Println("Missed prev", s.activeKline)
+			log.Println("Missed prev", s.activeKline, len(s.archivedKlines), s.intervalTimeframe)
 
 			//set archive data to null
 			s.archivedKlines = nil
