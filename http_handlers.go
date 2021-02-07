@@ -599,6 +599,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		bestSequenceList.PushFront(SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
+
 		previousAddedSeq := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
