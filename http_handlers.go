@@ -373,6 +373,8 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 		candles, errr := KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
+		log.Println(candles)
+
 		//candles, err := manager.GetLastKLines(vars["symbol"], interval, 1000)
 
 		if errr != true {
