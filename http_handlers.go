@@ -488,7 +488,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		var err error
 
 		if ok {
-			log.Println(candles)
 
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
 
