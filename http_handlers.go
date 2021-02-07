@@ -216,13 +216,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		calcEnd := endTimestamp
 
-		if interval.Letter == "h" {
-			calcEnd = (endTimestamp/uint64(interval.Duration)/3600/1000 + 1) * uint64(interval.Duration) * 3600 * 1000
-
-		} else if interval.Letter == "m" {
-			calcEnd = (endTimestamp/uint64(interval.Duration)/60/1000 + 1) * uint64(interval.Duration) * 60 * 1000
-		}
-
 		candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, calcEnd, 1000)
 
 	} else {
