@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/NERON/tran/database"
+	"github.com/NERON/tran/manager"
 	"html/template"
 	"log"
 
@@ -12,6 +13,7 @@ import (
 )
 
 var TemplateManager *template.Template
+var KLineCacher *manager.LastKlinesCaches
 
 func InitRouting() *mux.Router {
 
@@ -39,6 +41,12 @@ func main() {
 	if err != nil {
 
 		log.Fatal("Database connection error: ", err.Error())
+	}
+
+	KLineCacher, err = manager.NewLastKlinesCacher([]string{"ETHUSDT", "ADAUSDT"})
+
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	router := InitRouting()
