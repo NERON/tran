@@ -371,7 +371,17 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
-		candles, err := manager.GetLastKLines(vars["symbol"], interval, 1000)
+		candles, errr := KLineCacher.GetLatestKLines(vars["symbol"], interval)
+
+		//candles, err := manager.GetLastKLines(vars["symbol"], interval, 1000)
+
+		if errr != true {
+			log.Println("Error")
+			//w.Write([]byte(err.Error()))
+			return
+		}
+
+		candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 5000)
 
 		if err != nil {
 
@@ -379,7 +389,9 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+		candles = append(candlesGet, candles...)
+
+		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 5000)
 
 		if err != nil {
 
