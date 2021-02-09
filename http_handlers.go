@@ -595,11 +595,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(SequenceValue)
 
+			log.Println(intervalStr, sequenceData.Sequence, previousAddedSeq)
+
 			if previousAddedSeq < sequenceData.Sequence {
 
 				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
-				log.Println(sequenceData, up, down, up <= down)
 				if up <= down {
 					continue
 				}
