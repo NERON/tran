@@ -43,7 +43,7 @@ func main() {
 		log.Fatal("Database connection error: ", err.Error())
 	}
 
-	KLineCacher, err = manager.NewLastKlinesCacher([]string{"ETHUSDT", "ADAUSDT"})
+	KLineCacher, err = manager.NewLastKlinesCacher([]string{"ETHUSDT", "ADAETH"})
 
 	if err != nil {
 		log.Fatal(err.Error())
