@@ -579,9 +579,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					bestSequenceList.Remove(e)
 				}
 
-				if intervalStr == "90m" {
-					log.Println(bestPeriod)
-				}
 				bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: bestPeriod, CentralPrice: centralPrice})
 
 			}
@@ -597,6 +594,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(SequenceValue)
+
+			log.Println(sequenceData)
 
 			if previousAddedSeq < sequenceData.Sequence {
 
