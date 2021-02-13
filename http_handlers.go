@@ -237,6 +237,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 5000)
 
+	log.Println("candles length", len(candlesOld))
 	if err != nil {
 		log.Println(err.Error())
 	}
