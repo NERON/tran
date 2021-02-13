@@ -187,6 +187,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		RSIValue        float64
 		RSIBestPeriod   int
 		PrevCandleClose uint64
+		Up              float64
+		Down            float64
 	}
 
 	vars := mux.Vars(r)
@@ -233,7 +235,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 2000)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -279,10 +281,13 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		_, ok := lowsMap[idx]
 
 		bestPeriod := 0
+		up := float64(0)
+		down := float64(0)
 
 		if ok {
 
 			bestPeriod, _, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+			up, down = rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
 				bestSequenceList.Remove(e)
@@ -305,6 +310,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			RSIBestPeriod:   bestPeriod,
 			IsRSIReverseLow: ok,
 			PrevCandleClose: candle.PrevCloseCandleTimestamp,
+			Up:              up,
+			Down:            down,
 		})
 	}
 
