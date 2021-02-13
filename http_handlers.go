@@ -452,6 +452,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		"160m",
 		"3h",
 		"4h",
+		"288m",
 		"6h",
 		"8h",
 		"12h",
