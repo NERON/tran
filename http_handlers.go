@@ -288,7 +288,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		if ok {
 
 			bestPeriod, _, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
-			up, down = rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
+			up, down, _ = rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
 				bestSequenceList.Remove(e)
@@ -425,7 +425,7 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		up, down := rsiP.GetIntervalForPeriod(2, float64(centralRSI))
+		up, down, _ := rsiP.GetIntervalForPeriod(2, float64(centralRSI))
 
 		results = append(results, Result{Interval: intervalStr, Up: up, Down: down, Percent: (down/up - 1) * 100})
 
@@ -606,7 +606,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if previousAddedSeq < sequenceData.Sequence {
 
-				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
 				if up <= down {
 					continue
@@ -622,7 +622,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 
-				up, down := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
 				if up <= down {
 					continue
