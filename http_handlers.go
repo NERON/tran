@@ -472,7 +472,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		CentralPrice    float64
 		Fictive         bool
 		Timestamp       uint64
-		Val             float64
+		Central         float64
+		Lower           float64
+		Down            float64
 	}
 
 	type SequenceResult struct {
@@ -600,7 +602,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						bestSequenceList.Remove(e)
 					}
 
-					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Val: (centralPrice - candle.LowPrice) / (centralPrice - down)})
+					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down})
 				}
 
 			}
