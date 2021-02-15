@@ -577,7 +577,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
-				lowCentral := candle.LowPrice <= centralPrice
+				lowCentral := true
 
 				for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= bestPeriod; e = bestSequenceList.Front() {
 
@@ -687,10 +687,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			intersectionList[index] = intersectionList[len(intersectionList)-1]
 			intersectionList = intersectionList[:len(intersectionList)-1]
 
-			if len(intersectionList) >= 2 {
+			if len(intersectionList) >= 1 {
 
 				//generate combinations
-				gen := combin.NewCombinationGenerator(len(intersectionList), 2)
+				gen := combin.NewCombinationGenerator(len(intersectionList), 1)
 
 				for gen.Next() {
 
@@ -699,7 +699,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					up := 99999999999999999999999.0
 					down := 0.0
 
-					combination := []string{intersectionList[combinations[0]], intersectionList[combinations[1]], end.ID}
+					combination := []string{intersectionList[combinations[0]], end.ID}
 
 					for _, comb := range combination {
 
