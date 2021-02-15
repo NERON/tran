@@ -583,8 +583,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, centralPrice)
 
 				if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-					log.Println("added additional kline", centralPrice, candle, down)
 					periods = append(periods, bestPeriod+1)
+
 				}
 
 				periods = append(periods, bestPeriod)
@@ -598,8 +598,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						bestSequenceList.Remove(e)
 					}
 
-					log.Println(period, intervalStr, periods)
-
 					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period})
 				}
 
@@ -611,6 +609,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		bestSequenceList.PushFront(SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
 
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+			log.Println(intervalStr, e.Value)
+		}
 		previousAddedSeq := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
