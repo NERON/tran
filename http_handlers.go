@@ -577,18 +577,27 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
-				lowCentral := true
+				periods := make([]int, 0)
 
-				for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= bestPeriod; e = bestSequenceList.Front() {
+				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, centralPrice)
 
-					if e.Value.(SequenceValue).Sequence == bestPeriod {
-						lowCentral = lowCentral || e.Value.(SequenceValue).LowCentralPrice
-					}
-
-					bestSequenceList.Remove(e)
+				if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
+					periods = append(periods, bestPeriod+1)
 				}
 
-				bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: bestPeriod, CentralPrice: centralPrice})
+				periods = append(periods, bestPeriod)
+
+				for _, period := range periods {
+
+					lowCentral := true
+
+					for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+
+						bestSequenceList.Remove(e)
+					}
+
+					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice})
+				}
 
 			}
 
