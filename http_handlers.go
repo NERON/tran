@@ -584,7 +584,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				periods := make([]int, 0)
 
-				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, centralPrice)
+				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 				if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
 					periods = append(periods, bestPeriod+1)
