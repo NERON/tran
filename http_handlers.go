@@ -583,6 +583,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, centralPrice)
 
 				if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
+					log.Println("added additional kline", centralPrice, candle, down)
 					periods = append(periods, bestPeriod+1)
 				}
 
