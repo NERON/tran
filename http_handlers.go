@@ -597,6 +597,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						bestSequenceList.Remove(e)
 					}
 
+					log.Println(period, intervalStr)
+
 					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period})
 				}
 
