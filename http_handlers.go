@@ -470,6 +470,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Sequence        int
 		LowCentralPrice bool
 		CentralPrice    float64
+		Fictive         bool
 	}
 
 	type SequenceResult struct {
@@ -596,7 +597,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						bestSequenceList.Remove(e)
 					}
 
-					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice})
+					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period})
 				}
 
 			}
@@ -621,9 +622,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: up, Type: 0})
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence), Value: down, Type: 1})
-				segmentsMap[fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
+				sign := ""
+
+				if sequenceData.Fictive {
+					sign = "*"
+				}
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
+				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
 			}
 
 			if sequenceData.LowCentralPrice {
