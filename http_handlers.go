@@ -788,6 +788,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return exclude[i].Percentage > exclude[j].Percentage
 	})
 
+	log.Println(exclude)
+
 	byte, err := json.Marshal(exclude)
 
 	if err != nil {
