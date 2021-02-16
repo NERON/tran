@@ -619,10 +619,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
-			log.Println(intervalStr, e.Value)
-		}
-
 		previousAddedSeq := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
@@ -672,7 +668,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
 
-				segmentsMap[fmt.Sprintf("%s_%d", intervalStr, sequenceData.Sequence)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
+				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
 
 			}
 
