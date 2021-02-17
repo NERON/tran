@@ -39,7 +39,7 @@ func GetTriplesHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["centralRSI"]})
+	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["mode"]})
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
