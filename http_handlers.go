@@ -633,7 +633,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			sequenceData := e.Value.(SequenceValue)
 
 			if sequenceData.Count > 1 {
-				log.Println(sequenceData)
+				log.Println(intervalStr, sequenceData)
 			}
 
 			if previousAddedSeq < sequenceData.Sequence {
