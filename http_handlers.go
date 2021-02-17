@@ -475,6 +475,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Central         float64
 		Lower           float64
 		Down            float64
+		Count           uint
 	}
 
 	type SequenceResult struct {
@@ -597,12 +598,18 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 					lowCentral := true
 
+					sequence := SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+
 					for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+
+						if sequence.Sequence == e.Value.(SequenceValue).Sequence {
+							sequence.Count += e.Value.(SequenceValue).Count
+						}
 
 						bestSequenceList.Remove(e)
 					}
 
-					bestSequenceList.PushFront(SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down})
+					bestSequenceList.PushFront(sequence)
 				}
 
 			}
@@ -624,6 +631,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(SequenceValue)
+
+			if sequenceData.Count > 1 {
+				log.Println(sequenceData)
+			}
 
 			if previousAddedSeq < sequenceData.Sequence {
 
