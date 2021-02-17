@@ -638,7 +638,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				sign = "*"
 			}
 
-			sign += "!"
+			if sequenceData.Count > 1 {
+				sign += "!"
+			}
 
 			if previousAddedSeq < sequenceData.Sequence {
 
