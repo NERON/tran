@@ -18,6 +18,7 @@
         <button id="SaveButton">Save</button>
         <button id="SaveMerge">Save Merge</button>
         <button id="ClearButton">Clear</button>
+        <button id="HideRepeated">Hide Repeated</button>
     </div>
 </div>
 
@@ -47,7 +48,12 @@
 
 
     $('#ClearButton').click(function () {
-        window.localStorage.clear()
+        window.localStorage.clear();
+
+        $("#Vals").children().each(function () {
+          $(this).show();
+        })
+
     });
 
     $('body').on('click','.save_button',function() {
@@ -79,6 +85,20 @@
         });
 
         })
+
+    $('#HideRepeated').click(function() {
+
+
+
+        $("#Vals").children().each(function () {
+
+            if ($(this).children('div').eq(0).text().indexOf("!") !== -1) {
+                $(this).hide();
+            }
+
+        });
+
+    })
 
 
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI + "/" + mode, function (data) {
