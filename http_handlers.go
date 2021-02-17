@@ -781,7 +781,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Slice(exclude, func(i, j int) bool {
 
-		return exclude[i].Percentage > exclude[j].Percentage
+		return exclude[i].Up > exclude[j].Up
 	})
 
 	byte, err := json.Marshal(exclude)
