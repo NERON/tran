@@ -34,11 +34,12 @@ func GetTriplesHandler(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
 		Symbol     string
 		CentralRSI string
+		Mode       string
 	}
 
 	vars := mux.Vars(r)
 
-	TemplateManager.ExecuteTemplate(w, "triples.html", Data{vars["symbol"], vars["centralRSI"]})
+	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["centralRSI"]})
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
@@ -449,21 +450,55 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		centralRSI = 20
 	}
 
-	intervals := []string{
-		"1h",
-		"72m",
-		"80m",
-		"90m",
-		"96m",
-		"2h",
-		"144m",
-		"160m",
-		"3h",
-		"4h",
-		"288m",
-		"6h",
-		"8h",
-		"12h",
+	intervalRange, _ := strconv.ParseUint(vars["mode"], 10, 64)
+
+	var intervals []string
+
+	if intervalRange == 0 {
+
+		intervals = []string{
+			"1h",
+			"72m",
+			"80m",
+			"90m",
+			"96m",
+			"2h",
+			"144m",
+			"160m",
+			"3h",
+			"4h",
+			"288m",
+			"6h",
+			"8h",
+			"12h",
+		}
+
+	} else {
+
+		intervals = []string{
+			"1m",
+			"2m",
+			"3m",
+			"4m",
+			"5m",
+			"6m",
+			"8m",
+			"9m",
+			"10m",
+			"12m",
+			"15m",
+			"16m",
+			"18m",
+			"20m",
+			"24m",
+			"30m",
+			"32m",
+			"36m",
+			"40m",
+			"45m",
+			"48m",
+		}
+
 	}
 
 	type SequenceValue struct {
