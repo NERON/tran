@@ -625,31 +625,40 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				periods := make([]int, 0)
 
-				_, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
+				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
-				if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-					periods = append(periods, bestPeriod+1)
+				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
-				}
+					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
+						periods = append(periods, bestPeriod+1)
 
-				periods = append(periods, bestPeriod)
-
-				for _, period := range periods {
-
-					lowCentral := true
-
-					sequence := SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
-
-					for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
-
-						if sequence.Sequence == e.Value.(SequenceValue).Sequence {
-							sequence.Count += e.Value.(SequenceValue).Count
-						}
-
-						bestSequenceList.Remove(e)
 					}
 
-					bestSequenceList.PushFront(sequence)
+					periods = append(periods, bestPeriod)
+
+					for _, period := range periods {
+
+						lowCentral := true
+
+						sequence := SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+
+						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+
+							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
+								sequence.Count += e.Value.(SequenceValue).Count
+							}
+
+							bestSequenceList.Remove(e)
+						}
+
+						bestSequenceList.PushFront(sequence)
+					}
+
+				} else {
+
+					bestPeriod = 0
+					up = 0
+					down = 0
 				}
 
 			}
