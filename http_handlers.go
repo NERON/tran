@@ -291,11 +291,20 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			bestPeriod, _, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 			up, down, _ = rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
-			for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
-				bestSequenceList.Remove(e)
-			}
+			if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
-			bestSequenceList.PushFront(bestPeriod)
+				for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {
+					bestSequenceList.Remove(e)
+				}
+
+				bestSequenceList.PushFront(bestPeriod)
+
+			} else {
+
+				bestPeriod = 0
+				up = 0
+				down = 0
+			}
 
 		}
 
