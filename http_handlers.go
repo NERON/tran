@@ -632,9 +632,13 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(SequenceValue)
 
-			if sequenceData.Count > 1 {
-				log.Println(intervalStr, sequenceData)
+			sign := ""
+
+			if sequenceData.Fictive {
+				sign = "*"
 			}
+
+			sign += "!"
 
 			if previousAddedSeq < sequenceData.Sequence {
 
@@ -642,12 +646,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				if up <= down {
 					continue
-				}
-
-				sign := ""
-
-				if sequenceData.Fictive {
-					sign = "*"
 				}
 
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
@@ -668,12 +666,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				if up <= down {
 					continue
-				}
-
-				sign := ""
-
-				if sequenceData.Fictive {
-					sign = "*"
 				}
 
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
