@@ -630,6 +630,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 						sequence := manager.SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
 
+						if sequence.Fictive {
+							sequence.Count -= 1
+						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
 							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
