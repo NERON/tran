@@ -683,7 +683,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
-				if up <= down {
+				if up <= down || up <= 0 || down <= 0 {
 					continue
 				}
 
@@ -703,7 +703,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
-				if up <= down {
+				if up <= down || up <= 0 || down <= 0 {
 					continue
 				}
 
