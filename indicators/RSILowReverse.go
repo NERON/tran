@@ -1,5 +1,10 @@
 package indicators
 
+type ReverseLowInterface interface {
+	AddPoint(calcValue float64, addValue float64)
+	IsPreviousLow() bool
+}
+
 type rsiLowReverse struct {
 	lastRSIValues []float64
 }
@@ -22,7 +27,7 @@ func (r *rsiLowReverse) IsPreviousLow() bool {
 	return r.lastRSIValues[1] <= r.lastRSIValues[0] && r.lastRSIValues[1] < r.lastRSIValues[2]
 }
 
-func NewRSILowReverseIndicator() *rsiLowReverse {
+func NewRSILowReverseIndicator() ReverseLowInterface {
 
 	lastValues := []float64{-1, -1, -1}
 

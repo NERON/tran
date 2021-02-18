@@ -389,7 +389,7 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
-		candles, errr := KLineCacher.GetLatestKLines(vars["symbol"], interval)
+		candles, errr := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		log.Println(candles)
 
@@ -506,18 +506,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	type SequenceValue struct {
-		Sequence        int
-		LowCentralPrice bool
-		CentralPrice    float64
-		Fictive         bool
-		Timestamp       uint64
-		Central         float64
-		Lower           float64
-		Down            float64
-		Count           uint
-	}
-
 	type SequenceResult struct {
 		Interval string
 		Val      int
@@ -538,13 +526,13 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
-		candles, ok := KLineCacher.GetLatestKLines(vars["symbol"], interval)
-
 		var err error
+
+		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		if ok {
 
-			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
+			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 3000)
 
 			if err == nil {
 
@@ -640,12 +628,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 						lowCentral := true
 
-						sequence := SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+						sequence := manager.SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
 
-						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
-								sequence.Count += e.Value.(SequenceValue).Count
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
+								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 
 							bestSequenceList.Remove(e)
@@ -669,9 +657,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		minValue := bestSequenceList.Front()
 
-		if minValue != nil && minValue.Value.(SequenceValue).Sequence != 2 {
+		if minValue != nil && minValue.Value.(manager.SequenceValue).Sequence != 2 {
 
-			bestSequenceList.PushFront(SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
+			bestSequenceList.PushFront(manager.SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
 
 		}
 
@@ -679,7 +667,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
-			sequenceData := e.Value.(SequenceValue)
+			sequenceData := e.Value.(manager.SequenceValue)
 
 			sign := ""
 
@@ -705,7 +693,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
-				sequenceData.LowCentralPrice = e.Next().Value.(SequenceValue).Sequence > sequenceData.Sequence+1
+				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
 			}
 
 			if sequenceData.LowCentralPrice {

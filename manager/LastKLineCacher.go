@@ -10,6 +10,8 @@ import (
 	"sync"
 )
 
+var KLineCacher *LastKlinesCaches
+
 type symbolKlines struct {
 	symbolName        string
 	intervalTimeframe string
