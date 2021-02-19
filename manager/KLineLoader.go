@@ -208,7 +208,7 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 			break
 		}
 
-		log.Println("LAST LOADED KLINE", loadedKlines[0].PrevCloseCandleTimestamp)
+		log.Println("LAST LOADED KLINE", len(loadedKlines), loadedKlines[0].PrevCloseCandleTimestamp)
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
 			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration), true)
