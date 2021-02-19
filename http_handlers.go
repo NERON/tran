@@ -532,7 +532,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 5000)
+			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
 
 			if err == nil {
 
@@ -560,6 +560,16 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		if len(candles) == 0 {
 			w.Write([]byte("Data not exist"))
 			return
+		}
+
+		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr)
+
+		if lastUpdate <= candles[0].OpenTime {
+			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval)
+		}
+
+		if err != nil {
+			log.Fatal(err.Error())
 		}
 
 		if candles[len(candles)-1].Closed == false {
@@ -601,13 +611,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		bestSequenceList := list.New()
-
 		for idx, candle := range candles {
 
 			_, ok := lowsMap[idx]
 
-			if ok {
+			if ok && candle.OpenTime > lastUpdate {
 
 				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 

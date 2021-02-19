@@ -2,12 +2,19 @@ package manager
 
 import (
 	"container/list"
+	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
+	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/indicators"
 	"log"
+	"sort"
 	"sync"
 )
+
+var errWrongSavedTimestamp = errors.New("candle that was used previously are missed")
 
 type rsiData struct {
 	reverse            indicators.ReverseLowInterface
@@ -35,67 +42,179 @@ type RSIPeriodManager struct {
 	outerMutex *sync.Mutex
 }
 
-func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candlescommon.Interval) {
+func GetPeriodsFromDatabase(symbol string, interval string) (*list.List, uint64, error) {
 
-	if data.lastInsertedCandle == 0 {
+	var listJSon string
+	var lastUpdate uint64
 
-		candles, ok := KLineCacher.GetLatestKLines(symbol, interval)
+	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2;`, symbol, interval).Scan(&listJSon, &lastUpdate)
 
+	if err != nil && err != sql.ErrNoRows {
+		return nil, 0, err
+	}
+
+	if err == sql.ErrNoRows {
+		return list.New(), 0, nil
+	}
+
+	var sequenceArray []SequenceValue
+
+	err = json.Unmarshal([]byte(listJSon), &sequenceArray)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	sequenceList := list.New()
+
+	for _, val := range sequenceArray {
+		sequenceList.PushBack(val)
+	}
+
+	return sequenceList, lastUpdate, nil
+}
+func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
+
+	lowsMap := make(map[int]struct{})
+
+	for idx, candle := range candles {
+
+		lowReverse.AddPoint(candle.LowPrice, 0)
+
+		if lowReverse.IsPreviousLow() {
+			lowsMap[idx-1] = struct{}{}
+		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
+			lowsMap[idx] = struct{}{}
+		}
+
+	}
+
+	return lowsMap
+
+}
+func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*list.List, uint64, error) {
+
+	prevCandle := candlescommon.KLine{}
+
+	done := false
+	newEndTimestamp := uint64(0)
+
+	commonBestSequenceList, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if commonBestSequenceList == nil {
+		commonBestSequenceList = list.New()
+	}
+
+	for {
+
+		var candles []candlescommon.KLine
 		var err error
 
-		if ok {
+		//if no previous data get last klines, else try to find
+		if prevCandle.OpenTime == 0 {
 
-			candlesGet, err := GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 100000)
+			//get last candles
+			candles, err = GetLastKLines(symbol, interval, 1000)
 
-			if err == nil {
-
-				candles = append(candlesGet, candles...)
-
+			//truncate unclosed candle, it can't be used for count
+			if len(candles) > 0 && candles[len(candles)-1].Closed == false {
+				candles = candles[:len(candles)-1]
 			}
 
 		} else {
 
-			candles, err = GetLastKLines(symbol, interval, 1000)
-
+			candles, err = GetLastKLinesFromTimestamp(symbol, interval, prevCandle.OpenTime, 1000)
 		}
 
-		isCorrect := candlescommon.CheckCandles(candles)
-
-		if !isCorrect || err != nil {
-			log.Fatal(candles)
+		//return if error found
+		if err != nil {
+			return nil, 0, err
 		}
 
-		if candles[len(candles)-1].Closed == false {
-			candles = candles[:len(candles)-1]
+		//don't do anything if no candles
+		if len(candles) == 0 {
+			return commonBestSequenceList, lastKlineTimestamp, nil
 		}
 
+		//check if receive more than inserted in database
+		if lastKlineTimestamp > 0 && candles[0].OpenTime < lastKlineTimestamp {
+
+			//find position
+			idx := sort.Search(len(candles), func(i int) bool {
+				return candles[i].OpenTime >= lastKlineTimestamp
+			})
+
+			//check if it's true position
+			if idx < len(candles) && candles[idx].OpenTime == lastKlineTimestamp {
+
+				//start from candles that a not counted
+				candles = candles[idx+1:]
+
+				//if no candles left go break the cycle
+				if len(candles) == 0 {
+					break
+				}
+
+				done = true
+
+			} else {
+
+				return nil, 0, errWrongSavedTimestamp
+			}
+		}
+
+		//get old candles data
 		candlesOld, err := GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
 
+		//check for errors
 		if err != nil {
-
-			return
+			return nil, 0, err
 		}
 
-		lowsMap := make(map[int]struct{})
+		//initialize Low reverse counter for calculating potential low points
+		reverseLow := indicators.NewRSILowReverseIndicator()
 
+		//if old candles is present insert last candle for checking is first candle in position
 		if len(candlesOld) > 0 {
-			data.reverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
+			reverseLow.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
 		}
 
-		for idx, candle := range candles {
+		//check if previous candle present, if true we should append it, for calculating value for last candle
+		if prevCandle.OpenTime > 0 {
+			candles = append(candles, prevCandle)
+		}
 
-			data.reverse.AddPoint(candle.LowPrice, 0)
+		//generate map with indexes of all potential lows
+		lowsMap := generateMapLows(reverseLow, candles)
 
-			if data.reverse.IsPreviousLow() {
-				lowsMap[idx-1] = struct{}{}
-			} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
-				lowsMap[idx] = struct{}{}
+		//remove previously inserted last candle
+		if prevCandle.OpenTime > 0 {
+			candles = candles[:len(candles)-1]
+
+		} else {
+
+			//remove pre-last element because it should be only used for pre-counts
+			delete(lowsMap, len(candles)-1)
+
+			//remove element
+			candles = candles[:len(candles)-1]
+
+			//set new timestamp
+			if len(candles) > 0 {
+
+				newEndTimestamp = candles[len(candles)-1].OpenTime
 			}
 
 		}
 
+		//start calculating
 		rsiP := indicators.NewRSIMultiplePeriods(250)
 
+		//first insert all old candles
 		for _, candleOld := range candlesOld {
 
 			rsiP.AddPoint(candleOld.ClosePrice)
@@ -110,11 +229,11 @@ func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candl
 
 			if ok {
 
-				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, r.centralRSI)
+				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(20))
 
 				periods := make([]int, 0)
 
-				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, r.centralRSI)
+				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(20))
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
@@ -127,10 +246,11 @@ func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candl
 
 					for _, period := range periods {
 
-						lowCentral := true
+						sequence := SequenceValue{LowCentralPrice: true, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
 
-						sequence := SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
-
+						if sequence.Fictive {
+							sequence.Count -= 1
+						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
 							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
@@ -156,17 +276,71 @@ func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candl
 
 		}
 
-		minValue := bestSequenceList.Front()
+		maxValue := commonBestSequenceList.Back()
 
-		if minValue != nil && minValue.Value.(SequenceValue).Sequence != 2 {
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
-			bestSequenceList.PushFront(SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
+			if maxValue != nil {
 
+				if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
+
+					commonBestSequenceList.PushBack(e.Value)
+
+				} else if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
+
+					val := maxValue.Value.(SequenceValue)
+					val.Count += e.Value.(SequenceValue).Count
+
+					commonBestSequenceList.Remove(maxValue)
+					commonBestSequenceList.PushBack(val)
+
+				}
+
+			} else {
+
+				commonBestSequenceList.PushBack(e.Value)
+			}
+
+			maxValue = commonBestSequenceList.Back()
 		}
 
-	} else {
+		if len(candles) == 0 || candles[0].PrevCloseCandleTimestamp == 0 || done {
+			break
+		}
 
+		prevCandle = candles[0]
+
+		log.Println(symbol, interval, prevCandle.OpenTime)
 	}
+
+	if newEndTimestamp > 0 {
+
+		var sequences = make([]SequenceValue, 0)
+
+		for e := commonBestSequenceList.Front(); e != nil; e = e.Next() {
+			sequences = append(sequences, e.Value.(SequenceValue))
+		}
+
+		js, err := json.Marshal(sequences)
+
+		if err != nil {
+
+			return nil, 0, err
+		}
+
+		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate") VALUES ($1, $2, $3,$4) ON CONFLICT("symbol","interval") DO UPDATE SET list=excluded."list","lastUpdate"=excluded."lastUpdate";`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp)
+
+		if err != nil {
+
+			return nil, 0, err
+		}
+	}
+
+	return commonBestSequenceList, newEndTimestamp, nil
+}
+
+func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candlescommon.Interval) {
+
 }
 
 func (r *RSIPeriodManager) GetBestPeriods(symbol string, interval candlescommon.Interval) *list.List {
