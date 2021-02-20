@@ -531,8 +531,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		var err error
 
-		t := time.Now()
-
 		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		if ok {
@@ -549,8 +547,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			candles, err = manager.GetLastKLines(vars["symbol"], interval, 500)
 		}
-
-		duration += time.Since(t)
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
@@ -617,6 +613,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			rsiP.AddPoint(candleOld.ClosePrice)
 
 		}
+
+		t := time.Now()
 
 		for idx, candle := range candles {
 
@@ -734,6 +732,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			previousAddedSeq = sequenceData.Sequence
 		}
+		duration += time.Since(t)
 
 	}
 
