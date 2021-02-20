@@ -829,11 +829,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	exclude := make([]Res, 0)
 
-	currentDown := 0.0
+	//currentDown := 0.0
 
 	for _, val := range test {
 
-		if val.Percentage < -3 {
+		/*if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
 		} else if currentDown != val.Down {
@@ -841,7 +841,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			exclude = append(exclude, val)
 			currentDown = val.Down
 
-		}
+		}*/
+		exclude = append(exclude, val)
+
 	}
 
 	sort.Slice(exclude, func(i, j int) bool {
