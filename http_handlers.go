@@ -529,6 +529,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		var err error
 
+		t := time.Now()
+
 		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		if ok {
@@ -677,7 +679,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		previousAddedSeq := 0
 
-		t := time.Now()
+		log.Println("retreiving data time", time.Since(t))
+
+		t = time.Now()
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
