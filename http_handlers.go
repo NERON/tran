@@ -571,6 +571,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval)
 		}
 
+		log.Println("retreiving data time", time.Since(t))
+
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -619,8 +621,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			_, ok := lowsMap[idx]
 
 			if ok && candle.OpenTime > lastUpdate {
-
-				log.Println("working")
 
 				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
@@ -681,10 +681,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		previousAddedSeq := 0
 
-		log.Println("retreiving data time", time.Since(t))
-
-		t = time.Now()
-
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(manager.SequenceValue)
@@ -737,8 +733,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			previousAddedSeq = sequenceData.Sequence
 		}
 
-		log.Println("Building block time", time.Since(t))
-
 	}
 
 	type Res struct {
@@ -758,6 +752,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	test := make([]Res, 0)
+
+	t := time.Now()
 
 	intersectionList := make([]string, 0)
 
@@ -825,6 +821,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return test[i].Down > test[j].Down
 	})
+
+	log.Println("intersection time", time.Since(t))
 
 	exclude := make([]Res, 0)
 
