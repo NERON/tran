@@ -531,9 +531,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		var err error
 
-		t := time.Now()
-
 		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
+
+		t := time.Now()
 
 		if ok {
 
