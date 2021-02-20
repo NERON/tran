@@ -620,6 +620,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if ok && candle.OpenTime > lastUpdate {
 
+				log.Println("working")
+
 				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
 				periods := make([]int, 0)
