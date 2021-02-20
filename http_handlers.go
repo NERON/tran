@@ -529,14 +529,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		var err error
 
-		t := time.Now()
-
 		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
 		if ok {
-
+			t := time.Now()
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
-
+			log.Println("retreiving data time", time.Since(t))
 			if err == nil {
 
 				candles = append(candlesGet, candles...)
@@ -547,8 +545,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			candles, err = manager.GetLastKLines(vars["symbol"], interval, 1000)
 		}
-
-		log.Println("retreiving data time", time.Since(t))
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
