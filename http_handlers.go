@@ -523,11 +523,15 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	segments := make([]IntervalEnds, 0)
 	segmentsMap := make(map[string]SequenceResult, 0)
 
+	var duration time.Duration
+
 	for _, intervalStr := range intervals {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
 		var err error
+
+		t := time.Now()
 
 		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
@@ -545,6 +549,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			candles, err = manager.GetLastKLines(vars["symbol"], interval, 500)
 		}
+
+		duration += time.Since(t)
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
@@ -730,6 +736,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+
+	log.Println(duration)
 
 	type Res struct {
 		Combination []string
