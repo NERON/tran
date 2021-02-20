@@ -512,6 +512,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Val      int
 		Up       float64
 		Down     float64
+		Count    uint
 	}
 
 	type IntervalEnds struct {
@@ -705,7 +706,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
-				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
+				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 			}
 
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
@@ -726,7 +727,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
 
-				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down}
+				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 
 			}
 
@@ -743,6 +744,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		Up          float64
 		Down        float64
 		Percentage  float64
+		HasRepeats  bool
 	}
 
 	sort.Slice(segments, func(i, j int) bool {
@@ -798,6 +800,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 					up := 99999999999999999999999.0
 					down := 0.0
+					isRepeated := false
 
 					combination := []string{intersectionList[combinations[0]], end.ID}
 
@@ -806,8 +809,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						val, _ := segmentsMap[comb]
 						up = math.Min(up, val.Up)
 						down = math.Max(down, val.Down)
+						isRepeated = isRepeated || val.Count > 1
 					}
-					test = append(test, Res{combination, up, down, (down/up - 1) * 100})
+					test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated})
 
 				}
 
@@ -829,20 +833,23 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	exclude := make([]Res, 0)
 
-	//currentDown := 0.0
+	currentDownNoRepeats := 0.0
+	currentDownRepeats := 0.0
 
 	for _, val := range test {
 
-		/*if val.Percentage < -3 {
+		if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
-		} else if currentDown != val.Down {
+		} else if val.HasRepeats && currentDownRepeats != val.Down {
 
 			exclude = append(exclude, val)
-			currentDown = val.Down
+			currentDownRepeats = val.Down
 
-		}*/
-		exclude = append(exclude, val)
+		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
+			exclude = append(exclude, val)
+			currentDownNoRepeats = val.Down
+		}
 
 	}
 
