@@ -548,6 +548,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			candles, err = manager.GetLastKLines(vars["symbol"], interval, 1000)
 		}
 
+		log.Println("retreiving data time", time.Since(t))
+
 		isCorrect := candlescommon.CheckCandles(candles)
 
 		if !isCorrect {
@@ -570,8 +572,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval)
 		}
-
-		log.Println("retreiving data time", time.Since(t))
 
 		if err != nil {
 			log.Fatal(err.Error())
