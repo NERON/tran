@@ -40,7 +40,10 @@ func InitializeDatabase() {
     "takerQuoteVolume" double precision,
     CONSTRAINT primary_%d%s PRIMARY KEY (symbol, "openTime")
 )`, value, letter, value, letter))
-
+			DatabaseManager.Exec(fmt.Sprintf(`CREATE UNIQUE INDEX IF NOT EXISTS index
+    ON public.tran_candles_%d%s USING btree
+    (symbol COLLATE pg_catalog."default" ASC NULLS LAST, "openTime" ASC NULLS LAST)
+    TABLESPACE pg_default;`, value, letter))
 		}
 	}
 
