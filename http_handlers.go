@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"time"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -676,6 +677,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		previousAddedSeq := 0
 
+		t := time.Now()
+
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(manager.SequenceValue)
@@ -727,6 +730,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			previousAddedSeq = sequenceData.Sequence
 		}
+
+		log.Println("Building block time", time.Since(t))
 
 	}
 
