@@ -534,7 +534,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		if ok {
 			t := time.Now()
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 1000)
-			log.Println("retreiving data time", time.Since(t))
+			log.Println("retreiving data time", intervalStr, time.Since(t))
 			if err == nil {
 
 				candles = append(candlesGet, candles...)
