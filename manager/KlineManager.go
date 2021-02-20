@@ -12,6 +12,7 @@ import (
 
 func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTimestamp uint64, limit int) ([]candlescommon.KLine, error) {
 
+	t := time.Now()
 	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice","volume", "quoteVolume", "takerVolume", "takerQuoteVolume"
 	FROM public.tran_candles_%d%s WHERE symbol = $1 AND "openTime" < $2 ORDER BY "openTime" DESC LIMIT %d`, interval.Duration, interval.Letter, limit), symbol, endTimestamp)
 
@@ -48,6 +49,8 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 	}
 
 	rows.Close()
+
+	log.Println("load data", interval, limit, time.Since(t))
 
 	return databaseCandles, nil
 
