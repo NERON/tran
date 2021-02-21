@@ -265,7 +265,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if lowReverse.IsPreviousLow() {
 			lowsMap[idx-1] = struct{}{}
-		} else if candle.OpenPrice < candle.ClosePrice && candle.LowPrice < candle.OpenPrice {
+		}
+
+		if candle.OpenPrice < candle.ClosePrice && candle.LowPrice < candle.OpenPrice {
+
 			lowsMap[idx] = struct{}{}
 		}
 
