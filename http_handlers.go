@@ -237,18 +237,18 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	rsiP := indicators.NewRSIMultiplePeriods(250)
 
-	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+	candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 3000)
 
 	log.Println("candles length", len(candlesOld))
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	/*for _, candleOld := range candlesOld {
+	for _, candleOld := range candlesOld {
 
 		rsiP.AddPoint(candleOld.ClosePrice)
 
-	}*/
+	}
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
