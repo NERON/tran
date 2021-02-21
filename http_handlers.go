@@ -244,11 +244,11 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 	}
 
-	for _, candleOld := range candlesOld {
+	/*for _, candleOld := range candlesOld {
 
 		rsiP.AddPoint(candleOld.ClosePrice)
 
-	}
+	}*/
 
 	updateCandles := make([]ChartUpdateCandle, 0)
 
