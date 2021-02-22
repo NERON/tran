@@ -277,7 +277,6 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
-			newEndTimestamp = candle.OpenTime
 
 		}
 
