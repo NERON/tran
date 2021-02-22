@@ -101,15 +101,17 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 	done := false
 	newEndTimestamp := uint64(0)
 
-	commonBestSequenceList, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+	lastSavedSequences, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
 
 	if err != nil {
 		return nil, 0, err
 	}
 
-	if commonBestSequenceList == nil {
-		commonBestSequenceList = list.New()
+	if lastSavedSequences == nil {
+		lastSavedSequences = list.New()
 	}
+
+	commonBestSequenceList := list.New()
 
 	for {
 
@@ -139,7 +141,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 
 		//don't do anything if no candles
 		if len(candles) == 0 {
-			return commonBestSequenceList, lastKlineTimestamp, nil
+			return lastSavedSequences, lastKlineTimestamp, nil
 		}
 
 		//check if receive more than inserted in database
@@ -275,6 +277,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
+			newEndTimestamp = candle.OpenTime
 
 		}
 
@@ -315,7 +318,36 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 		log.Println(symbol, interval, prevCandle.OpenTime)
 	}
 
-	if newEndTimestamp > 0 {
+	if newEndTimestamp > lastKlineTimestamp {
+
+		//Merge Sequences
+		maxValue := commonBestSequenceList.Back()
+
+		for e := lastSavedSequences.Front(); e != nil; e = e.Next() {
+
+			if maxValue != nil {
+
+				if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
+
+					commonBestSequenceList.PushBack(e.Value)
+
+				} else if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
+
+					val := maxValue.Value.(SequenceValue)
+					val.Count += e.Value.(SequenceValue).Count
+
+					commonBestSequenceList.Remove(maxValue)
+					commonBestSequenceList.PushBack(val)
+
+				}
+
+			} else {
+
+				commonBestSequenceList.PushBack(e.Value)
+			}
+
+			maxValue = commonBestSequenceList.Back()
+		}
 
 		var sequences = make([]SequenceValue, 0)
 
