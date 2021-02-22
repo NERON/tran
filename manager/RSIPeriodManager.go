@@ -317,7 +317,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 
 		prevCandle = candles[0]
 
-		log.Println(symbol, interval, prevCandle.OpenTime)
+		log.Println(symbol, interval, prevCandle.OpenTime, lastKlineTimestamp)
 	}
 
 	if newEndTimestamp > lastKlineTimestamp {
