@@ -175,6 +175,7 @@ func (s *symbolKlines) loadProcedure() {
 
 			oldKlines, err = providers.GetKlinesNew(s.symbolName, s.intervalTimeframe, providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
 
+			log.Println("GET KLINE", len(klines))
 			if err != nil {
 				break
 			}
