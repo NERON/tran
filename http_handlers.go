@@ -689,7 +689,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		previousAddedSeq := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
-			log.Println(e.Value)
+			log.Println(intervalStr, e.Value)
 		}
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
