@@ -688,10 +688,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		previousAddedSeq := 0
 
-		if intervalStr == "8h" {
-			for e := bestSequenceList.Front(); e != nil; e = e.Next() {
-				log.Println(e.Value)
-			}
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+			log.Println(e.Value)
 		}
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
