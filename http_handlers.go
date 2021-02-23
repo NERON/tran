@@ -489,6 +489,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		intervals = []string{
+			"2m",
+			"3m",
+			"4m",
 			"5m",
 			"6m",
 			"8m",
