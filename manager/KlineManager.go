@@ -105,7 +105,7 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 			fetchedKlines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter), providers.GetKlineRange{Direction: 0, FromTimestamp: lastKlines[len(lastKlines)-1].OpenTime})
 
-			log.Println("Get kline ", len(fetchedKlines))
+			log.Println("Get kline last", len(fetchedKlines))
 			if err != nil {
 				return nil, err
 			}
@@ -203,7 +203,7 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := providers.GetKlinesNew(symbol, fmt.Sprintf("%d%s", loadInterval, interval.Letter), providers.GetKlineRange{Direction: 0, FromTimestamp: timestamp})
-
+			log.Println("Get kline last", len(fetchedKlines), timestamp)
 			if err != nil {
 				return nil, err
 			}
