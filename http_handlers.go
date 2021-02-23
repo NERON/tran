@@ -713,9 +713,11 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
-				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
+				percentage := (down/up - 1) * 100
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 			}
 
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
@@ -733,10 +735,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: up, Type: 0})
-				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign), Value: down, Type: 1})
+				percentage := (down/up - 1) * 100
 
-				segmentsMap[fmt.Sprintf("%s_%d%s", intervalStr, sequenceData.Sequence, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
+
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 
 			}
 
