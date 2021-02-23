@@ -859,6 +859,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	exclude = test
+
 	sort.Slice(exclude, func(i, j int) bool {
 
 		return exclude[i].Up > exclude[j].Up
