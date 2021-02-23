@@ -134,8 +134,6 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 			candles, err = GetLastKLinesFromTimestamp(symbol, interval, prevCandle.OpenTime, 1000)
 		}
 
-		log.Println("candle get")
-
 		//return if error found
 		if err != nil {
 			return nil, 0, err
