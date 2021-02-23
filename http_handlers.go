@@ -688,6 +688,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		previousAddedSeq := 0
 
+		if intervalStr == "8h" {
+			for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+				log.Println(e.Value)
+			}
+		}
+
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(manager.SequenceValue)
@@ -696,10 +702,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if sequenceData.Fictive {
 				sign = "*"
-			}
-
-			if sequenceData.Count > 1 {
-				sign += "!"
 			}
 
 			if previousAddedSeq < sequenceData.Sequence {
