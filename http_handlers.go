@@ -847,6 +847,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	log.Println(len(test))
+
 	sort.Slice(test, func(i, j int) bool {
 
 		if test[i].Down == test[j].Down {
