@@ -892,6 +892,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		return len(exclude[i].Combination) > len(exclude[j].Combination)
 	})
 
+	log.Println("len", len(exclude))
+
 	byte, err := json.Marshal(exclude)
 
 	if err != nil {
