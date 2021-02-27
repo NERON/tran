@@ -760,6 +760,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		HasRepeats  bool
 	}
 
+	counter := 0
+
 	sort.Slice(segments, func(i, j int) bool {
 
 		if segments[i].Value == segments[j].Value {
@@ -835,6 +837,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 						test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated})
 
 					}
+
+					counter++
+					log.Println("COUNT", counter)
 				}
 
 			}
