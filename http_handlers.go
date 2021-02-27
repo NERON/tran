@@ -804,28 +804,37 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if len(intersectionList) >= 1 {
 
-				//generate combinations
-				gen := combin.NewCombinationGenerator(len(intersectionList), 1)
+				for j := 0; j < len(intersectionList); j++ {
 
-				for gen.Next() {
+					//generate combinations
+					gen := combin.NewCombinationGenerator(len(intersectionList), j)
 
-					combinations := gen.Combination(nil)
+					for gen.Next() {
 
-					up := 99999999999999999999999.0
-					down := 0.0
-					isRepeated := false
+						combinations := gen.Combination(nil)
 
-					combination := []string{intersectionList[combinations[0]], end.ID}
+						up := 99999999999999999999999.0
+						down := 0.0
+						isRepeated := false
 
-					for _, comb := range combination {
+						combination := make([]string, 0)
 
-						val, _ := segmentsMap[comb]
-						up = math.Min(up, val.Up)
-						down = math.Max(down, val.Down)
-						isRepeated = isRepeated || val.Count > 1
+						for _, combo := range combinations {
+							combination = append(combination, intersectionList[combo])
+						}
+
+						combination = append(combination, end.ID)
+
+						for _, comb := range combination {
+
+							val, _ := segmentsMap[comb]
+							up = math.Min(up, val.Up)
+							down = math.Max(down, val.Down)
+							isRepeated = isRepeated || val.Count > 1
+						}
+						test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated})
+
 					}
-					test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated})
-
 				}
 
 			}
@@ -846,12 +855,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	exclude := make([]Res, 0)
 
-	currentDownNoRepeats := 0.0
-	currentDownRepeats := 0.0
+	//currentDownNoRepeats := 0.0
+	//currentDownRepeats := 0.0
 
 	for _, val := range test {
 
-		if val.Percentage < -3 {
+		/*if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
 		} else if val.HasRepeats && currentDownRepeats != val.Down {
@@ -862,13 +871,20 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
 			exclude = append(exclude, val)
 			currentDownNoRepeats = val.Down
-		}
+		}*/
+
+		exclude = append(exclude, val)
 
 	}
 
 	sort.Slice(exclude, func(i, j int) bool {
 
-		return exclude[i].Up > exclude[j].Up
+		if len(exclude[i].Combination) == len(exclude[j].Combination) {
+
+			return test[i].Up > test[j].Up
+		}
+
+		return len(exclude[i].Combination) > len(exclude[j].Combination)
 	})
 
 	byte, err := json.Marshal(exclude)
