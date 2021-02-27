@@ -804,7 +804,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if len(intersectionList) >= 1 {
 
-				for j := 1; j < 1; j++ {
+				for j := 1; j < 2; j++ {
 
 					//generate combinations
 					gen := combin.NewCombinationGenerator(len(intersectionList), j)
