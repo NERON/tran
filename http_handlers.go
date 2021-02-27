@@ -802,14 +802,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			intersectionList[index] = intersectionList[len(intersectionList)-1]
 			intersectionList = intersectionList[:len(intersectionList)-1]
 
-			counter := 0
-
 			if len(intersectionList) >= 1 {
 
-				for j := 0; j < len(intersectionList)-1; j++ {
+				for j := 1; j < 1; j++ {
 
 					//generate combinations
-					gen := combin.NewCombinationGenerator(len(intersectionList), len(intersectionList)-j)
+					gen := combin.NewCombinationGenerator(len(intersectionList), j)
 
 					for gen.Next() {
 
@@ -838,16 +836,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 					}
 
-					counter++
-					log.Println("COUNT", counter)
 				}
 
 			}
 
 		}
 	}
-
-	log.Println(len(test))
 
 	sort.Slice(test, func(i, j int) bool {
 
