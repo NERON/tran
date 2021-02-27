@@ -856,12 +856,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	exclude := make([]Res, 0)
 
-	//currentDownNoRepeats := 0.0
-	//currentDownRepeats := 0.0
+	currentDownNoRepeats := 0.0
+	currentDownRepeats := 0.0
 
 	for _, val := range test {
 
-		/*if val.Percentage < -3 {
+		if val.Percentage < -3 {
 			exclude = append(exclude, val)
 
 		} else if val.HasRepeats && currentDownRepeats != val.Down {
@@ -872,7 +872,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
 			exclude = append(exclude, val)
 			currentDownNoRepeats = val.Down
-		}*/
+		}
 
 		exclude = append(exclude, val)
 
@@ -880,15 +880,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Slice(exclude, func(i, j int) bool {
 
-		if len(exclude[i].Combination) == len(exclude[j].Combination) {
+		return test[i].Up > test[j].Up
 
-			return test[i].Up > test[j].Up
-		}
-
-		return len(exclude[i].Combination) > len(exclude[j].Combination)
 	})
-
-	log.Println("len", len(exclude))
 
 	byte, err := json.Marshal(exclude)
 
