@@ -760,8 +760,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		HasRepeats  bool
 	}
 
-	counter := 0
-
 	sort.Slice(segments, func(i, j int) bool {
 
 		if segments[i].Value == segments[j].Value {
@@ -803,6 +801,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			//remove data
 			intersectionList[index] = intersectionList[len(intersectionList)-1]
 			intersectionList = intersectionList[:len(intersectionList)-1]
+
+			counter := 0
 
 			if len(intersectionList) >= 1 {
 
