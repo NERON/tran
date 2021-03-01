@@ -36,11 +36,12 @@ func GetTriplesHandler(w http.ResponseWriter, r *http.Request) {
 		Symbol     string
 		CentralRSI string
 		Mode       string
+		GroupCount string
 	}
 
 	vars := mux.Vars(r)
 
-	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["mode"]})
+	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["mode"], GroupCount: vars["groupCount"]})
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
@@ -464,6 +465,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	intervalRange, _ := strconv.ParseUint(vars["mode"], 10, 64)
+	groupCount, _ := strconv.ParseUint(vars["groupCount"], 10, 64)
 
 	var intervals []string
 
@@ -802,12 +804,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			intersectionList[index] = intersectionList[len(intersectionList)-1]
 			intersectionList = intersectionList[:len(intersectionList)-1]
 
-			if len(intersectionList) >= 1 {
+			if uint64(len(intersectionList)) >= groupCount-1 {
 
 				for j := 1; j < 2; j++ {
 
 					//generate combinations
-					gen := combin.NewCombinationGenerator(len(intersectionList), j)
+					gen := combin.NewCombinationGenerator(len(intersectionList), int(groupCount-1))
 
 					for gen.Next() {
 
