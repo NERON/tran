@@ -863,17 +863,23 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, val := range test {
 
-		if val.Percentage < -3 {
-			exclude = append(exclude, val)
+		if intervalRange == 0 {
 
-		} else if val.HasRepeats && currentDownRepeats != val.Down {
+			if val.Percentage < -3 {
+				exclude = append(exclude, val)
 
-			exclude = append(exclude, val)
-			currentDownRepeats = val.Down
+			} else if val.HasRepeats && currentDownRepeats != val.Down {
 
-		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
+				exclude = append(exclude, val)
+				currentDownRepeats = val.Down
+
+			} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
+				exclude = append(exclude, val)
+				currentDownNoRepeats = val.Down
+			}
+
+		} else {
 			exclude = append(exclude, val)
-			currentDownNoRepeats = val.Down
 		}
 
 	}
