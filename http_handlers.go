@@ -455,6 +455,11 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(byte)
 
 }
+
+func GenerateListOfPossibleSequences(symbol string) {
+
+}
+
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -861,25 +866,25 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	currentDownNoRepeats := 0.0
 	currentDownRepeats := 0.0
 
+	percentage := -3.0
+
+	if intervalRange > 0 {
+		percentage = -0.5
+	}
+
 	for _, val := range test {
 
-		if intervalRange == 0 {
-
-			if val.Percentage < -3 {
-				exclude = append(exclude, val)
-
-			} else if val.HasRepeats && currentDownRepeats != val.Down {
-
-				exclude = append(exclude, val)
-				currentDownRepeats = val.Down
-
-			} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
-				exclude = append(exclude, val)
-				currentDownNoRepeats = val.Down
-			}
-
-		} else {
+		if val.Percentage < percentage {
 			exclude = append(exclude, val)
+
+		} else if val.HasRepeats && currentDownRepeats != val.Down {
+
+			exclude = append(exclude, val)
+			currentDownRepeats = val.Down
+
+		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
+			exclude = append(exclude, val)
+			currentDownNoRepeats = val.Down
 		}
 
 	}
