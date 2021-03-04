@@ -705,14 +705,14 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sign := ""
 
-			if sequenceData.Fictive {
-				sign = "*"
-			}
-			if sequenceData.Count > 1 {
-				sign += "!"
-			}
-
 			if previousAddedSeq < sequenceData.Sequence {
+
+				if sequenceData.Fictive {
+					sign = "*"
+				}
+				if sequenceData.Count > 1 {
+					sign += "!"
+				}
 
 				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
 
@@ -732,6 +732,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if sequenceData.LowCentralPrice {
+
+				if sequenceData.Fictive {
+					sign = "*"
+				}
 
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
