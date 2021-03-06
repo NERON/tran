@@ -703,9 +703,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
-			sign := ""
-
 			if previousAddedSeq < sequenceData.Sequence {
+
+				sign := ""
 
 				if sequenceData.Fictive {
 					sign = "*"
@@ -732,6 +732,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if sequenceData.LowCentralPrice {
+
+				sign := ""
 
 				if sequenceData.Fictive {
 					sign = "*"
