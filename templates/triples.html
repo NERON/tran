@@ -67,6 +67,16 @@
 
     });
 
+    $('body').on('click','.save_button_low',function() {
+
+        var from = $(this).parent('.triple_element')
+
+
+        window.localStorage.setItem("prevPosVal",9999999999999999)
+        window.localStorage.setItem("nextPosVal",from.attr('data-down'))
+
+    });
+
     $('#GetPeriodsButton').click(function() {
 
 
@@ -105,7 +115,7 @@
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI + "/" + mode + "/" + groupCount, function (data) {
 
         for (var r in data) {
-            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Combination.join())).append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down))
+            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Combination.join())).append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_low">Save Low Border</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down))
         }
 
     });
