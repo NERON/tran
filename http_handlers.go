@@ -266,12 +266,13 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		lowReverse.AddPoint(candle.LowPrice, 0)
 
 		if lowReverse.IsPreviousLow() {
-			lowsMap[idx-1] = struct{}{}
-		}
 
-		if candle.OpenPrice < candle.ClosePrice && candle.LowPrice < candle.OpenPrice {
+			lowsMap[idx-1] = struct{}{}
+
+		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
 
 			lowsMap[idx] = struct{}{}
+
 		}
 
 	}
@@ -625,12 +626,13 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			lowReverse.AddPoint(candle.LowPrice, 0)
 
 			if lowReverse.IsPreviousLow() {
-				lowsMap[idx-1] = struct{}{}
-			}
 
-			if candle.OpenPrice < candle.ClosePrice && candle.LowPrice < candle.OpenPrice {
+				lowsMap[idx-1] = struct{}{}
+
+			} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
 
 				lowsMap[idx] = struct{}{}
+
 			}
 
 		}
