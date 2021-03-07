@@ -37,11 +37,12 @@ func GetTriplesHandler(w http.ResponseWriter, r *http.Request) {
 		CentralRSI string
 		Mode       string
 		GroupCount string
+		Timestamp  string
 	}
 
 	vars := mux.Vars(r)
 
-	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["mode"], GroupCount: vars["groupCount"]})
+	TemplateManager.ExecuteTemplate(w, "triples.html", Data{Symbol: vars["symbol"], CentralRSI: vars["centralRSI"], Mode: vars["mode"], GroupCount: vars["groupCount"], Timestamp: vars["timestamp"]})
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
@@ -472,6 +473,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	intervalRange, _ := strconv.ParseUint(vars["mode"], 10, 64)
 	groupCount, _ := strconv.ParseUint(vars["groupCount"], 10, 64)
 
+	timestamp, _ := strconv.ParseUint(vars["timestamp"], 10, 64)
+
+	if timestamp == 0 {
+		timestamp = math.MaxInt64
+	}
+
 	var intervals []string
 
 	if intervalRange == 0 {
@@ -541,22 +548,32 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
 		var err error
+		var candles []candlescommon.KLine
 
-		candles, ok := manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
+		if timestamp == math.MaxInt64 {
 
-		if ok {
+			var ok bool
 
-			candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
+			candles, ok = manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
 
-			if err == nil {
+			if ok {
 
-				candles = append(candlesGet, candles...)
+				candlesGet, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)
 
+				if err == nil {
+
+					candles = append(candlesGet, candles...)
+
+				}
+
+			} else {
+
+				candles, err = manager.GetLastKLines(vars["symbol"], interval, 500)
 			}
-
 		} else {
 
-			candles, err = manager.GetLastKLines(vars["symbol"], interval, 500)
+			candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, timestamp, 500)
+
 		}
 
 		isCorrect := candlescommon.CheckCandles(candles)
@@ -576,18 +593,16 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr)
+		candles = candles[:len(candles)-1]
+
+		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval)
+			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
 		}
 
 		if err != nil {
 			log.Fatal(err.Error())
-		}
-
-		if candles[len(candles)-1].Closed == false {
-			candles = candles[:len(candles)-1]
 		}
 
 		candlesOld, err := manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, candles[0].OpenTime, 500)

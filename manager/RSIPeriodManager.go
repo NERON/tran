@@ -10,6 +10,7 @@ import (
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/indicators"
 	"log"
+	"math"
 	"sort"
 	"sync"
 )
@@ -42,12 +43,12 @@ type RSIPeriodManager struct {
 	outerMutex *sync.Mutex
 }
 
-func GetPeriodsFromDatabase(symbol string, interval string) (*list.List, uint64, error) {
+func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, error) {
 
 	var listJSon string
 	var lastUpdate uint64
 
-	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2;`, symbol, interval).Scan(&listJSon, &lastUpdate)
+	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" <= $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate)
 
 	if err != nil && err != sql.ErrNoRows {
 		return nil, 0, err
@@ -94,14 +95,14 @@ func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candle
 	return lowsMap
 
 }
-func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*list.List, uint64, error) {
+func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, timestamp int64) (*list.List, uint64, error) {
 
 	prevCandle := candlescommon.KLine{}
 
 	done := false
 	newEndTimestamp := uint64(0)
 
-	lastSavedSequences, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter))
+	lastSavedSequences, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), timestamp)
 
 	if err != nil {
 		return nil, 0, err
@@ -121,11 +122,17 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 		//if no previous data get last klines, else try to find
 		if prevCandle.OpenTime == 0 {
 
-			//get last candles
-			candles, err = GetLastKLines(symbol, interval, 1000)
+			if timestamp == math.MaxInt64 {
+				//get last candles
+				candles, err = GetLastKLines(symbol, interval, 1000)
+			} else {
+
+				candles, err = GetLastKLinesFromTimestamp(symbol, interval, uint64(timestamp), 1000)
+
+			}
 
 			//truncate unclosed candle, it can't be used for count
-			if len(candles) > 0 && candles[len(candles)-1].Closed == false {
+			if len(candles) > 0 {
 				candles = candles[:len(candles)-1]
 			}
 
@@ -366,7 +373,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval) (*lis
 			return nil, 0, err
 		}
 
-		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate") VALUES ($1, $2, $3,$4) ON CONFLICT("symbol","interval") DO UPDATE SET list=excluded."list","lastUpdate"=excluded."lastUpdate";`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp)
+		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate") VALUES ($1, $2, $3,$4);`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp)
 
 		if err != nil {
 
