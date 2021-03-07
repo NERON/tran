@@ -113,7 +113,7 @@
     })
 
 
-    $.getJSON("/getDD/" + symbol  + "/" + centralRSI + "/" + mode + "/" + groupCount, function (data) {
+    $.getJSON("/getDD/" + symbol  + "/" + centralRSI + "/" + mode + "/" + groupCount+"/" + timestamp, function (data) {
 
         for (var r in data) {
             $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Combination.join())).append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down))
