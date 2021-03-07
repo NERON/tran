@@ -720,6 +720,23 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
+			if previousAddedSeq < sequenceData.Sequence-1 && sequenceData.Sequence > 2 {
+
+				sign := ""
+
+				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence-1, float64(centralRSI))
+
+				if up <= down || up <= 0 || down <= 0 {
+					continue
+				}
+
+				percentage := (down/up - 1) * 100
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence-1, percentage, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence-1, percentage, sign), Value: down, Type: 1})
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence-1, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence - 1, Up: up, Down: down, Count: 0}
+			}
+
 			if previousAddedSeq < sequenceData.Sequence {
 
 				sign := ""
