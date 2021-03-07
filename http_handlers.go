@@ -722,7 +722,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			if previousAddedSeq < sequenceData.Sequence-1 && sequenceData.Sequence > 2 {
 
-				sign := ""
+				sign := "!"
 
 				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence-1, float64(centralRSI))
 
