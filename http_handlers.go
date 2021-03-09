@@ -873,7 +873,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 						combination = append(combination, end.ID)
 
-						maxPerc := 99999999999.0
+						maxPerc := -99999999999.0
 
 						for _, comb := range combination {
 
