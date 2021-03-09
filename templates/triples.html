@@ -19,6 +19,7 @@
         <button id="SaveMerge">Save Merge</button>
         <button id="ClearButton">Clear</button>
         <button id="HideRepeated">Hide Repeated</button>
+        <button id="HidePercentage">Hide > 1%</button>
     </div>
 </div>
 
@@ -112,11 +113,25 @@
 
     })
 
+    $('#HidePercentage').click(function() {
+
+
+
+        $("#Vals").children().each(function () {
+
+            if ($(this).attr('data-percentage') * 1 > -1.5) {
+                $(this).hide();
+            }
+
+        });
+
+    })
+
 
     $.getJSON("/getDD/" + symbol  + "/" + centralRSI + "/" + mode + "/" + groupCount+"/" + timestamp, function (data) {
 
         for (var r in data) {
-            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Combination.join())).append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down))
+            $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(data[r].Combination.join())).append($("<div></div>").text(data[r].Up)).append($("<div></div>").text(data[r].Down)).append($("<div></div>").text(data[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',data[r].Up).attr('data-down',data[r].Down).attr('data-percentage',data[r].MinPercentage))
         }
 
     });
