@@ -800,11 +800,12 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(duration)
 
 	type Res struct {
-		Combination []string
-		Up          float64
-		Down        float64
-		Percentage  float64
-		HasRepeats  bool
+		Combination   []string
+		Up            float64
+		Down          float64
+		Percentage    float64
+		HasRepeats    bool
+		MinPercentage float64
 	}
 
 	sort.Slice(segments, func(i, j int) bool {
@@ -872,14 +873,17 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 						combination = append(combination, end.ID)
 
+						maxPerc := 99999999999.0
+
 						for _, comb := range combination {
 
 							val, _ := segmentsMap[comb]
 							up = math.Min(up, val.Up)
 							down = math.Max(down, val.Down)
 							isRepeated = isRepeated || val.Count > 1
+							maxPerc = math.Max(maxPerc, (val.Down/val.Up-1)*100)
 						}
-						test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated})
+						test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated, maxPerc})
 
 					}
 
