@@ -105,6 +105,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 	lastSavedSequences, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), timestamp)
 
+	centralRSI := 15
 	if err != nil {
 		return nil, 0, err
 	}
@@ -241,11 +242,11 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			if ok {
 
-				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(20))
+				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 
 				periods := make([]int, 0)
 
-				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(20))
+				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
