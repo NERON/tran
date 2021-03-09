@@ -931,8 +931,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			currentDownNoRepeats = val.Down
 		}
 
-		log.Println(val, currentDownNoRepeats, currentDownRepeats)
-
 	}
 
 	sort.Slice(exclude, func(i, j int) bool {
