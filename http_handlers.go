@@ -787,7 +787,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
 
-				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: 0}
 
 			}
 
