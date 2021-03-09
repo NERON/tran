@@ -118,7 +118,7 @@
 
 
         $("#Vals").children().each(function () {
-
+            console.log($(this).attr('data-percentage') * 1,$(this).attr('data-percentage') * 1 < -1.5)
             if ($(this).attr('data-percentage') * 1 < -1.5) {
                 $(this).hide();
             }
