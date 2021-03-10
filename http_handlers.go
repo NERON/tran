@@ -889,6 +889,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			} else if len(intersectionList) == 0 {
+				log.Println("Not found pair for ", end.ID)
 			}
 
 		}
