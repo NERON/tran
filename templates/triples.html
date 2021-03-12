@@ -19,6 +19,7 @@
         <button id="SaveMerge">Save Merge</button>
         <button id="ClearButton">Clear</button>
         <button id="HideRepeated">Hide Repeated</button>
+        <button id="HideLowersSeq">Hide -1</button>
         <button id="HidePercentage">Hide > 1%</button>
     </div>
 </div>
@@ -106,6 +107,20 @@
         $("#Vals").children().each(function () {
 
             if ($(this).children('div').eq(0).text().indexOf("!") !== -1) {
+                $(this).hide();
+            }
+
+        });
+
+    })
+
+    $('#HideLowersSeq').click(function() {
+
+
+
+        $("#Vals").children().each(function () {
+
+            if ($(this).children('div').eq(0).text().indexOf("#") !== -1) {
                 $(this).hide();
             }
 
