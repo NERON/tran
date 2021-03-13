@@ -21,6 +21,7 @@
         <button id="HideRepeated">Hide Repeated</button>
         <button id="HideLowersSeq">Hide -1</button>
         <button id="HidePercentage">Hide > 1%</button>
+        <button id="ShowHoles">ShowHoles</button>
     </div>
 </div>
 
@@ -98,7 +99,37 @@
             }
         });
 
-        })
+    })
+    $('#ShowHoles').click(function() {
+
+        var Holes = [];
+        var current  =[];
+
+
+        $("#Vals").children().each(function () {
+
+           if ($(this).is('visible')) {
+
+               var up = $(this).attr('data-up') * 1;
+               var down = $(this).attr('data-down') * 1;
+
+               if (current.length === 0) {
+                   Holes.push([10000,up]);
+                   current = [up,down];
+                   return;
+               }
+
+               if (current[1] <= up) {
+                   current[1] = Math.min(current[1],down);
+               } else {
+                   Holes.push([current[1],up]);
+                   current = [up,down];
+               }
+
+           }
+        });
+
+    })
 
     $('#HideRepeated').click(function() {
 
