@@ -674,9 +674,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 					for _, period := range periods {
 
-						lowCentral := true
-
-						sequence := manager.SequenceValue{LowCentralPrice: lowCentral, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+						sequence := manager.SequenceValue{LowCentralPrice: true, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
 
 						if sequence.Fictive {
 							sequence.Count -= 1
@@ -724,7 +722,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
-			if previousAddedSeq < sequenceData.Sequence-1 && sequenceData.Sequence > 2 {
+			if previousAddedSeq < sequenceData.Sequence-1 && sequenceData.Sequence > 2 && groupCount < 3 {
 
 				sign := "#"
 
