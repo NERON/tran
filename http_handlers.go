@@ -602,10 +602,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("choosed candle", candles[len(candles)-1])
 
-		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
+		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
+			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
 		if err != nil {
