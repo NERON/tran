@@ -600,6 +600,8 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		candles = candles[:len(candles)-1]
 
+		log.Println("choosed candle", candles[len(candles)-1])
+
 		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
 		if lastUpdate <= candles[0].OpenTime {
