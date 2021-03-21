@@ -523,6 +523,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			"32m",
 			"36m",
 			"40m",
+			"42m",
 			"45m",
 			"48m",
 		}
