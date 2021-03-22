@@ -896,10 +896,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 	currentDownNoRepeats := 0.0
 	currentDownRepeats := 0.0
 
-	percentage := -3.0
+	percentage := 1.0
 
 	if intervalRange > 0 {
-		percentage = -0.5
+		percentage = 1
 	}
 
 	for _, val := range test {
