@@ -753,6 +753,10 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 					sign = "*"
 				}
 
+				if sequenceData.Count > 1 {
+					sign += "@"
+				}
+
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 
