@@ -590,8 +590,6 @@ func GetTimeframesList(symbol string) []string {
 
 		var ok bool
 
-		t := time.Now()
-
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
 		if ok {
@@ -657,6 +655,8 @@ func GetTimeframesList(symbol string) []string {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+
+		t := time.Now()
 
 		candlesOld, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
 
