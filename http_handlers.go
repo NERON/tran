@@ -548,7 +548,7 @@ func GetLastCountedKLine(symbol string) (candlescommon.KLine, error) {
 	return lastCountCandle, nil
 
 }
-func GetTimeframesList(symbol string) []string {
+func GetTimeframesList(symbol string, mode int) []string {
 
 	testCandle, _ := GetLastCountedKLine(symbol)
 	timestamp := testCandle.OpenTime + 1
@@ -558,25 +558,50 @@ func GetTimeframesList(symbol string) []string {
 
 	timeframes = append(timeframes, time.Unix(int64(testCandle.OpenTime/1000), 0).String())
 
-	intervals := []string{
-		"5m",
-		"6m",
-		"8m",
-		"9m",
-		"10m",
-		"12m",
-		"15m",
-		"16m",
-		"18m",
-		"20m",
-		"24m",
-		"30m",
-		"32m",
-		"36m",
-		"40m",
-		"42m",
-		"45m",
-		"48m",
+	var intervals []string
+
+	if mode == 0 {
+
+		intervals = []string{
+			"1h",
+			"72m",
+			"80m",
+			"90m",
+			"96m",
+			"2h",
+			"144m",
+			"160m",
+			"3h",
+			"4h",
+			"288m",
+			"6h",
+			"8h",
+			"12h",
+		}
+
+	} else {
+
+		intervals = []string{
+			"5m",
+			"6m",
+			"8m",
+			"9m",
+			"10m",
+			"12m",
+			"15m",
+			"16m",
+			"18m",
+			"20m",
+			"24m",
+			"30m",
+			"32m",
+			"36m",
+			"40m",
+			"42m",
+			"45m",
+			"48m",
+		}
+
 	}
 
 	var totalTime time.Duration
@@ -791,7 +816,8 @@ func GetTimeframesList(symbol string) []string {
 func GetLastSequencesHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	timeframes := GetTimeframesList(vars["symbol"])
+	intervalRange, _ := strconv.ParseUint(vars["mode"], 10, 64)
+	timeframes := GetTimeframesList(vars["symbol"], int(intervalRange))
 
 	byte, err := json.Marshal(timeframes)
 
