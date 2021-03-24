@@ -579,6 +579,8 @@ func GetTimeframesList(symbol string) []string {
 		"48m",
 	}
 
+	var totalTime time.Duration
+
 	for _, intervalStr := range intervals {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
@@ -592,9 +594,6 @@ func GetTimeframesList(symbol string) []string {
 
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
-		log.Println("get cache time: ", time.Since(t))
-
-		t = time.Now()
 		if ok {
 
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
@@ -610,7 +609,7 @@ func GetTimeframesList(symbol string) []string {
 			candles, err = manager.GetLastKLines(symbol, interval, 500)
 		}
 
-		log.Println("get time: ", time.Since(t))
+		totalTime += time.Since(t)
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
@@ -785,7 +784,7 @@ func GetTimeframesList(symbol string) []string {
 		}
 
 	}
-
+	log.Println("total time: ", totalTime)
 	return timeframes
 
 }
