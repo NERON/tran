@@ -579,6 +579,8 @@ func GetTimeframesList(symbol string) []string {
 		"48m",
 	}
 
+	var totalTime time.Duration
+
 	for _, intervalStr := range intervals {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
@@ -587,6 +589,8 @@ func GetTimeframesList(symbol string) []string {
 		var candles []candlescommon.KLine
 
 		var ok bool
+
+		t := time.Now()
 
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
@@ -660,6 +664,8 @@ func GetTimeframesList(symbol string) []string {
 
 			return nil
 		}
+
+		totalTime += time.Since(t)
 
 		lowReverse := indicators.NewRSILowReverseIndicator()
 		lowsMap := make(map[int]struct{})
@@ -778,7 +784,7 @@ func GetTimeframesList(symbol string) []string {
 		}
 
 	}
-
+	log.Println("total time", totalTime.String())
 	return timeframes
 
 }
