@@ -556,7 +556,7 @@ func GetTimeframesList(symbol string) []string {
 
 	timeframes := make([]string, 0)
 
-	log.Println(time.Unix(int64(testCandle.OpenTime/1000), 0))
+	timeframes = append(timeframes, time.Unix(int64(testCandle.OpenTime/1000), 0).String())
 
 	intervals := []string{
 		"5m",
