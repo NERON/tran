@@ -579,8 +579,6 @@ func GetTimeframesList(symbol string) []string {
 		"48m",
 	}
 
-	var totalTime time.Duration
-
 	for _, intervalStr := range intervals {
 
 		interval := candlescommon.IntervalFromStr(intervalStr)
@@ -645,8 +643,6 @@ func GetTimeframesList(symbol string) []string {
 
 			return nil
 		}
-
-		log.Println(intervalStr, time.Unix(int64(candles[len(candles)-1].OpenTime/1000), 0).String())
 
 		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
@@ -757,6 +753,8 @@ func GetTimeframesList(symbol string) []string {
 
 		up, _, _ := rsiP.GetIntervalForPeriod(period, float64(centralRSI))
 
+		log.Println(intervalStr, time.Unix(int64(candles[len(candles)-1].OpenTime/1000), 0).String(), up, period)
+
 		if testCandle.LowPrice <= up {
 
 			founded := false
@@ -781,7 +779,7 @@ func GetTimeframesList(symbol string) []string {
 		}
 
 	}
-	log.Println("total time: ", totalTime)
+
 	return timeframes
 
 }
