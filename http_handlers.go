@@ -590,8 +590,6 @@ func GetTimeframesList(symbol string) []string {
 
 		var ok bool
 
-		t := time.Now()
-
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
 		if ok {
@@ -608,8 +606,6 @@ func GetTimeframesList(symbol string) []string {
 
 			candles, err = manager.GetLastKLines(symbol, interval, 100)
 		}
-		log.Println(intervalStr, time.Since(t))
-		totalTime += time.Since(t)
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
@@ -636,9 +632,9 @@ func GetTimeframesList(symbol string) []string {
 			}
 		}
 
-		if index > 2 {
+		if index > 1 {
 
-			candles = candles[:index-2]
+			candles = candles[:index-1]
 
 		} else {
 			log.Println("can't get data because of invalid path")
@@ -650,7 +646,7 @@ func GetTimeframesList(symbol string) []string {
 			return nil
 		}
 
-		log.Println(candles[len(candles)-1].CloseTime+1 < timestamp)
+		log.Println(intervalStr, time.Unix(int64(candles[len(candles)-1].OpenTime/1000), 0).String())
 
 		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
@@ -780,7 +776,6 @@ func GetTimeframesList(symbol string) []string {
 
 			if founded {
 
-				log.Println(intervalStr, period)
 				timeframes = append(timeframes, intervalStr)
 			}
 		}
