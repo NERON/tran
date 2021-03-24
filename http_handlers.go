@@ -636,9 +636,9 @@ func GetTimeframesList(symbol string) []string {
 			}
 		}
 
-		if index > 1 {
+		if index > 2 {
 
-			candles = candles[:index-1]
+			candles = candles[:index-2]
 
 		} else {
 			log.Println("can't get data because of invalid path")
