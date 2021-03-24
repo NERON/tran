@@ -608,7 +608,7 @@ func GetTimeframesList(symbol string) []string {
 
 			candles, err = manager.GetLastKLines(symbol, interval, 500)
 		}
-
+		log.Println(intervalStr, time.Since(t))
 		totalTime += time.Since(t)
 
 		isCorrect := candlescommon.CheckCandles(candles)
