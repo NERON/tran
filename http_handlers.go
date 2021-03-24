@@ -761,15 +761,14 @@ func GetTimeframesList(symbol string) []string {
 
 			for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
-				if e.Value.(manager.SequenceValue).Count > 1 || e.Value.(manager.SequenceValue).Sequence+1 < period {
-					continue
-				}
-
 				if e.Value.(manager.SequenceValue).Sequence > period {
 					break
 				}
 
-				founded = true
+				if e.Value.(manager.SequenceValue).Sequence == period || e.Value.(manager.SequenceValue).Sequence+1 == period {
+					founded = e.Value.(manager.SequenceValue).Count < 2
+				}
+
 			}
 
 			if founded {
