@@ -3,6 +3,7 @@ package main
 import (
 	"container/list"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/NERON/tran/candlescommon"
 	"github.com/NERON/tran/indicators"
@@ -454,10 +455,347 @@ func GetIntervalHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GenerateListOfPossibleSequences(symbol string) {
+func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
+
+	lowsMap := make(map[int]struct{})
+
+	for idx, candle := range candles {
+
+		lowReverse.AddPoint(candle.LowPrice, 0)
+
+		if lowReverse.IsPreviousLow() {
+
+			lowsMap[idx-1] = struct{}{}
+
+		}
+	}
+
+	return lowsMap
 
 }
 
+func GetLastCountedKLine(symbol string) (candlescommon.KLine, error) {
+
+	var ok bool
+	var candles []candlescommon.KLine
+
+	centralRSI := 15
+
+	interval := candlescommon.IntervalFromStr("1m")
+
+	candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
+
+	if !ok {
+		return candlescommon.KLine{}, errors.New("cache fail")
+	}
+
+	candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
+
+	if err == nil {
+
+		candles = append(candlesGet, candles...)
+
+	}
+
+	if len(candles) == 0 {
+		return candlescommon.KLine{}, nil
+	}
+
+	candles = candles[:len(candles)-1]
+
+	candlesOld, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
+
+	if err != nil {
+
+		return candlescommon.KLine{}, err
+	}
+
+	lowReverse := indicators.NewRSILowReverseIndicator()
+
+	if len(candlesOld) > 0 {
+		lowReverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
+	}
+
+	lowsMap := generateMapLows(lowReverse, candles)
+
+	rsiP := indicators.NewRSIMultiplePeriods(2)
+
+	for _, candleOld := range candlesOld {
+
+		rsiP.AddPoint(candleOld.ClosePrice)
+
+	}
+
+	var lastCountCandle candlescommon.KLine
+
+	for idx, candle := range candles {
+
+		_, ok := lowsMap[idx]
+
+		if ok {
+
+			up, _, _ := rsiP.GetIntervalForPeriod(2, float64(centralRSI))
+
+			if candle.LowPrice <= up {
+				lastCountCandle = candle
+			}
+
+		}
+
+		rsiP.AddPoint(candle.ClosePrice)
+	}
+
+	return lastCountCandle, nil
+
+}
+func GetTimeframesList(symbol string) []string {
+
+	testCandle, _ := GetLastCountedKLine(symbol)
+	timestamp := testCandle.OpenTime + 1
+	centralRSI := 15
+
+	timeframes := make([]string, 0)
+
+	log.Println(time.Unix(int64(testCandle.OpenTime/1000), 0))
+
+	intervals := []string{
+		"5m",
+		"6m",
+		"8m",
+		"9m",
+		"10m",
+		"12m",
+		"15m",
+		"16m",
+		"18m",
+		"20m",
+		"24m",
+		"30m",
+		"32m",
+		"36m",
+		"40m",
+		"42m",
+		"45m",
+		"48m",
+	}
+
+	for _, intervalStr := range intervals {
+
+		interval := candlescommon.IntervalFromStr(intervalStr)
+
+		var err error
+		var candles []candlescommon.KLine
+
+		var ok bool
+
+		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
+
+		if ok {
+
+			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
+
+			if err == nil {
+
+				candles = append(candlesGet, candles...)
+
+			}
+
+		} else {
+
+			candles, err = manager.GetLastKLines(symbol, interval, 500)
+		}
+
+		isCorrect := candlescommon.CheckCandles(candles)
+
+		if !isCorrect {
+			log.Fatal(candles)
+		}
+
+		if err != nil {
+
+			return nil
+		}
+
+		if len(candles) == 0 {
+
+			return nil
+		}
+
+		index := len(candles)
+
+		for ; index > 0; index-- {
+
+			if candles[index-1].OpenTime <= timestamp && timestamp <= candles[index-1].CloseTime {
+				break
+			}
+		}
+
+		if index > 1 {
+
+			candles = candles[:index-1]
+
+		} else {
+			log.Println("can't get data because of invalid path")
+			return nil
+		}
+
+		if len(candles) == 0 {
+
+			return nil
+		}
+
+		log.Println(candles[len(candles)-1].CloseTime+1 < timestamp)
+
+		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
+
+		if lastUpdate <= candles[0].OpenTime {
+			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
+		}
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		candlesOld, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
+
+		if err != nil {
+
+			return nil
+		}
+
+		lowReverse := indicators.NewRSILowReverseIndicator()
+		lowsMap := make(map[int]struct{})
+
+		if len(candlesOld) > 0 {
+			lowReverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
+		}
+
+		for idx, candle := range candles {
+
+			lowReverse.AddPoint(candle.LowPrice, 0)
+
+			if lowReverse.IsPreviousLow() {
+
+				lowsMap[idx-1] = struct{}{}
+
+			}
+
+		}
+
+		rsiP := indicators.NewRSIMultiplePeriods(250)
+
+		for _, candleOld := range candlesOld {
+
+			rsiP.AddPoint(candleOld.ClosePrice)
+
+		}
+
+		for idx, candle := range candles {
+
+			_, ok := lowsMap[idx]
+
+			if ok && candle.OpenTime > lastUpdate {
+
+				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+
+				periods := make([]int, 0)
+
+				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
+
+				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
+
+					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
+						periods = append(periods, bestPeriod+1)
+
+					}
+
+					periods = append(periods, bestPeriod)
+
+					for _, period := range periods {
+
+						sequence := manager.SequenceValue{LowCentralPrice: true, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+
+						if sequence.Fictive {
+							sequence.Count -= 1
+						}
+						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
+								sequence.Count += e.Value.(manager.SequenceValue).Count
+							}
+
+							bestSequenceList.Remove(e)
+						}
+
+						bestSequenceList.PushFront(sequence)
+					}
+
+				} else {
+
+					bestPeriod = 0
+					up = 0
+					down = 0
+				}
+
+			}
+
+			rsiP.AddPoint(candle.ClosePrice)
+
+		}
+
+		minValue := bestSequenceList.Front()
+
+		if minValue != nil && minValue.Value.(manager.SequenceValue).Sequence != 2 {
+
+			bestSequenceList.PushFront(manager.SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
+
+		}
+
+		period, _, _ := rsiP.GetBestPeriod(testCandle.LowPrice, float64(centralRSI))
+
+		up, _, _ := rsiP.GetIntervalForPeriod(period, float64(centralRSI))
+
+		if testCandle.LowPrice <= up {
+
+			founded := false
+
+			for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+
+				if e.Value.(manager.SequenceValue).Count > 1 || e.Value.(manager.SequenceValue).Sequence+1 < period {
+					continue
+				}
+
+				if e.Value.(manager.SequenceValue).Sequence > period {
+					break
+				}
+
+				founded = true
+			}
+
+			if founded {
+				timeframes = append(timeframes, intervalStr)
+			}
+		}
+
+	}
+
+	return timeframes
+
+}
+func GetLastSequencesHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	timeframes := GetTimeframesList(vars["symbol"])
+
+	byte, err := json.Marshal(timeframes)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	w.Write(byte)
+
+}
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
