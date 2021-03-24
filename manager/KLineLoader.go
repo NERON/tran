@@ -7,6 +7,7 @@ import (
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
 	"log"
+	"time"
 )
 
 func GetLastKlineForSymbol(symbol string, timeframe string) (uint64, error) {
@@ -67,6 +68,8 @@ func GetOptimalDatabaseTimeframe(interval candlescommon.Interval) uint {
 
 func IsAllCandlesLoaded(symbol string, timeframe string) (int64, int64, error) {
 
+	t := time.Now()
+
 	max, min := sql.NullInt64{}, sql.NullInt64{}
 
 	err := database.DatabaseManager.QueryRow(fmt.Sprintf(`SELECT (SELECT "openTime" FROM public.tran_candles_%s WHERE symbol =$1 ORDER BY "openTime" DESC LIMIT 1) as "max",(SELECT "prevCandle" FROM public.tran_candles_%s WHERE symbol =$2 ORDER BY "openTime" ASC LIMIT 1) as "min" `, timeframe, timeframe), symbol, symbol).Scan(&max, &min)
@@ -74,6 +77,8 @@ func IsAllCandlesLoaded(symbol string, timeframe string) (int64, int64, error) {
 	if err != nil && err != sql.ErrNoRows || !max.Valid {
 		return 0, -1, err
 	}
+
+	log.Println("AllCandles", time.Since(t))
 
 	return max.Int64, min.Int64, nil
 
