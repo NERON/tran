@@ -588,8 +588,13 @@ func GetTimeframesList(symbol string) []string {
 
 		var ok bool
 
+		t := time.Now()
+
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
+		log.Println("get cache time: ", time.Since(t))
+
+		t = time.Now()
 		if ok {
 
 			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
@@ -604,6 +609,8 @@ func GetTimeframesList(symbol string) []string {
 
 			candles, err = manager.GetLastKLines(symbol, interval, 500)
 		}
+
+		log.Println("get time: ", time.Since(t))
 
 		isCorrect := candlescommon.CheckCandles(candles)
 
