@@ -691,6 +691,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 		}
 
 		totalTime += time.Since(t)
+		log.Println(intervalStr, time.Since(t))
 
 		lowReverse := indicators.NewRSILowReverseIndicator()
 		lowsMap := make(map[int]struct{})
