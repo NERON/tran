@@ -596,7 +596,7 @@ func GetTimeframesList(symbol string) []string {
 
 		if ok {
 
-			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
+			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 100)
 
 			if err == nil {
 
@@ -606,7 +606,7 @@ func GetTimeframesList(symbol string) []string {
 
 		} else {
 
-			candles, err = manager.GetLastKLines(symbol, interval, 500)
+			candles, err = manager.GetLastKLines(symbol, interval, 100)
 		}
 		log.Println(intervalStr, time.Since(t))
 		totalTime += time.Since(t)

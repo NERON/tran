@@ -240,8 +240,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 			FillDatabaseToLatestValues(symbol, databaseIn)
 		}
 
-		t := time.Now()
-
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, timestamp, 1000)
@@ -270,7 +268,6 @@ func GetLastKLinesFromTimestamp(symbol string, interval candlescommon.Interval, 
 
 		}
 
-		log.Println(databaseIn, time.Since(t))
 	}
 
 	if len(lastKlines) > limit {
