@@ -779,6 +779,8 @@ func GetTimeframesList(symbol string) []string {
 			}
 
 			if founded {
+
+				log.Println(intervalStr, period)
 				timeframes = append(timeframes, intervalStr)
 			}
 		}
