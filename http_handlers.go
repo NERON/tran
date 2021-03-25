@@ -1088,9 +1088,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 				sign := ""
 
-				if sequenceData.Fictive {
-					sign = "*"
-				}
 				if sequenceData.Count > 1 {
 					sign += "!"
 				}
