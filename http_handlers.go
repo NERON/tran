@@ -962,7 +962,9 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		candles = candles[:len(candles)-1]
+		if !candles[len(candles)-1].Closed || (candles[len(candles)-1].CloseTime >= timestamp) {
+			candles = candles[:len(candles)-1]
+		}
 
 		log.Println("choosed candle", candles[len(candles)-1])
 
