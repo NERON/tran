@@ -600,6 +600,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 			"42m",
 			"45m",
 			"48m",
+			"56m",
 		}
 
 	}
@@ -889,6 +890,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 			"42m",
 			"45m",
 			"48m",
+			"56m",
 		}
 
 	}
