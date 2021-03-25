@@ -677,11 +677,14 @@ func GetTimeframesList(symbol string, mode int) []string {
 			return nil
 		}
 
+		m := time.Now()
 		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
 		}
+
+		log.Println("Extract time: ", time.Since(m))
 
 		if err != nil {
 			log.Fatal(err.Error())
