@@ -610,6 +610,8 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 	for _, intervalStr := range intervals {
 
+		t := time.Now()
+
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
 		var err error
@@ -677,20 +679,15 @@ func GetTimeframesList(symbol string, mode int) []string {
 			return nil
 		}
 
-		m := time.Now()
 		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
-		log.Println("Extract time: ", time.Since(m))
-
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-
-		t := time.Now()
 
 		candlesOld, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
 
@@ -699,7 +696,6 @@ func GetTimeframesList(symbol string, mode int) []string {
 			return nil
 		}
 
-		totalTime += time.Since(t)
 		log.Println(intervalStr, time.Since(t))
 
 		lowReverse := indicators.NewRSILowReverseIndicator()
@@ -817,6 +813,8 @@ func GetTimeframesList(symbol string, mode int) []string {
 				timeframes = append(timeframes, intervalStr)
 			}
 		}
+
+		totalTime += time.Since(t)
 
 	}
 	log.Println("total time", totalTime.String())
