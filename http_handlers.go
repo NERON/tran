@@ -621,11 +621,15 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 		if ok {
 
-			candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 100)
+			if candles[0].OpenTime < timestamp {
 
-			if err == nil {
+				candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 100)
 
-				candles = append(candlesGet, candles...)
+				if err == nil {
+
+					candles = append(candlesGet, candles...)
+
+				}
 
 			}
 
