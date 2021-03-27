@@ -550,6 +550,7 @@ func GetLastCountedKLine(symbol string) (candlescommon.KLine, error) {
 }
 func GetTimeframesList(symbol string, mode int) []string {
 
+	rr := time.Now()
 	testCandle, _ := GetLastCountedKLine(symbol)
 	timestamp := testCandle.OpenTime + 1
 	centralRSI := 15
@@ -787,7 +788,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 		totalTime += time.Since(t)
 
 	}
-	log.Println("total time", totalTime.String())
+	log.Println("total time", totalTime.String(), time.Since(rr))
 	return timeframes
 
 }
