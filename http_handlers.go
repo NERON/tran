@@ -668,6 +668,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
+			log.Println(intervalStr, "DOit")
 			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
