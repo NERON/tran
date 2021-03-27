@@ -621,21 +621,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
-		if ok {
-
-			if candles[0].OpenTime < timestamp {
-
-				candlesGet, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 100)
-
-				if err == nil {
-
-					candles = append(candlesGet, candles...)
-
-				}
-
-			}
-
-		} else {
+		if !ok {
 
 			candles, err = manager.GetLastKLines(symbol, interval, 100)
 		}
@@ -679,31 +665,20 @@ func GetTimeframesList(symbol string, mode int) []string {
 			return nil
 		}
 
-		bestSequenceList, lastUpdate, _, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
+		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, _, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
+			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
-		if err != nil {
+		if err != nil || lastUpdate <= candles[0].OpenTime {
 			log.Fatal(err.Error())
-		}
-
-		candlesOld, err := manager.GetLastKLinesFromTimestamp(symbol, interval, candles[0].OpenTime, 500)
-
-		if err != nil {
-
-			return nil
 		}
 
 		log.Println(intervalStr, time.Since(t))
 
 		lowReverse := indicators.NewRSILowReverseIndicator()
 		lowsMap := make(map[int]struct{})
-
-		if len(candlesOld) > 0 {
-			lowReverse.AddPoint(candlesOld[len(candlesOld)-1].LowPrice, 0)
-		}
 
 		for idx, candle := range candles {
 
@@ -714,14 +689,6 @@ func GetTimeframesList(symbol string, mode int) []string {
 				lowsMap[idx-1] = struct{}{}
 
 			}
-
-		}
-
-		rsiP := indicators.NewRSIMultiplePeriods(250)
-
-		for _, candleOld := range candlesOld {
-
-			rsiP.AddPoint(candleOld.ClosePrice)
 
 		}
 
@@ -774,7 +741,9 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 			}
 
-			rsiP.AddPoint(candle.ClosePrice)
+			if candle.OpenTime > lastUpdate {
+				rsiP.AddPoint(candle.ClosePrice)
+			}
 
 		}
 
