@@ -194,7 +194,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 
 	}
 
-	log.Println("total time append", dur)
+	log.Println("total time appendix", dur, minutes, includeLastKline)
 
 	return groupedKlines
 
