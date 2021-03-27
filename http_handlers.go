@@ -916,6 +916,9 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		Type  int
 	}
 
+	segments := make([]IntervalEnds, 0)
+	segmentsMap := make(map[string]SequenceResult, 0)
+
 	//iterate over intervals
 	for _, intervalStr := range intervals {
 
@@ -969,13 +972,305 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
 		}
 
-		if err != nil {
+		if err != nil || lastUpdate <= candles[0].OpenTime {
 			log.Fatal(err.Error())
 		}
 
-		log.Println(bestSequenceList, rsiP, groupCount)
+		lowReverse := indicators.NewRSILowReverseIndicator()
+		lowsMap := make(map[int]struct{})
+
+		for idx, candle := range candles {
+
+			lowReverse.AddPoint(candle.LowPrice, 0)
+
+			if lowReverse.IsPreviousLow() {
+
+				lowsMap[idx-1] = struct{}{}
+
+			}
+
+		}
+
+		for idx, candle := range candles {
+
+			_, ok := lowsMap[idx]
+
+			if ok && candle.OpenTime > lastUpdate {
+
+				bestPeriod, _, centralPrice := rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
+
+				periods := make([]int, 0)
+
+				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
+
+				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
+
+					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
+						periods = append(periods, bestPeriod+1)
+
+					}
+
+					periods = append(periods, bestPeriod)
+
+					for _, period := range periods {
+
+						sequence := manager.SequenceValue{LowCentralPrice: true, Sequence: period, CentralPrice: centralPrice, Fictive: bestPeriod != period, Timestamp: candle.OpenTime, Central: centralPrice, Lower: candle.LowPrice, Down: down, Count: 1}
+
+						if sequence.Fictive {
+							sequence.Count -= 1
+						}
+						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
+
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
+								sequence.Count += e.Value.(manager.SequenceValue).Count
+							}
+
+							bestSequenceList.Remove(e)
+						}
+
+						bestSequenceList.PushFront(sequence)
+					}
+
+				} else {
+
+					bestPeriod = 0
+					up = 0
+					down = 0
+				}
+
+				rsiP.AddPoint(candle.ClosePrice)
+
+			}
+
+		}
+
+		minValue := bestSequenceList.Front()
+
+		if minValue != nil && minValue.Value.(manager.SequenceValue).Sequence != 2 {
+
+			bestSequenceList.PushFront(manager.SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
+
+		}
+
+		previousAddedSeq := 0
+
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+			log.Println(intervalStr, e.Value)
+		}
+
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+
+			sequenceData := e.Value.(manager.SequenceValue)
+
+			if previousAddedSeq < sequenceData.Sequence {
+
+				sign := ""
+
+				if sequenceData.Count > 1 {
+					sign += "!"
+				}
+
+				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+
+				if up <= down || up <= 0 || down <= 0 {
+					continue
+				}
+
+				percentage := (down/up - 1) * 100
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
+			}
+
+			if sequenceData.LowCentralPrice == true && e.Next() != nil {
+				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
+			}
+
+			if sequenceData.LowCentralPrice {
+
+				sign := ""
+
+				if sequenceData.Fictive {
+					sign = "*"
+				}
+
+				if sequenceData.Count > 1 {
+					sign += "@"
+				}
+
+				sequenceData.Sequence += 1
+				sequenceData.LowCentralPrice = false
+
+				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+
+				if up <= down || up <= 0 || down <= 0 {
+					continue
+				}
+
+				percentage := (down/up - 1) * 100
+
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
+				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
+
+				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: 0}
+
+			}
+
+			previousAddedSeq = sequenceData.Sequence
+		}
 
 	}
+
+	type Res struct {
+		Combination   []string
+		Up            float64
+		Down          float64
+		Percentage    float64
+		HasRepeats    bool
+		MinPercentage float64
+	}
+
+	sort.Slice(segments, func(i, j int) bool {
+
+		if segments[i].Value == segments[j].Value {
+			return segments[i].Type > segments[j].Type
+		}
+
+		return segments[i].Value > segments[j].Value
+	})
+
+	test := make([]Res, 0)
+
+	t := time.Now()
+
+	intersectionList := make([]string, 0)
+
+	for _, end := range segments {
+
+		if end.Type == 0 {
+			intersectionList = append(intersectionList, end.ID)
+
+		} else {
+
+			index := 0
+
+			for idx, val := range intersectionList {
+
+				index = idx
+
+				if val == end.ID {
+					break
+				}
+			}
+
+			if index >= len(intersectionList) {
+				log.Println("Error", end.ID, intersectionList, segments)
+				return
+			}
+
+			//remove data
+			intersectionList[index] = intersectionList[len(intersectionList)-1]
+			intersectionList = intersectionList[:len(intersectionList)-1]
+
+			if uint64(len(intersectionList)) >= groupCount-1 {
+
+				for j := 1; j < 2; j++ {
+
+					//generate combinations
+					gen := combin.NewCombinationGenerator(len(intersectionList), int(groupCount-1))
+
+					for gen.Next() {
+
+						combinations := gen.Combination(nil)
+
+						up := 99999999999999999999999.0
+						down := 0.0
+						isRepeated := false
+
+						combination := make([]string, 0)
+
+						for _, combo := range combinations {
+							combination = append(combination, intersectionList[combo])
+						}
+
+						combination = append(combination, end.ID)
+
+						maxPerc := -99999999999.0
+
+						for _, comb := range combination {
+
+							val, _ := segmentsMap[comb]
+							up = math.Min(up, val.Up)
+							down = math.Max(down, val.Down)
+							isRepeated = isRepeated || val.Count > 1
+							maxPerc = math.Max(maxPerc, (val.Down/val.Up-1)*100)
+						}
+						test = append(test, Res{combination, up, down, (down/up - 1) * 100, isRepeated, maxPerc})
+
+					}
+
+				}
+
+			} else if len(intersectionList) == 0 {
+				log.Println("Not found pair for ", end.ID)
+			}
+
+		}
+	}
+
+	sort.Slice(test, func(i, j int) bool {
+
+		if test[i].Down == test[j].Down {
+			return test[i].Up > test[j].Up
+
+		}
+		return test[i].Down > test[j].Down
+	})
+
+	log.Println("intersection time", time.Since(t))
+
+	exclude := make([]Res, 0)
+
+	currentDownNoRepeats := 0.0
+	currentDownRepeats := 0.0
+
+	percentage := 1.0
+
+	if intervalRange > 0 {
+		percentage = 1
+	}
+
+	for _, val := range test {
+
+		if val.Percentage < percentage {
+			exclude = append(exclude, val)
+
+		} else if val.HasRepeats && currentDownRepeats != val.Down {
+
+			exclude = append(exclude, val)
+			currentDownRepeats = val.Down
+
+		} else if !val.HasRepeats && currentDownNoRepeats != val.Down {
+			exclude = append(exclude, val)
+			currentDownNoRepeats = val.Down
+		}
+
+	}
+
+	sort.Slice(exclude, func(i, j int) bool {
+
+		return exclude[i].Up > exclude[j].Up
+
+	})
+
+	byte, err := json.Marshal(exclude)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	w.Write(byte)
 
 }
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
