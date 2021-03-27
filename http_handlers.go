@@ -973,7 +973,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 		}
 
-		log.Println(bestSequenceList, rsiP.RSIs[0].Period, groupCount)
+		log.Println(bestSequenceList, rsiP, groupCount)
 
 	}
 
