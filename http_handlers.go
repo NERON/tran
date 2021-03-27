@@ -552,6 +552,8 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 	rr := time.Now()
 	testCandle, _ := GetLastCountedKLine(symbol)
+
+	log.Println("LOAD", time.Since(rr))
 	timestamp := testCandle.OpenTime + 1
 	centralRSI := 15
 
