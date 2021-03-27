@@ -969,6 +969,8 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("NEED LOAD", candles, groupCount)
 		}
 
+		log.Println("NEED LOAD", candles, groupCount)
+
 		if err != nil {
 			log.Fatal(err.Error())
 		}
