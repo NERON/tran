@@ -126,8 +126,8 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 			}
 
 			//truncate unclosed candle, it can't be used for count
-			if len(candles) > 1 {
-				candles = candles[:len(candles)-2]
+			if len(candles) > 0 {
+				candles = candles[:len(candles)-1]
 			}
 
 		} else {
