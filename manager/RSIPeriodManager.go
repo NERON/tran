@@ -326,7 +326,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 		prevCandle = candles[0]
 
-		log.Println(symbol, interval, prevCandle.OpenTime, lastKlineTimestamp)
+		log.Println(symbol, interval, prevCandle.OpenTime, lastKlineTimestamp, timestamp)
 	}
 
 	if newEndTimestamp > lastKlineTimestamp {
