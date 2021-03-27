@@ -101,6 +101,7 @@ func CheckCandles(klines []KLine) bool {
 }
 func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
 
+	var dur time.Duration
 	//grouped klines
 	groupedKlines := make([]KLine, 0)
 
@@ -145,8 +146,11 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 			//if it's not first kline, save previous first kline
 			if currentKline.OpenTime > 0 {
 
+				t := time.Now()
 				//prepend item
 				groupedKlines = append([]KLine{currentKline}, groupedKlines...)
+
+				dur += time.Since(t)
 			}
 
 			//assign new kline
@@ -181,13 +185,16 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 	//second: last original kline completes the new kline, in this situation we should check their close time
 	if currentKline.Closed == false || (includeLastKline && len(groupedKlines) > 0) || (currentKline.OpenTime > 0 && currentKline.PrevCloseCandleTimestamp == 0) {
 
-		r := time.Now()
+		t := time.Now()
+
 		//prepend item
 		groupedKlines = append([]KLine{currentKline}, groupedKlines...)
 
-		log.Println("REVERT", time.Since(r))
+		dur += time.Since(t)
 
 	}
+
+	log.Println("total time append", dur)
 
 	return groupedKlines
 
