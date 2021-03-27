@@ -274,21 +274,22 @@ func (s *LastKlinesCaches) GetLatestKLines(symbol string, interval candlescommon
 		return nil, false
 	}
 
-	kk := time.Now()
 	klineData := klineCacher.GetData()
-
-	log.Println("CHACHELOAD", time.Since(kk))
 
 	for i := 0; i < len(klineData)/2; i++ {
 		j := len(klineData) - i - 1
 		klineData[i], klineData[j] = klineData[j], klineData[i]
 	}
 
+	kk := time.Now()
+
 	if interval.Letter == "h" {
 		klineData = candlescommon.HoursGroupKlineDesc(klineData, uint64(interval.Duration), true)
 	} else if interval.Letter == "m" {
 		klineData = candlescommon.MinutesGroupKlineDesc(klineData, uint64(interval.Duration), true)
 	}
+
+	log.Println("CHACHELOAD", time.Since(kk))
 
 	for i := 0; i < len(klineData)/2; i++ {
 		j := len(klineData) - i - 1
