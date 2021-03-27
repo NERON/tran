@@ -169,7 +169,7 @@
 
         $.getJSON("https://194.147.115.73:8085/getLastSeq/ETHUSDT/1", function (data) {
 
-            for (var r in data) {
+            for (var r in loadedData) {
 
                 let combinationJoin = loadedData[r].Combination.join();
 
