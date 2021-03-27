@@ -43,19 +43,20 @@ type RSIPeriodManager struct {
 	outerMutex *sync.Mutex
 }
 
-func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, error) {
+func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, indicators.RSIMultiplePeriods, error) {
 
 	var listJSon string
+	var RSIJSon string
 	var lastUpdate uint64
 
-	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" <= $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate)
+	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate","lastRSI" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" <= $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate, &RSIJSon)
 
 	if err != nil && err != sql.ErrNoRows {
-		return nil, 0, err
+		return nil, 0, indicators.RSIMultiplePeriods{}, err
 	}
 
 	if err == sql.ErrNoRows {
-		return list.New(), 0, nil
+		return list.New(), 0, indicators.RSIMultiplePeriods{}, nil
 	}
 
 	var sequenceArray []SequenceValue
@@ -63,7 +64,7 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 	err = json.Unmarshal([]byte(listJSon), &sequenceArray)
 
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, indicators.RSIMultiplePeriods{}, err
 	}
 
 	sequenceList := list.New()
@@ -72,7 +73,15 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 		sequenceList.PushBack(val)
 	}
 
-	return sequenceList, lastUpdate, nil
+	var RSI indicators.RSIMultiplePeriods
+
+	err = json.Unmarshal([]byte(RSIJSon), &RSI)
+
+	if err != nil {
+		return nil, 0, indicators.RSIMultiplePeriods{}, err
+	}
+
+	return sequenceList, lastUpdate, RSI, nil
 }
 func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
 
@@ -99,7 +108,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 	done := false
 	newEndTimestamp := uint64(0)
 
-	lastSavedSequences, lastKlineTimestamp, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), timestamp)
+	lastSavedSequences, lastKlineTimestamp, _, err := GetPeriodsFromDatabase(symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), timestamp)
 
 	centralRSI := 15
 	if err != nil {

@@ -679,7 +679,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 			return nil
 		}
 
-		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
+		bestSequenceList, lastUpdate, _, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
@@ -963,13 +963,13 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			candles = candles[:len(candles)-1]
 		}
 
-		_, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
+		_, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
 		if lastUpdate <= candles[0].OpenTime {
 			log.Println("NEED LOAD", candles, groupCount)
 		}
 
-		log.Println("NEED LOAD", candles, groupCount)
+		log.Println(rsiP)
 
 		if err != nil {
 			log.Fatal(err.Error())
@@ -1119,7 +1119,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("choosed candle", candles[len(candles)-1])
 
-		bestSequenceList, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(candles[len(candles)-1].OpenTime))
+		bestSequenceList, lastUpdate, _, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(candles[len(candles)-1].OpenTime))
