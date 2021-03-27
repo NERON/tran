@@ -165,9 +165,9 @@
 
     $('#HidePercentage').click(function() {
 
-        $("#Vals").children().remove();
-
         $.getJSON("https://194.147.115.73:8085/getLastSeq/ETHUSDT/1", function (data) {
+
+            $("#Vals").children().remove();
 
             for (var r in loadedData) {
 
