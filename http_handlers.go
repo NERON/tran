@@ -577,7 +577,6 @@ func GetTimeframesList(symbol string, mode int) []string {
 			"6h",
 			"8h",
 			"12h",
-			"1080m",
 		}
 
 	} else {
@@ -874,6 +873,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"6h",
 			"8h",
 			"12h",
+			"1080m",
 		}
 
 	} else {
