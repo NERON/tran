@@ -577,6 +577,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 			"6h",
 			"8h",
 			"12h",
+			"1080m",
 		}
 
 	} else {
