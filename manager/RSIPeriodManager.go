@@ -12,18 +12,9 @@ import (
 	"log"
 	"math"
 	"sort"
-	"sync"
 )
 
 var errWrongSavedTimestamp = errors.New("candle that was used previously are missed")
-
-type rsiData struct {
-	reverse            indicators.ReverseLowInterface
-	rsiP               *indicators.RSIMultiplePeriods
-	bestPeriods        *list.List
-	lastInsertedCandle uint64
-	mutex              *sync.Mutex
-}
 
 type SequenceValue struct {
 	Sequence        int
@@ -35,12 +26,6 @@ type SequenceValue struct {
 	Lower           float64
 	Down            float64
 	Count           uint
-}
-
-type RSIPeriodManager struct {
-	data       map[string]map[string]rsiData
-	centralRSI float64
-	outerMutex *sync.Mutex
 }
 
 func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, indicators.RSIMultiplePeriods, error) {
@@ -141,8 +126,8 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 			}
 
 			//truncate unclosed candle, it can't be used for count
-			if len(candles) > 0 {
-				candles = candles[:len(candles)-1]
+			if len(candles) > 1 {
+				candles = candles[:len(candles)-2]
 			}
 
 		} else {
@@ -401,56 +386,4 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 	}
 
 	return commonBestSequenceList, newEndTimestamp, nil
-}
-
-func (r *RSIPeriodManager) fillData(data *rsiData, symbol string, interval candlescommon.Interval) {
-
-}
-
-func (r *RSIPeriodManager) GetBestPeriods(symbol string, interval candlescommon.Interval) *list.List {
-
-	//lock to get rsi data
-	r.outerMutex.Lock()
-
-	symbolTimestamps, ok := r.data[symbol]
-
-	//check for symbol
-	if !ok {
-		r.data[symbol] = make(map[string]rsiData, 0)
-		symbolTimestamps = r.data[symbol]
-	}
-
-	innerData, ok := symbolTimestamps[fmt.Sprintf("%d%s", interval.Duration, interval.Letter)]
-
-	//check for timestamp
-	if !ok {
-
-		symbolTimestamps[fmt.Sprintf("%d%s", interval.Duration, interval.Letter)] = rsiData{
-			bestPeriods: list.New(),
-			mutex:       &sync.Mutex{},
-			rsiP:        indicators.NewRSIMultiplePeriods(250),
-			reverse:     indicators.NewRSILowReverseIndicator(),
-		}
-
-		innerData = symbolTimestamps[fmt.Sprintf("%d%s", interval.Duration, interval.Letter)]
-	}
-
-	//lock inner data
-	innerData.mutex.Lock()
-
-	//fill data
-	r.fillData(&innerData, symbol, interval)
-
-	//unlock outer mutex
-	r.outerMutex.Unlock()
-
-	//get or generate data
-	innerData.mutex.Unlock()
-
-	return list.New()
-
-}
-
-func NewRSIPeriodManager(centralRSI float64) *RSIPeriodManager {
-	return &RSIPeriodManager{data: make(map[string]map[string]rsiData), outerMutex: &sync.Mutex{}, centralRSI: centralRSI}
 }

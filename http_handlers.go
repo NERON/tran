@@ -963,17 +963,17 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			candles = candles[:len(candles)-1]
 		}
 
-		_, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
+		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
 		if lastUpdate <= candles[0].OpenTime {
-			log.Println("NEED LOAD", candles, groupCount)
+			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
 		}
-
-		log.Println(rsiP)
 
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+
+		log.Println(bestSequenceList, rsiP.RSIs[0].Period, groupCount)
 
 	}
 
