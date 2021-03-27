@@ -610,6 +610,8 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 	for _, intervalStr := range intervals {
 
+		t := time.Now()
+
 		interval := candlescommon.IntervalFromStr(intervalStr)
 
 		var err error
@@ -662,8 +664,6 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 			return nil
 		}
-
-		t := time.Now()
 
 		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
