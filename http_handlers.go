@@ -682,7 +682,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 		bestSequenceList, lastUpdate, _, err := manager.GetPeriodsFromDatabase(symbol, intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
+			bestSequenceList, lastUpdate, _, err = manager.GetSequncesWithUpdate(symbol, interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
 		if err != nil {
@@ -966,7 +966,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
+			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
 		}
 
 		if err != nil {
@@ -1122,7 +1122,7 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 		bestSequenceList, lastUpdate, _, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(candles[len(candles)-1].OpenTime))
+			bestSequenceList, lastUpdate, _, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
 		if err != nil {

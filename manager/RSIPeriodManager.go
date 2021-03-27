@@ -28,7 +28,7 @@ type SequenceValue struct {
 	Count           uint
 }
 
-func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, indicators.RSIMultiplePeriods, error) {
+func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*list.List, uint64, *indicators.RSIMultiplePeriods, error) {
 
 	var listJSon string
 	var RSIJSon string
@@ -37,11 +37,11 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate","lastRSI" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" <= $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate, &RSIJSon)
 
 	if err != nil && err != sql.ErrNoRows {
-		return nil, 0, indicators.RSIMultiplePeriods{}, err
+		return nil, 0, nil, err
 	}
 
 	if err == sql.ErrNoRows {
-		return list.New(), 0, indicators.RSIMultiplePeriods{}, nil
+		return list.New(), 0, nil, nil
 	}
 
 	var sequenceArray []SequenceValue
@@ -49,7 +49,7 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 	err = json.Unmarshal([]byte(listJSon), &sequenceArray)
 
 	if err != nil {
-		return nil, 0, indicators.RSIMultiplePeriods{}, err
+		return nil, 0, nil, err
 	}
 
 	sequenceList := list.New()
@@ -63,10 +63,10 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 	err = json.Unmarshal([]byte(RSIJSon), &RSI)
 
 	if err != nil {
-		return nil, 0, indicators.RSIMultiplePeriods{}, err
+		return nil, 0, nil, err
 	}
 
-	return sequenceList, lastUpdate, RSI, nil
+	return sequenceList, lastUpdate, &RSI, nil
 }
 func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
 
@@ -86,7 +86,7 @@ func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candle
 	return lowsMap
 
 }
-func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, timestamp int64) (*list.List, uint64, error) {
+func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, timestamp int64) (*list.List, uint64, *indicators.RSIMultiplePeriods, error) {
 
 	prevCandle := candlescommon.KLine{}
 
@@ -97,7 +97,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 	centralRSI := 15
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, nil, err
 	}
 
 	if lastSavedSequences == nil {
@@ -137,12 +137,12 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 		//return if error found
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
 		//don't do anything if no candles
 		if len(candles) == 0 {
-			return lastSavedSequences, lastKlineTimestamp, nil
+			return lastSavedSequences, lastKlineTimestamp, nil, nil
 		}
 
 		//check if receive more than inserted in database
@@ -168,7 +168,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			} else {
 
-				return nil, 0, errWrongSavedTimestamp
+				return nil, 0, nil, errWrongSavedTimestamp
 			}
 		}
 
@@ -177,7 +177,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 		//check for errors
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
 		//initialize Low reverse counter for calculating potential low points
@@ -367,23 +367,23 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 		if err != nil {
 
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
 		lastRSIJSON, err := json.Marshal(LastRSI)
 
 		if err != nil {
 
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
 		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate","lastRSI") VALUES ($1, $2, $3,$4,$5);`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp, lastRSIJSON)
 
 		if err != nil {
 
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 	}
 
-	return commonBestSequenceList, newEndTimestamp, nil
+	return commonBestSequenceList, newEndTimestamp, LastRSI, nil
 }
