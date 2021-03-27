@@ -622,7 +622,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 		candles, ok = manager.KLineCacher.GetLatestKLines(symbol, interval)
 
 		if !ok {
-
+			log.Println("ERROR GET DATA")
 			candles, err = manager.GetLastKLines(symbol, interval, 100)
 		}
 
