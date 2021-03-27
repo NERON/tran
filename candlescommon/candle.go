@@ -1,8 +1,10 @@
 package candlescommon
 
 import (
+	"log"
 	"math"
 	"strconv"
+	"time"
 )
 
 type KLine struct {
@@ -179,8 +181,11 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 	//second: last original kline completes the new kline, in this situation we should check their close time
 	if currentKline.Closed == false || (includeLastKline && len(groupedKlines) > 0) || (currentKline.OpenTime > 0 && currentKline.PrevCloseCandleTimestamp == 0) {
 
+		r := time.Now()
 		//prepend item
 		groupedKlines = append([]KLine{currentKline}, groupedKlines...)
+
+		log.Println("REVERT", time.Since(r))
 
 	}
 
