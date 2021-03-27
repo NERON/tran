@@ -301,7 +301,7 @@ func NewLastKlinesCacher(symbols []string) (*LastKlinesCaches, error) {
 		symbols: make(map[string]map[string]*symbolKlines),
 	}
 
-	archiveLengths := []uint{1500, 50}
+	archiveLengths := []uint{3 * 1440, 50}
 
 	for idx, interval := range []string{"1m", "1h"} {
 

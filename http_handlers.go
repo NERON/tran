@@ -836,6 +836,146 @@ func GetLastSequencesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(byte)
 
 }
+func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
+	if centralRSI == 0 {
+		centralRSI = 15
+	}
+
+	intervalRange, _ := strconv.ParseUint(vars["mode"], 10, 64)
+	groupCount, _ := strconv.ParseUint(vars["groupCount"], 10, 64)
+
+	timestamp, _ := strconv.ParseUint(vars["timestamp"], 10, 64)
+
+	if timestamp == 0 {
+		timestamp = math.MaxInt64
+	}
+
+	var intervals []string
+
+	if intervalRange == 0 {
+
+		intervals = []string{
+			"1h",
+			"72m",
+			"80m",
+			"90m",
+			"96m",
+			"2h",
+			"144m",
+			"160m",
+			"3h",
+			"4h",
+			"288m",
+			"6h",
+			"8h",
+			"12h",
+		}
+
+	} else {
+
+		intervals = []string{
+			"3m",
+			"4m",
+			"5m",
+			"6m",
+			"8m",
+			"9m",
+			"10m",
+			"12m",
+			"15m",
+			"16m",
+			"18m",
+			"20m",
+			"24m",
+			"30m",
+			"32m",
+			"36m",
+			"40m",
+			"42m",
+			"45m",
+			"48m",
+		}
+
+	}
+
+	type SequenceResult struct {
+		Interval string
+		Val      int
+		Up       float64
+		Down     float64
+		Count    uint
+	}
+
+	type IntervalEnds struct {
+		ID    string
+		Value float64
+		Type  int
+	}
+
+	//iterate over intervals
+	for _, intervalStr := range intervals {
+
+		interval := candlescommon.IntervalFromStr(intervalStr)
+
+		var err error
+		var candles []candlescommon.KLine
+
+		if timestamp == math.MaxInt64 {
+
+			var ok bool
+
+			candles, ok = manager.KLineCacher.GetLatestKLines(vars["symbol"], interval)
+
+			if !ok {
+
+				candles, err = manager.GetLastKLines(vars["symbol"], interval, 500)
+
+			}
+
+		} else {
+
+			candles, err = manager.GetLastKLinesFromTimestamp(vars["symbol"], interval, timestamp, 500)
+
+		}
+
+		isCorrect := candlescommon.CheckCandles(candles)
+
+		if !isCorrect {
+			log.Fatal(candles)
+		}
+
+		if err != nil {
+
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if len(candles) == 0 {
+			w.Write([]byte("Data not exist"))
+			return
+		}
+
+		if !candles[len(candles)-1].Closed || (candles[len(candles)-1].CloseTime >= timestamp) {
+			candles = candles[:len(candles)-1]
+		}
+
+		_, lastUpdate, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
+
+		if lastUpdate <= candles[0].OpenTime {
+			log.Println("NEED LOAD", candles, groupCount)
+		}
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+	}
+
+}
 func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
