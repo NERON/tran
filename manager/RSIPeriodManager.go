@@ -112,6 +112,8 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 	commonBestSequenceList := list.New()
 
+	var LastRSI *indicators.RSIMultiplePeriods
+
 	for {
 
 		var candles []candlescommon.KLine
@@ -282,7 +284,10 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 			}
 
 			rsiP.AddPoint(candle.ClosePrice)
+		}
 
+		if prevCandle.OpenTime == 0 {
+			LastRSI = rsiP
 		}
 
 		maxValue := commonBestSequenceList.Back()
@@ -371,7 +376,14 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 			return nil, 0, err
 		}
 
-		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate") VALUES ($1, $2, $3,$4);`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp)
+		lastRSIJSON, err := json.Marshal(LastRSI)
+
+		if err != nil {
+
+			return nil, 0, err
+		}
+
+		_, err = database.DatabaseManager.Exec(`INSERT INTO public."tran_bestPeriodsList"(symbol, "interval", "list","lastUpdate","lastRSI") VALUES ($1, $2, $3,$4,$5);`, symbol, fmt.Sprintf("%d%s", interval.Duration, interval.Letter), js, newEndTimestamp, lastRSIJSON)
 
 		if err != nil {
 
