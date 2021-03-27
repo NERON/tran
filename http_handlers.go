@@ -1038,8 +1038,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 					down = 0
 				}
 
-				rsiP.AddPoint(candle.ClosePrice)
+			}
 
+			if candle.OpenTime > lastUpdate {
+				rsiP.AddPoint(candle.ClosePrice)
 			}
 
 		}
