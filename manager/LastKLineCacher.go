@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var KLineCacher *LastKlinesCaches
@@ -273,7 +274,10 @@ func (s *LastKlinesCaches) GetLatestKLines(symbol string, interval candlescommon
 		return nil, false
 	}
 
+	kk := time.Now()
 	klineData := klineCacher.GetData()
+
+	log.Println("CHACHELOAD", time.Since(kk))
 
 	for i := 0; i < len(klineData)/2; i++ {
 		j := len(klineData) - i - 1
