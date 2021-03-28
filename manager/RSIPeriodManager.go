@@ -242,11 +242,6 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
-					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-						periods = append(periods, bestPeriod+1)
-
-					}
-
 					periods = append(periods, bestPeriod)
 
 					for _, period := range periods {

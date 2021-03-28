@@ -712,11 +712,6 @@ func GetTimeframesList(symbol string, mode int) []string {
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
-					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-						periods = append(periods, bestPeriod+1)
-
-					}
-
 					periods = append(periods, bestPeriod)
 
 					for _, period := range periods {
@@ -980,11 +975,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
-
-					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-						periods = append(periods, bestPeriod+1)
-
-					}
 
 					periods = append(periods, bestPeriod)
 
