@@ -725,7 +725,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence && sequence.Sequence > 2 {
 								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 
@@ -989,7 +989,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence && sequence.Sequence > 2 {
 								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 

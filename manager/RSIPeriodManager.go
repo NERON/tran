@@ -253,7 +253,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
+							if sequence.Sequence == e.Value.(SequenceValue).Sequence && sequence.Sequence > 2 {
 								sequence.Count += e.Value.(SequenceValue).Count
 							}
 
