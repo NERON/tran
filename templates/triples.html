@@ -174,7 +174,7 @@
             for (var r in loadedData) {
 
 
-                if (currentUp !== loadedData[r].Up) {
+                if (currentUp !== loadedData[r].Up * 1) {
 
                     let combinationJoin = loadedData[r].Combination.join();
 
@@ -184,7 +184,7 @@
 
                 }
 
-                currentUp = loadedData[r].Up
+                currentUp = loadedData[r].Up * 1
 
 
             }
