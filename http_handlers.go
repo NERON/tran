@@ -1229,7 +1229,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(exclude, func(i, j int) bool {
 
 		if test[i].Up == test[j].Up {
-			return test[i].Down > test[j].Down
+			return test[i].Down < test[j].Down
 
 		}
 		return exclude[i].Up > exclude[j].Up
