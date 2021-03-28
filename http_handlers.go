@@ -585,6 +585,8 @@ func GetTimeframesList(symbol string, mode int) []string {
 	} else {
 
 		intervals = []string{
+			"1m",
+			"2m",
 			"3m",
 			"4m",
 			"5m",
