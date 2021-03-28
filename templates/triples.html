@@ -182,7 +182,7 @@
                     let combinationJoin = loadedData[r].Combination.join();
 
                     if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes((loadedData[r].Combination[0].match(/\d+m/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+m/gm)[0])))) {
-                        filteredIdx[r]= loadedData[r].Combination.clone()
+                        filteredIdx[r]= loadedData[r].Combination.slice();
                         currentFilledIndex = r
                         currentUp = loadedData[r].Up * 1
                     }
