@@ -34,7 +34,7 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 	var RSIJSon string
 	var lastUpdate uint64
 
-	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate","lastRSI" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" <= $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate, &RSIJSon)
+	err := database.DatabaseManager.QueryRow(`SELECT  list,"lastUpdate","lastRSI" FROM public."tran_bestPeriodsList" WHERE symbol=$1 AND interval=$2 AND "lastUpdate" < $3 ORDER BY "lastUpdate" DESC LIMIT 1;`, symbol, interval, timestamp).Scan(&listJSon, &lastUpdate, &RSIJSon)
 
 	if err != nil && err != sql.ErrNoRows {
 		return nil, 0, nil, err
