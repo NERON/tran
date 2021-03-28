@@ -180,11 +180,12 @@
 
                     if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes((loadedData[r].Combination[0].match(/\d+m/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+m/gm)[0])))) {
                         $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text(loadedData[r].Combination.join())).append($("<div></div>").text(loadedData[r].Up)).append($("<div></div>").text(loadedData[r].Down)).append($("<div></div>").text(loadedData[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',loadedData[r].Up).attr('data-down',loadedData[r].Down).attr('data-percentage',loadedData[r].MinPercentage))
+                        currentUp = loadedData[r].Up * 1
                     }
 
                 }
 
-                currentUp = loadedData[r].Up * 1
+
 
 
             }
