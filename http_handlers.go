@@ -725,7 +725,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence && sequence.Sequence > 2 {
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
 								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 
@@ -775,7 +775,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 				}
 
 				if e.Value.(manager.SequenceValue).Sequence == period || e.Value.(manager.SequenceValue).Sequence+1 == period {
-					founded = e.Value.(manager.SequenceValue).Count < 2
+					founded = e.Value.(manager.SequenceValue).Sequence == 2 || e.Value.(manager.SequenceValue).Count < 2
 				}
 
 			}
@@ -989,7 +989,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence && sequence.Sequence > 2 {
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
 								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 
@@ -1448,11 +1448,6 @@ func SaveCandlesHandler(w http.ResponseWriter, r *http.Request) {
 				up, down, _ := rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
 				if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
-
-					if (centralPrice-candle.LowPrice)/(centralPrice-down) > 0.88 {
-						periods = append(periods, bestPeriod+1)
-
-					}
 
 					periods = append(periods, bestPeriod)
 
