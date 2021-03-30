@@ -774,7 +774,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 					break
 				}
 
-				if e.Value.(manager.SequenceValue).Sequence == period || e.Value.(manager.SequenceValue).Sequence+1 == period {
+				if e.Value.(manager.SequenceValue).Sequence == period || (e.Value.(manager.SequenceValue).LowCentralPrice && e.Value.(manager.SequenceValue).Sequence+1 == period) {
 					founded = e.Value.(manager.SequenceValue).Sequence == 2 || e.Value.(manager.SequenceValue).Count < 2
 				}
 
