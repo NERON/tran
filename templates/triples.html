@@ -183,7 +183,7 @@
                 if (currentUp !== loadedData[r].Up * 1) {
 
 
-                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+m/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+m/gm)[0]))) {
+                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+[m h]/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+[m h]/gm)[0]))) {
                         filteredIdx[r]= loadedData[r].Combination.slice();
                         currentFilledIndex = r
                         currentUp = loadedData[r].Up * 1
@@ -191,7 +191,7 @@
 
                 } else {
 
-                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+m/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+m/gm)[0]))) {
+                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+[m h]/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+[m h]/gm)[0]))) {
                         filteredIdx[currentFilledIndex] = filteredIdx[currentFilledIndex].concat(loadedData[r].Combination)
                     }
 
