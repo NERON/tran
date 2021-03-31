@@ -165,7 +165,7 @@
 
     $('#HidePercentage').click(function() {
 
-        $.getJSON("https://194.147.115.73:8085/getLastSeq/ETHUSDT/1", function (data) {
+        $.getJSON("https://194.147.115.73:8085/getLastSeq/ETHUSDT/" + mode , function (data) {
 
             $("#Vals").children().remove();
 
@@ -176,7 +176,7 @@
 
             for (let r in loadedData) {
 
-                if (loadedData[r].MinPercentage < -1) continue;
+                if (loadedData[r].MinPercentage < -1 && mode === 1) continue;
 
                 let combinationJoin = loadedData[r].Combination.join();
 
