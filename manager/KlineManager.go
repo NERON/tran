@@ -91,8 +91,9 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 	}
 
 	if interval.Duration != loadInterval {
-
+		log.Println("last kline length 1", len(lastKlines))
 		lastKlines = convertKlinesToNewTimestamp(lastKlines, interval)
+		log.Println("last kline length 2", len(lastKlines))
 	}
 
 	if interval.Letter == "d" || interval.Letter == "M" || interval.Letter == "w" || databaseInterval == 0 {
@@ -136,8 +137,6 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 		}
 
 		FillDatabaseToLatestValues(symbol, databaseIn)
-
-		log.Println("last kline length", len(lastKlines))
 
 		for len(lastKlines) < limit {
 
