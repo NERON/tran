@@ -137,6 +137,8 @@ func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([
 
 		FillDatabaseToLatestValues(symbol, databaseIn)
 
+		log.Println("last kline length", len(lastKlines))
+
 		for len(lastKlines) < limit {
 
 			fetchedKlines, err := getKlinesFromDatabase(symbol, databaseIn, lastKlines[len(lastKlines)-1].OpenTime, 1000)
