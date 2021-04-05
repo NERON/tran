@@ -165,51 +165,46 @@
 
     $('#HidePercentage').click(function() {
 
-        $.getJSON("https://194.147.115.73:8085/getLastSeq/ETHUSDT/" + mode , function (data) {
+        $("#Vals").children().remove();
 
-            $("#Vals").children().remove();
+        let currentUp = -1;
+        let currentFilledIndex = -1
 
-            let currentUp = -1;
-            let currentFilledIndex = -1
+        let filteredIdx = {};
 
-            let filteredIdx = {};
+        for (let r in loadedData) {
 
-            for (let r in loadedData) {
+            if (loadedData[r].MinPercentage < -1 && mode === 1) continue;
 
-                if (loadedData[r].MinPercentage < -1 && mode === 1) continue;
+            let combinationJoin = loadedData[r].Combination.join();
 
-                let combinationJoin = loadedData[r].Combination.join();
-
-                if (currentUp !== loadedData[r].Up * 1) {
+            if (currentUp !== loadedData[r].Up * 1) {
 
 
-                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+[m h]/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+[m h]/gm)[0]))) {
-                        filteredIdx[r]= loadedData[r].Combination.slice();
-                        currentFilledIndex = r
-                        currentUp = loadedData[r].Up * 1
-                    }
+                if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1) {
+                    filteredIdx[r]= loadedData[r].Combination.slice();
+                    currentFilledIndex = r
+                    currentUp = loadedData[r].Up * 1
+                }
 
-                } else {
+            } else {
 
-                    if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1 && (data.includes(loadedData[r].Combination[0].match(/\d+[m h]/gm)[0]) || data.includes(loadedData[r].Combination[1].match(/\d+[m h]/gm)[0]))) {
-                        filteredIdx[currentFilledIndex] = filteredIdx[currentFilledIndex].concat(loadedData[r].Combination)
-                    }
-
+                if (combinationJoin.indexOf("*") === -1 && combinationJoin.indexOf("@") === -1 && combinationJoin.indexOf("!") === -1) {
+                    filteredIdx[currentFilledIndex] = filteredIdx[currentFilledIndex].concat(loadedData[r].Combination)
                 }
 
             }
 
-            for (let r in loadedData) {
+        }
 
-                if (filteredIdx[r]) {
-                    $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text([...new Set(filteredIdx[r])].join())).append($("<div></div>").text(loadedData[r].Up)).append($("<div></div>").text(loadedData[r].Down)).append($("<div></div>").text(loadedData[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',loadedData[r].Up).attr('data-down',loadedData[r].Down).attr('data-percentage',loadedData[r].MinPercentage))
-                }
+        for (let r in loadedData) {
 
+            if (filteredIdx[r]) {
+                $('#Vals').append($('<div class="triple_element" ></div>').append($("<div></div>").text([...new Set(filteredIdx[r])].join())).append($("<div></div>").text(loadedData[r].Up)).append($("<div></div>").text(loadedData[r].Down)).append($("<div></div>").text(loadedData[r].Percentage)).append('<button class="save_button">Save</button><button class="save_button_up">Save Upper Border</button>').attr('data-up',loadedData[r].Up).attr('data-down',loadedData[r].Down).attr('data-percentage',loadedData[r].MinPercentage))
             }
 
+        }
 
-
-        });
 
 
 
