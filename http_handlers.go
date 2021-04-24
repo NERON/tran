@@ -1070,7 +1070,11 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 
-				up, down, _ := rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+				up, down := float64(0), float64(0)
+
+				if sequenceData.Sequence < 250 {
+					up, down, _ = rsiP.GetIntervalForPeriod(sequenceData.Sequence, float64(centralRSI))
+				}
 
 				if up <= down || up <= 0 || down <= 0 {
 					continue
