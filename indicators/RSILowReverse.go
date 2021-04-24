@@ -24,7 +24,7 @@ func (r *rsiLowReverse) IsPreviousLow() bool {
 		return false
 	}
 
-	return r.lastRSIValues[1] <= r.lastRSIValues[0] && r.lastRSIValues[1] < r.lastRSIValues[2]
+	return r.lastRSIValues[1] <= r.lastRSIValues[0] && r.lastRSIValues[1] <= r.lastRSIValues[2]
 }
 
 func NewRSILowReverseIndicator() ReverseLowInterface {
