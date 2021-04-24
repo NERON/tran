@@ -270,8 +270,6 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 			lowsMap[idx-1] = struct{}{}
 
-		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
-			lowsMap[idx] = struct{}{}
 		}
 
 	}
@@ -960,8 +958,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				lowsMap[idx-1] = struct{}{}
 
-			} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
-				lowsMap[idx] = struct{}{}
 			}
 
 		}
