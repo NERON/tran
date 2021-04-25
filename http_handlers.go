@@ -938,12 +938,12 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			candles = candles[:len(candles)-1]
 		}
 
-		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
+		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(candles[len(candles)-1].OpenTime))
 
 		log.Println("Last update:", lastUpdate, candles[0].OpenTime)
 
 		if lastUpdate <= candles[0].OpenTime {
-			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
+			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(candles[len(candles)-1].OpenTime))
 		}
 
 		if err != nil || lastUpdate <= candles[0].OpenTime {
