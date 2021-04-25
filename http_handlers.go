@@ -940,6 +940,8 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(timestamp))
 
+		log.Println("Last update:", lastUpdate, candles[0].OpenTime)
+
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(timestamp))
 		}
