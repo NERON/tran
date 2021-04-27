@@ -90,9 +90,12 @@ func (rsip *RSIMultiplePeriods) GetIntervalForPeriod(period int, centralRSI floa
 
 	if period < len(rsip.RSIs) {
 
-		Val, _ := rsip.RSIs[period].PredictPrice(centralRSI)
+		Val, ok := rsip.RSIs[period].PredictPrice(centralRSI)
 
-		lowBorder = (lowBorder + Val) / 2
+		if ok {
+			lowBorder = (lowBorder + Val) / 2
+		}
+
 	}
 
 	return upBorder, lowBorder, central
