@@ -858,7 +858,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"9m",
 			"10m",
 			"12m",
-			"14m",
 			"15m",
 			"16m",
 			"18m",
