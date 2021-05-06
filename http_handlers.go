@@ -947,7 +947,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err != nil || lastUpdate <= candles[0].OpenTime {
-			log.Fatal(err)
+			log.Fatal(err, lastUpdate, candles[0].OpenTime, timestamp, intervalStr)
 		}
 
 		lowReverse := indicators.NewRSILowReverseIndicator()
