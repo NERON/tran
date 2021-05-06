@@ -940,7 +940,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 		setTime := timestamp
 
-		if timestamp > 0 {
+		if timestamp != math.MaxInt64 {
 			setTime = candles[len(candles)-1].OpenTime
 		}
 
