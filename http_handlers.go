@@ -266,7 +266,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		lowReverse.AddPoint(candle.LowPrice, 0)
 
-		if idx > 0 && candles[idx-1].LowPrice < candle.LowPrice {
+		if idx > 0 && candles[idx-1].LowPrice >= candle.LowPrice {
 			lowsMap[idx-1] = struct{}{}
 		}
 
