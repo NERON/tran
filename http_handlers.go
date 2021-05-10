@@ -272,6 +272,8 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		lowsMap[idx-1] = struct{}{}
+
 	}
 
 	//TODO: Get low reverse for last element
