@@ -971,6 +971,8 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
+			lowsMap[idx-1] = struct{}{}
+
 		}
 
 		for idx, candle := range candles {

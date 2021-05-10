@@ -81,6 +81,8 @@ func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candle
 			lowsMap[idx-1] = struct{}{}
 
 		}
+
+		lowsMap[idx-1] = struct{}{}
 	}
 
 	return lowsMap
