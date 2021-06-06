@@ -80,6 +80,8 @@ func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candle
 
 			lowsMap[idx-1] = struct{}{}
 
+		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
+			lowsMap[idx] = struct{}{}
 		}
 	}
 
