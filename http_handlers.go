@@ -852,7 +852,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"6h",
 			"8h",
 			"12h",
-			"1008m",
 		}
 
 	} else {
