@@ -1062,6 +1062,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				sign := ""
 
+				if intervalStr == "21m" {
+					log.Println(prevRealSeqValue, sequenceData)
+				}
+
 				if prevRealSeqValue+1 == sequenceData.Sequence {
 					sign += "[]"
 					t = true
