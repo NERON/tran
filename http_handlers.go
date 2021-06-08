@@ -1079,7 +1079,9 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 			}
 
-			prevRealSeqValue = sequenceData.Sequence
+			if sequenceData.LowCentralPrice == true {
+				prevRealSeqValue = sequenceData.Sequence
+			}
 
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
 				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
