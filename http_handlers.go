@@ -1062,6 +1062,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 					t = true
 				}
 
+				if sequenceData.LowCentralPrice == true {
+					prevRealSeqValue = sequenceData.Sequence
+				}
+
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
 					sign += "!"
 				}
@@ -1077,10 +1081,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: up, Type: 0})
 				segments = append(segments, IntervalEnds{ID: fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign), Value: down, Type: 1})
 				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
-			}
-
-			if sequenceData.LowCentralPrice == true {
-				prevRealSeqValue = sequenceData.Sequence
 			}
 
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
