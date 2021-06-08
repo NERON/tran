@@ -945,8 +945,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println(intervalStr, candles[len(candles)-1].Closed)
-
 		if !candles[len(candles)-1].Closed || (candles[len(candles)-1].CloseTime >= timestamp) {
 			candles = candles[:len(candles)-1]
 		}
@@ -1045,11 +1043,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		previousAddedSeq := 0
-
-		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
-			log.Println(intervalStr, e.Value)
-		}
-
 		prevRealSeqValue := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
@@ -1062,9 +1055,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				sign := ""
 
-				if intervalStr == "21m" {
-					log.Println("TEST", prevRealSeqValue, sequenceData)
-				}
+				log.Println("TEST", intervalStr, prevRealSeqValue, sequenceData)
 
 				if prevRealSeqValue+1 == sequenceData.Sequence {
 					sign += "[]"
