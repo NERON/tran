@@ -945,6 +945,8 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		log.Println(intervalStr, candles[len(candles)-1].Closed)
+
 		if !candles[len(candles)-1].Closed || (candles[len(candles)-1].CloseTime >= timestamp) {
 			candles = candles[:len(candles)-1]
 		}
