@@ -255,7 +255,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
+							if sequence.Sequence == e.Value.(SequenceValue).Sequence || sequence.Sequence == e.Value.(SequenceValue).Sequence+1 {
 								sequence.Count += e.Value.(SequenceValue).Count
 							}
 
@@ -287,12 +287,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			if maxValue != nil {
 
-				if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
-
-					log.Println("Added Old Data Without Merge: ", interval, e.Value, maxValue)
-					commonBestSequenceList.PushBack(e.Value)
-
-				} else if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
+				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence || maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence+1 {
 
 					val := maxValue.Value.(SequenceValue)
 					val.Count += e.Value.(SequenceValue).Count
@@ -300,6 +295,11 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 					log.Println("Added Old Data: ", interval, e.Value, maxValue, val)
 					commonBestSequenceList.Remove(maxValue)
 					commonBestSequenceList.PushBack(val)
+
+				} else if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
+
+					log.Println("Added Old Data Without Merge: ", interval, e.Value, maxValue)
+					commonBestSequenceList.PushBack(e.Value)
 
 				}
 
@@ -329,12 +329,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			if maxValue != nil {
 
-				if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
-					log.Println("Global Merge: ", interval, e.Value, maxValue)
-
-					commonBestSequenceList.PushBack(e.Value)
-
-				} else if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
+				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence || maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence+1 {
 
 					val := maxValue.Value.(SequenceValue)
 					val.Count += e.Value.(SequenceValue).Count
@@ -343,6 +338,12 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 					commonBestSequenceList.Remove(maxValue)
 					commonBestSequenceList.PushBack(val)
+
+				} else if maxValue.Value.(SequenceValue).Sequence < e.Value.(SequenceValue).Sequence {
+
+					log.Println("Global Merge: ", interval, e.Value, maxValue)
+
+					commonBestSequenceList.PushBack(e.Value)
 
 				}
 
