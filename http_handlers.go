@@ -1056,7 +1056,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				sign := ""
 
-				if prevRealSeqValue+1 == sequenceData.Sequence {
+				if prevRealSeqValue+1 == sequenceData.Sequence && prevRealSeqValue > 2 {
 					sign += "[]"
 					t = true
 				}
