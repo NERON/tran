@@ -1088,12 +1088,16 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
 			}
 
-			if sequenceData.LowCentralPrice && !t {
+			if sequenceData.LowCentralPrice {
 
 				sign := ""
 
 				if sequenceData.Fictive {
 					sign = "*"
+				}
+
+				if t {
+					sign += "[]"
 				}
 
 				if sequenceData.Count > 1 {
