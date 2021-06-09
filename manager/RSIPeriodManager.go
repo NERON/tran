@@ -255,7 +255,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(SequenceValue).Sequence || sequence.Sequence == e.Value.(SequenceValue).Sequence+1 {
+							if sequence.Sequence == e.Value.(SequenceValue).Sequence {
 								sequence.Count += e.Value.(SequenceValue).Count
 							}
 
@@ -287,7 +287,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			if maxValue != nil {
 
-				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence || maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence+1 {
+				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
 
 					val := maxValue.Value.(SequenceValue)
 					val.Count += e.Value.(SequenceValue).Count
@@ -329,7 +329,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 
 			if maxValue != nil {
 
-				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence || maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence+1 {
+				if maxValue.Value.(SequenceValue).Sequence == e.Value.(SequenceValue).Sequence {
 
 					val := maxValue.Value.(SequenceValue)
 					val.Count += e.Value.(SequenceValue).Count

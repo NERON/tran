@@ -844,7 +844,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"96m",
 			"108m",
 			"2h",
-			"140m",
 			"144m",
 			"160m",
 			"3h",
@@ -882,8 +881,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"42m",
 			"45m",
 			"48m",
-			"54m",
-			"56m",
 		}
 
 	}
@@ -1012,7 +1009,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 						}
 						for e := bestSequenceList.Front(); e != nil && e.Value.(manager.SequenceValue).Sequence <= period; e = bestSequenceList.Front() {
 
-							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence || sequence.Sequence == e.Value.(manager.SequenceValue).Sequence+1 {
+							if sequence.Sequence == e.Value.(manager.SequenceValue).Sequence {
 								sequence.Count += e.Value.(manager.SequenceValue).Count
 							}
 
