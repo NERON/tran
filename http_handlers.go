@@ -1044,25 +1044,17 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		previousAddedSeq := 0
-		prevRealSeqValue := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
-			t := false
-
 			if previousAddedSeq < sequenceData.Sequence {
 
 				sign := ""
 
-				if prevRealSeqValue+1 == sequenceData.Sequence && prevRealSeqValue > 2 {
+				if e.Next() != nil && e.Next().Value.(manager.SequenceValue).Sequence-1 == sequenceData.Sequence && sequenceData.Sequence != 2 {
 					sign += "[]"
-					t = true
-				}
-
-				if sequenceData.LowCentralPrice == true {
-					prevRealSeqValue = sequenceData.Sequence
 				}
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
@@ -1092,10 +1084,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				if sequenceData.Fictive {
 					sign = "*"
-				}
-
-				if t {
-					sign += "[]"
 				}
 
 				if sequenceData.Count > 1 {
