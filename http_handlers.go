@@ -1044,6 +1044,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		previousAddedSeq := 0
+		prevRealSeqValue := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 			log.Println(intervalStr, e.Value.(manager.SequenceValue))
@@ -1053,12 +1054,15 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
+			t := false
+
 			if previousAddedSeq < sequenceData.Sequence {
 
 				sign := ""
 
-				if e.Next() != nil && e.Next().Value.(manager.SequenceValue).Sequence-1 == sequenceData.Sequence && sequenceData.Sequence != 2 {
+				if prevRealSeqValue+1 == sequenceData.Sequence && prevRealSeqValue > 2 {
 					sign += "[]"
+					t = true
 				}
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
@@ -1078,6 +1082,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 			}
 
+			if sequenceData.LowCentralPrice == true {
+				prevRealSeqValue = sequenceData.Sequence
+			}
+
 			if sequenceData.LowCentralPrice == true && e.Next() != nil {
 				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
 			}
@@ -1092,6 +1100,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
 					sign += "@"
+				}
+
+				if t {
+					sign += "[]"
 				}
 
 				sequenceData.Sequence += 1
