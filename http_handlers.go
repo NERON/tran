@@ -1046,6 +1046,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		previousAddedSeq := 0
 
 		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
+			log.Println(intervalStr, e.Value.(manager.SequenceValue))
+		}
+
+		for e := bestSequenceList.Front(); e != nil; e = e.Next() {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
