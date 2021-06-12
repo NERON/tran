@@ -1090,7 +1090,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 					sign = "*"
 				}
 
-				if sequenceData.Count > 1 {
+				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
 					sign += "@"
 				}
 
