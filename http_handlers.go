@@ -604,6 +604,7 @@ func GetTimeframesList(symbol string, mode int) []string {
 			"18m",
 			"20m",
 			"24m",
+			"25m",
 			"30m",
 			"32m",
 			"36m",
