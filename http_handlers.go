@@ -1104,10 +1104,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 					sign += "@"
 				}
 
-				if t {
-					sign += "[]"
-				}
-
 				sequenceData.Sequence += 1
 				sequenceData.LowCentralPrice = false
 
