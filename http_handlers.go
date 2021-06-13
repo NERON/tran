@@ -1056,15 +1056,12 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
-			t := false
-
 			if previousAddedSeq < sequenceData.Sequence {
 
 				sign := ""
 
 				if prevRealSeqValue+1 == sequenceData.Sequence && prevRealSeqValue > 2 {
 					sign += "[]"
-					t = true
 				}
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
