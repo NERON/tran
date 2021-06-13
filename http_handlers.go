@@ -870,6 +870,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			"9m",
 			"10m",
 			"12m",
+			"14m",
 			"15m",
 			"16m",
 			"18m",
@@ -1056,12 +1057,15 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 			sequenceData := e.Value.(manager.SequenceValue)
 
+			t := false
+
 			if previousAddedSeq < sequenceData.Sequence {
 
 				sign := ""
 
 				if prevRealSeqValue+1 == sequenceData.Sequence && prevRealSeqValue > 2 {
 					sign += "[]"
+					t = true
 				}
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
@@ -1099,6 +1103,10 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 				if sequenceData.Count > 1 && sequenceData.Sequence != 2 {
 					sign += "@"
+				}
+
+				if t {
+					sign += "[]"
 				}
 
 				sequenceData.Sequence += 1
