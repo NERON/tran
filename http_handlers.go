@@ -10,6 +10,7 @@ import (
 	"github.com/NERON/tran/manager"
 	"github.com/gorilla/mux"
 	"gonum.org/v1/gonum/stat/combin"
+	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -181,6 +182,75 @@ func TestHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type AggTradeData struct {
+	AggID     uint64  `json:"a"`
+	Price     float64 `json:"p,string"`
+	Timestamp uint64  `json:"T"`
+}
+
+func GroupAgg(data []AggTradeData) {
+
+	prevVal := uint64(0)
+
+	kline := candlescommon.KLine{}
+
+	period := uint64(1)
+
+	for _, agg := range data {
+
+		if prevVal < agg.Timestamp/1000/period {
+
+			if prevVal > 0 {
+				log.Println(time.Unix(int64(kline.OpenTime/1000), 0), kline.OpenPrice, kline.ClosePrice, kline.LowPrice)
+			}
+
+			kline = candlescommon.KLine{
+				OpenTime:   agg.Timestamp / 1000 / period * period * 1000,
+				CloseTime:  (agg.Timestamp/1000/period+1)*period*1000 - 1,
+				OpenPrice:  agg.Price,
+				ClosePrice: agg.Price,
+				LowPrice:   agg.Price,
+				HighPrice:  agg.Price,
+			}
+		}
+
+		kline.ClosePrice = agg.Price
+		kline.LowPrice = math.Min(kline.LowPrice, agg.Price)
+		kline.HighPrice = math.Min(kline.HighPrice, agg.Price)
+
+		prevVal = agg.Timestamp / 1000 / period
+
+	}
+}
+func SecondHandler() {
+
+	urlS := fmt.Sprintf("https://api.binance.com/api/v3/aggTrades?symbol=%s&startTime=%d&endTime=%d", "ETHUSDT", 1614003360000, 1614003360000+3600*1000)
+
+	resp, err := http.Get(urlS)
+
+	log.Println(urlS)
+
+	if err != nil {
+
+		log.Println(err.Error())
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+
+	var trades []AggTradeData
+
+	err = json.Unmarshal(body, &trades)
+
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	GroupAgg(trades)
+
+}
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	type ChartUpdateCandle struct {
@@ -961,8 +1031,6 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 		bestSequenceList, lastUpdate, rsiP, err := manager.GetPeriodsFromDatabase(vars["symbol"], intervalStr, int64(setTime))
 
-		log.Println("Last update:", lastUpdate, candles[0].OpenTime)
-
 		if lastUpdate <= candles[0].OpenTime {
 			bestSequenceList, lastUpdate, rsiP, err = manager.GetSequncesWithUpdate(vars["symbol"], interval, int64(setTime))
 		}
@@ -1041,7 +1109,7 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		minValue := bestSequenceList.Front()
 
 		if minValue != nil && minValue.Value.(manager.SequenceValue).Sequence != 2 {
-
+			log.Println("Add value 2:", intervalStr)
 			bestSequenceList.PushFront(manager.SequenceValue{LowCentralPrice: false, Sequence: 2, CentralPrice: 0})
 
 		}
@@ -1085,11 +1153,11 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				segmentsMap[fmt.Sprintf("%s_%d(%f)%s", intervalStr, sequenceData.Sequence, percentage, sign)] = SequenceResult{Interval: intervalStr, Val: sequenceData.Sequence, Up: up, Down: down, Count: sequenceData.Count}
 			}
 
-			if sequenceData.LowCentralPrice == true {
+			if sequenceData.LowCentralPrice {
 				prevRealSeqValue = sequenceData.Sequence
 			}
 
-			if sequenceData.LowCentralPrice == true && e.Next() != nil {
+			if sequenceData.LowCentralPrice && e.Next() != nil {
 				sequenceData.LowCentralPrice = e.Next().Value.(manager.SequenceValue).Sequence > sequenceData.Sequence+1
 			}
 
