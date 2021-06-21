@@ -1019,8 +1019,13 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if intervalStr == "8h" {
+			log.Println(candles[len(candles)-1], candles[len(candles)-1].Closed, candles[len(candles)-1].CloseTime >= timestamp)
+		}
+
 		if !candles[len(candles)-1].Closed || (candles[len(candles)-1].CloseTime >= timestamp) {
 			candles = candles[:len(candles)-1]
+
 		}
 
 		setTime := timestamp
