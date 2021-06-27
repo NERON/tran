@@ -910,10 +910,12 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		intervals = []string{
 			"1h",
 			"72m",
+			"75m",
 			"80m",
 			"90m",
 			"96m",
 			"2h",
+			"126m",
 			"140m",
 			"144m",
 			"160m",
