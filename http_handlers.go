@@ -342,9 +342,11 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 			lowsMap[idx-1] = struct{}{}
 
-		} else if candle.OpenPrice < candle.ClosePrice {
+		}
+
+		if candle.OpenPrice < candle.ClosePrice {
 			lowsMap[idx] = struct{}{}
-			log.Println("SHOW:", candle)
+
 		}
 
 	}
