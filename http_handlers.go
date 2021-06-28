@@ -194,14 +194,14 @@ func GroupAgg(data []AggTradeData) {
 
 	kline := candlescommon.KLine{}
 
-	period := uint64(1)
+	period := uint64(5)
 
 	for _, agg := range data {
 
 		if prevVal < agg.Timestamp/1000/period {
 
-			if prevVal > 0 {
-				log.Println(time.Unix(int64(kline.OpenTime/1000), 0), kline.OpenPrice, kline.ClosePrice, kline.LowPrice)
+			if prevVal > 0 && kline.OpenPrice <= kline.ClosePrice {
+				log.Println(time.Unix(int64(kline.OpenTime/1000), 0), kline.OpenPrice, kline.ClosePrice, kline.LowPrice, kline.HighPrice)
 			}
 
 			kline = candlescommon.KLine{
@@ -216,7 +216,7 @@ func GroupAgg(data []AggTradeData) {
 
 		kline.ClosePrice = agg.Price
 		kline.LowPrice = math.Min(kline.LowPrice, agg.Price)
-		kline.HighPrice = math.Min(kline.HighPrice, agg.Price)
+		kline.HighPrice = math.Max(kline.HighPrice, agg.Price)
 
 		prevVal = agg.Timestamp / 1000 / period
 
@@ -224,7 +224,7 @@ func GroupAgg(data []AggTradeData) {
 }
 func SecondHandler() {
 
-	urlS := fmt.Sprintf("https://api.binance.com/api/v3/aggTrades?symbol=%s&startTime=%d&endTime=%d", "ETHUSDT", 1614003360000, 1614003360000+3600*1000)
+	urlS := fmt.Sprintf("https://api.binance.com/api/v3/aggTrades?symbol=%s&startTime=%d&endTime=%d", "ETHUSDT", 1569354180000, 1569354180000+3600*1000)
 
 	resp, err := http.Get(urlS)
 
@@ -342,7 +342,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 			lowsMap[idx-1] = struct{}{}
 
-		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
+		} else if candle.OpenPrice < candle.ClosePrice {
 			lowsMap[idx] = struct{}{}
 		}
 
