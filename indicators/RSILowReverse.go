@@ -49,8 +49,7 @@ func GenerateMapLows(lowReverse ReverseLowInterface, candles []candlescommon.KLi
 
 			lowsMap[idx-1] = struct{}{}
 
-		}
-		if idx > 0 && candle.OpenPrice < candle.ClosePrice && candle.OpenPrice > candle.LowPrice {
+		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
 			lowsMap[idx] = struct{}{}
 		}
 	}
