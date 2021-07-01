@@ -193,13 +193,13 @@ func GroupAgg(data []AggTradeData) {
 
 	kline := candlescommon.KLine{}
 
-	period := uint64(5)
+	period := uint64(15)
 
 	for _, agg := range data {
 
 		if prevVal < agg.Timestamp/1000/period {
 
-			if prevVal > 0 && kline.OpenPrice <= kline.ClosePrice {
+			if prevVal > 0 {
 				log.Println(time.Unix(int64(kline.OpenTime/1000), 0), kline.OpenPrice, kline.ClosePrice, kline.LowPrice, kline.HighPrice)
 			}
 
@@ -223,7 +223,7 @@ func GroupAgg(data []AggTradeData) {
 }
 func SecondHandler() {
 
-	urlS := fmt.Sprintf("https://api.binance.com/api/v3/aggTrades?symbol=%s&startTime=%d&endTime=%d", "ETHUSDT", 1569354180000, 1569354180000+3600*1000)
+	urlS := fmt.Sprintf("https://api.binance.com/api/v3/aggTrades?symbol=%s&startTime=%d&endTime=%d", "ETHUSDT", 1600894200000, 1600894200000+3600*1000)
 
 	resp, err := http.Get(urlS)
 
@@ -539,24 +539,18 @@ func NewGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		intervals = []string{
 			"1h",
 			"72m",
-			"75m",
 			"80m",
 			"90m",
 			"96m",
 			"2h",
-			"126m",
-			"140m",
 			"144m",
 			"160m",
 			"3h",
 			"4h",
 			"288m",
-			"336m",
 			"6h",
 			"8h",
 			"12h",
-			"840m",
-			"1008m",
 		}
 
 	} else {
