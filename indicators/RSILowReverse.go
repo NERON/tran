@@ -1,5 +1,7 @@
 package indicators
 
+import "github.com/NERON/tran/candlescommon"
+
 type ReverseLowInterface interface {
 	AddPoint(calcValue float64, addValue float64)
 	IsPreviousLow() bool
@@ -32,5 +34,27 @@ func NewRSILowReverseIndicator() ReverseLowInterface {
 	lastValues := []float64{-1, -1, -1}
 
 	return &rsiLowReverse{lastRSIValues: lastValues}
+
+}
+
+func GenerateMapLows(lowReverse ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
+
+	lowsMap := make(map[int]struct{})
+
+	for idx, candle := range candles {
+
+		lowReverse.AddPoint(candle.LowPrice, 0)
+
+		if lowReverse.IsPreviousLow() {
+
+			lowsMap[idx-1] = struct{}{}
+
+		}
+		if idx > 0 && candle.OpenPrice < candle.ClosePrice {
+			lowsMap[idx] = struct{}{}
+		}
+	}
+
+	return lowsMap
 
 }

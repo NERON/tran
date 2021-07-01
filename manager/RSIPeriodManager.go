@@ -68,26 +68,7 @@ func GetPeriodsFromDatabase(symbol string, interval string, timestamp int64) (*l
 
 	return sequenceList, lastUpdate, &RSI, nil
 }
-func generateMapLows(lowReverse indicators.ReverseLowInterface, candles []candlescommon.KLine) map[int]struct{} {
 
-	lowsMap := make(map[int]struct{})
-
-	for idx, candle := range candles {
-
-		lowReverse.AddPoint(candle.LowPrice, 0)
-
-		if lowReverse.IsPreviousLow() {
-
-			lowsMap[idx-1] = struct{}{}
-
-		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
-			lowsMap[idx] = struct{}{}
-		}
-	}
-
-	return lowsMap
-
-}
 func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, timestamp int64) (*list.List, uint64, *indicators.RSIMultiplePeriods, error) {
 
 	prevCandle := candlescommon.KLine{}
@@ -196,7 +177,7 @@ func GetSequncesWithUpdate(symbol string, interval candlescommon.Interval, times
 		}
 
 		//generate map with indexes of all potential lows
-		lowsMap := generateMapLows(reverseLow, candles)
+		lowsMap := indicators.GenerateMapLows(reverseLow, candles)
 
 		//remove previously inserted last candle
 		if prevCandle.OpenTime > 0 {
