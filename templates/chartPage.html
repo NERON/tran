@@ -69,8 +69,8 @@
 
             } else if (this.pointsCount > period + 1) {
 
-                this.avgGain = ((period - 1) * this.avgGain + 2 * Math.max(point - this.lastPoint, 0)) / (period+1)
-                this.avgLoss = ((period - 1) * this.avgLoss + 2 * Math.max(this.lastPoint - point, 0)) / (period+1)
+                this.avgGain = ((period - 1) * this.avgGain +  Math.max(point - this.lastPoint, 0)) / period
+                this.avgLoss = ((period - 1) * this.avgLoss +  Math.max(this.lastPoint - point, 0)) / period
             }
 
 
@@ -98,11 +98,11 @@
 
             if (currentRSI >= RSIValue) {
 
-                return (period - 1) * (this.avgLoss - this.avgGain / koef) / 2 + this.lastPoint
+                return (period - 1) * (this.avgLoss - this.avgGain / koef)  + this.lastPoint
 
             } else {
 
-                return (period - 1) * (this.avgLoss * koef - this.avgGain) / 2 + this.lastPoint
+                return (period - 1) * (this.avgLoss * koef - this.avgGain)  + this.lastPoint
             }
 
 
