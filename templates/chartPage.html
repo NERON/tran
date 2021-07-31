@@ -98,11 +98,11 @@
 
             if (currentRSI >= RSIValue) {
 
-                return (period - 1) * (this.avgLoss - this.avgGain / koef) + this.lastPoint
+                return (period - 1) * (this.avgLoss - this.avgGain / koef) / 2 + this.lastPoint
 
             } else {
 
-                return (period - 1) * (this.avgLoss * koef - this.avgGain) + this.lastPoint
+                return (period - 1) * (this.avgLoss * koef - this.avgGain) / 2 + this.lastPoint
             }
 
 
