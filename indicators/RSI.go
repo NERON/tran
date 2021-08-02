@@ -29,8 +29,8 @@ func (rsi *RSI) AddPoint(value float64) {
 
 	} else if rsi.PointsCount > rsi.Period+1 {
 
-		rsi.AvgGain = (float64(rsi.Period-1)*rsi.AvgGain + 2*math.Max(value-rsi.LastValue, 0)) / float64(rsi.Period+1)
-		rsi.AvgLoss = (float64(rsi.Period-1)*rsi.AvgLoss + 2*math.Max(rsi.LastValue-value, 0)) / float64(rsi.Period+1)
+		rsi.AvgGain = (float64(rsi.Period-1)*rsi.AvgGain + math.Max(value-rsi.LastValue, 0)) / float64(rsi.Period)
+		rsi.AvgLoss = (float64(rsi.Period-1)*rsi.AvgLoss + math.Max(rsi.LastValue-value, 0)) / float64(rsi.Period)
 	}
 
 	rsi.LastValue = value
@@ -76,11 +76,11 @@ func (rsi *RSI) PredictPrice(RSIValue float64) (float64, bool) {
 
 	if currentRSI >= RSIValue {
 
-		return float64(rsi.Period-1)*(rsi.AvgLoss-rsi.AvgGain/coef) / 2 + rsi.LastValue, true
+		return float64(rsi.Period-1)*(rsi.AvgLoss-rsi.AvgGain/coef)  + rsi.LastValue, true
 
 	} else {
 
-		return float64(rsi.Period-1)*(rsi.AvgLoss*coef-rsi.AvgGain) / 2  + rsi.LastValue, true
+		return float64(rsi.Period-1)*(rsi.AvgLoss*coef-rsi.AvgGain)  + rsi.LastValue, true
 	}
 
 }
