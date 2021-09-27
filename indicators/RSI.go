@@ -76,11 +76,11 @@ func (rsi *RSI) PredictPrice(RSIValue float64) (float64, bool) {
 
 	if currentRSI >= RSIValue {
 
-		return float64(rsi.Period-1)*(rsi.AvgLoss-rsi.AvgGain/coef) + rsi.LastValue, true
+		return float64(rsi.Period-1)*(rsi.AvgLoss-rsi.AvgGain/coef)  + rsi.LastValue, true
 
 	} else {
 
-		return float64(rsi.Period-1)*(rsi.AvgLoss*coef-rsi.AvgGain) + rsi.LastValue, true
+		return float64(rsi.Period-1)*(rsi.AvgLoss*coef-rsi.AvgGain)  + rsi.LastValue, true
 	}
 
 }
