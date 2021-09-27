@@ -29,7 +29,8 @@ func InitRouting() *mux.Router {
 }
 
 func main() {
-
+	SecondHandler()
+	manager.TestPeriod()
 	var err error
 	TemplateManager, err = template.ParseFiles("./templates/chartPage.html", "./templates/RSIReverseStat.html", "./templates/triples.html")
 

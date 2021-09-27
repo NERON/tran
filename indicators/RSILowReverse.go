@@ -1,10 +1,13 @@
 package indicators
 
-import "github.com/NERON/tran/candlescommon"
+import (
+	"github.com/NERON/tran/candlescommon"
+)
 
 type ReverseLowInterface interface {
 	AddPoint(calcValue float64, addValue float64)
 	IsPreviousLow() bool
+	RemoveLastAdded()
 }
 
 type rsiLowReverse struct {
@@ -26,7 +29,14 @@ func (r *rsiLowReverse) IsPreviousLow() bool {
 		return false
 	}
 
-	return r.lastRSIValues[1] <= r.lastRSIValues[0] && r.lastRSIValues[1] <= r.lastRSIValues[2]
+	return r.lastRSIValues[1] < r.lastRSIValues[0] && r.lastRSIValues[1] <= r.lastRSIValues[2]
+}
+
+func (r *rsiLowReverse) RemoveLastAdded() {
+
+	r.lastRSIValues[2] = r.lastRSIValues[1]
+	r.lastRSIValues[1] = -1
+	r.lastRSIValues[0] = -1
 }
 
 func NewRSILowReverseIndicator() ReverseLowInterface {

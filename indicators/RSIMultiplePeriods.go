@@ -27,7 +27,7 @@ func (rsip *RSIMultiplePeriods) AddPoint(addPrice float64) {
 func (rsip *RSIMultiplePeriods) GetBestPeriodByRSIValue(priceFor float64, centralRSI float64) int {
 
 	BestRSIDiff := 99999.0
-	bestPeriod := 0
+	bestPeriod := 1
 
 	for i := 0; i < len(rsip.RSIs); i++ {
 

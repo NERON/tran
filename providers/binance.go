@@ -58,7 +58,7 @@ func GetLastKlines(symbol string, interval string) ([]candlescommon.KLine, error
 
 	t := time.Now()
 
-	klines, err := getKline(symbol, interval, GetKlineRange{Direction: 1, FromTimestamp: 0})
+	klines, err := getKline(symbol, interval, GetKlineRange{Direction: 0, FromTimestamp: 0})
 
 	log.Println("API GetLastKlines time ", time.Since(t))
 
@@ -115,11 +115,11 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 
 	urlS := fmt.Sprintf("https://api.binance.com/api/v1/klines?symbol=%s&interval=%s&limit=1000", symbol, interval)
 
-	if ranges.Direction == 0 {
+	if ranges.Direction == 0 && ranges.FromTimestamp > 0 {
 
 		urlS = fmt.Sprintf(urlS+"&endTime=%d", ranges.FromTimestamp)
 
-	} else if ranges.Direction == 1 && ranges.FromTimestamp > 0 {
+	} else if ranges.Direction == 1 {
 
 		urlS = fmt.Sprintf(urlS+"&startTime=%d", ranges.FromTimestamp)
 	}
@@ -183,12 +183,12 @@ func getKline(symbol string, interval string, ranges GetKlineRange) ([]candlesco
 	}
 
 	//if we fetch last klines, or result no more than 1000, we reach the end
-	if ranges.Direction == 1 && (ranges.FromTimestamp == 0 || len(result) < 1000) {
+	if (ranges.Direction == 0 && ranges.FromTimestamp == 0) || (ranges.Direction == 1 && len(result) < 1000) {
 		result[0].Closed = false
 	}
 
 	//if we fetch old klines and
-	if ranges.Direction == 0 && len(result) < 1000 {
+	if (ranges.Direction == 0 && len(result) < 1000) || (ranges.Direction == 1 && ranges.FromTimestamp == 0) {
 		result[len(result)-1].PrevCloseCandleTimestamp = math.MaxUint64
 	}
 
