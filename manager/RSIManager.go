@@ -42,7 +42,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 		for idx, candle := range candles {
 
-			if candle.OpenTime >= endTimestamp {
+			if endTimestamp >= candle.OpenTime && endTimestamp <= candle.CloseTime {
 				isOver = true
 				break
 			}
