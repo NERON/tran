@@ -270,7 +270,7 @@ func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
 
 	interval := candlescommon.IntervalFromStr(intervalStr)
 
-	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, endTimestamp)
+	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, endTimestamp, float64(centralRSI))
 
 	b, _ := json.Marshal(result)
 

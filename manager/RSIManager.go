@@ -7,9 +7,8 @@ import (
 	"math"
 )
 
-func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64) map[int]struct{} {
+func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) map[int]struct{} {
 
-	centralRSI := float64(15)
 	fromTimestamp := uint64(0)
 	isOver := false
 	lastHandledCandle := uint64(0)
