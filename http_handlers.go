@@ -262,9 +262,15 @@ func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
 		centralRSI = 20
 	}
 
+	endTimestamp, _ := strconv.ParseUint(vars["timestamp"], 10, 64)
+
+	if endTimestamp == 0 {
+		endTimestamp = math.MaxUint64
+	}
+
 	interval := candlescommon.IntervalFromStr(intervalStr)
 
-	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, math.MaxUint64)
+	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, endTimestamp)
 
 	b, _ := json.Marshal(result)
 
