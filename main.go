@@ -23,7 +23,7 @@ func InitRouting() *mux.Router {
 	r.HandleFunc("/getTriples/{symbol}/{centralRSI}/{mode}/{groupCount}/{timestamp}", GetTriplesHandler)
 	r.HandleFunc("/getDD/{symbol}/{centralRSI}/{mode}/{groupCount}/{timestamp}", NewGroupsHandler)
 	r.HandleFunc("/getInter/{symbol}/{centralRSI}", GetIntervalHandler)
-	r.HandleFunc("/getPeriodsNew/{symbol}/{interval}/{centralRSI}", NewTesterHandler)
+	r.HandleFunc("/getPeriodsNew/{symbol}/{interval}/{timestamp}/{centralRSI}", NewTesterHandler)
 
 	return r
 }
