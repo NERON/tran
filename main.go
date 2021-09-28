@@ -5,7 +5,6 @@ import (
 	"github.com/NERON/tran/manager"
 	"html/template"
 	"log"
-
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -24,6 +23,7 @@ func InitRouting() *mux.Router {
 	r.HandleFunc("/getTriples/{symbol}/{centralRSI}/{mode}/{groupCount}/{timestamp}", GetTriplesHandler)
 	r.HandleFunc("/getDD/{symbol}/{centralRSI}/{mode}/{groupCount}/{timestamp}", NewGroupsHandler)
 	r.HandleFunc("/getInter/{symbol}/{centralRSI}", GetIntervalHandler)
+	r.HandleFunc("/test", NewTesterHandler)
 
 	return r
 }

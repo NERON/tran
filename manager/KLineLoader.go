@@ -101,9 +101,9 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 		klines, _ := providers.GetLastKlines(symbol, intervalString)
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
-			klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration), false)
+			klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration), false, false)
 		} else if interval.Letter == "m" && interval.Duration != timeframe {
-			klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration), false)
+			klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration), false, false)
 		}
 
 		SaveCandles(klines, interval)
@@ -119,9 +119,9 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 			}
 
 			if interval.Letter == "h" && interval.Duration != timeframe {
-				loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration), false)
+				loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration), false, false)
 			} else if interval.Letter == "m" && interval.Duration != timeframe {
-				loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration), false)
+				loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration), false, false)
 			}
 
 			for i := 0; i < len(loadedKlines)/2; i++ {
@@ -142,44 +142,6 @@ func FillDatabaseToLatestValues(symbol string, interval candlescommon.Interval) 
 	}
 }
 
-func checkKlinesForInterval(klines []candlescommon.KLine, interval candlescommon.Interval) bool {
-
-	if interval.Letter == "m" {
-
-		for i := 0; i < len(klines); i++ {
-
-			if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
-				log.Println("Wrong open value", klines[i])
-				return false
-			}
-
-			if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
-				log.Println("Wrong close value", klines[i])
-				return false
-			}
-
-			if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
-				log.Println("Wrong prev close value", klines[i])
-				return false
-			}
-		}
-	}
-
-	return true
-}
-func fixKlinesForInterval(klines []candlescommon.KLine, interval candlescommon.Interval) {
-
-	for i := 0; i < len(klines); i++ {
-
-		klines[i].OpenTime = (klines[i].OpenTime / uint64(interval.Duration*60*1000)) * uint64(interval.Duration*60*1000)
-		klines[i].CloseTime = klines[i].OpenTime + uint64(interval.Duration*60*1000) - 1
-
-		if i > 0 {
-			klines[i-1].PrevCloseCandleTimestamp = klines[i].CloseTime
-		}
-	}
-
-}
 func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, limit uint) {
 
 	//choose optimal load timeframe
@@ -209,9 +171,9 @@ func FillDatabaseWithPrevValues(symbol string, interval candlescommon.Interval, 
 		}
 
 		if interval.Letter == "h" && interval.Duration != timeframe {
-			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration), true)
+			loadedKlines = candlescommon.HoursGroupKlineDesc(loadedKlines, uint64(interval.Duration), true, false)
 		} else if interval.Letter == "m" && interval.Duration != timeframe {
-			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration), true)
+			loadedKlines = candlescommon.MinutesGroupKlineDesc(loadedKlines, uint64(interval.Duration), true, false)
 		}
 
 		SaveCandles(loadedKlines, interval)

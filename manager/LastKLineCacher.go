@@ -281,9 +281,9 @@ func (s *LastKlinesCaches) GetLatestKLines(symbol string, interval candlescommon
 	}
 
 	if interval.Letter == "h" {
-		klineData = candlescommon.HoursGroupKlineDesc(klineData, uint64(interval.Duration), true)
+		klineData = candlescommon.HoursGroupKlineDesc(klineData, uint64(interval.Duration), true, false)
 	} else if interval.Letter == "m" {
-		klineData = candlescommon.MinutesGroupKlineDesc(klineData, uint64(interval.Duration), true)
+		klineData = candlescommon.MinutesGroupKlineDesc(klineData, uint64(interval.Duration), true, false)
 	}
 
 	for i := 0; i < len(klineData)/2; i++ {

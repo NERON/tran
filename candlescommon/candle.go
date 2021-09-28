@@ -77,8 +77,8 @@ func GroupKline(klines []KLine, groupCount int) []KLine {
 	return newKlines
 }
 
-func HoursGroupKlineDesc(klines []KLine, hours uint64, includeLastKline bool) []KLine {
-	return MinutesGroupKlineDesc(klines, hours*60, includeLastKline)
+func HoursGroupKlineDesc(klines []KLine, hours uint64, includeLastKline bool, includeFirstKline bool) []KLine {
+	return MinutesGroupKlineDesc(klines, hours*60, includeLastKline, includeFirstKline)
 }
 
 func CheckCandles(klines []KLine) bool {
@@ -97,7 +97,7 @@ func CheckCandles(klines []KLine) bool {
 
 	return true
 }
-func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool) []KLine {
+func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool, includeFirstKline bool) []KLine {
 
 	//grouped klines
 	groupedKlines := make([]KLine, 0)
@@ -111,7 +111,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 	index := len(klines) - 1
 
 	//if first kline in array isn't have start open time iterating...
-	if klines[index].OpenTime%(minutes*60*1000) != 0 && klines[index].PrevCloseCandleTimestamp != 0 {
+	if klines[index].OpenTime%(minutes*60*1000) != 0 && klines[index].PrevCloseCandleTimestamp != 0 && !includeFirstKline {
 
 		division := klines[index].OpenTime / (minutes * 60 * 1000)
 
@@ -178,7 +178,7 @@ func MinutesGroupKlineDesc(klines []KLine, minutes uint64, includeLastKline bool
 	//we should handle two situations,when we should also prepend a kline
 	//first: last candle is not closed
 	//second: last original kline completes the new kline, in this situation we should check their close time
-	if currentKline.Closed == false || (includeLastKline && len(groupedKlines) > 0) || (currentKline.OpenTime > 0 && currentKline.PrevCloseCandleTimestamp == 0) {
+	if currentKline.Closed == false || (includeLastKline && len(groupedKlines) > 0) || (currentKline.OpenTime > 0 && currentKline.PrevCloseCandleTimestamp == 0) || (currentKline.CloseTime == currentKline.OpenTime+minutes*60*1000-1) {
 
 		//prepend item
 		groupedKlines = append(groupedKlines, currentKline)

@@ -7,6 +7,7 @@ import (
 	"github.com/NERON/tran/database"
 	"github.com/NERON/tran/providers"
 	"log"
+	"math"
 	"time"
 )
 
@@ -52,15 +53,168 @@ func getKlinesFromDatabase(symbol string, interval candlescommon.Interval, endTi
 	return databaseCandles, nil
 
 }
+func getKlinesFromDatabaseAscending(symbol string, interval candlescommon.Interval, startTimestamp uint64, limit int) ([]candlescommon.KLine, error) {
+
+	rows, err := database.DatabaseManager.Query(fmt.Sprintf(`SELECT symbol, "openTime", "closeTime", "prevCandle", "openPrice", "closePrice", "lowPrice", "highPrice","volume", "quoteVolume", "takerVolume", "takerQuoteVolume"
+	FROM public.tran_candles_%d%s WHERE symbol = $1 AND "openTime" > $2 ORDER BY "openTime" ASC LIMIT %d`, interval.Duration, interval.Letter, limit), symbol, startTimestamp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	databaseCandles := make([]candlescommon.KLine, 0)
+
+	for rows.Next() {
+
+		kline := candlescommon.KLine{}
+
+		err = rows.Scan(&kline.Symbol, &kline.OpenTime, &kline.CloseTime, &kline.PrevCloseCandleTimestamp, &kline.OpenPrice, &kline.ClosePrice, &kline.LowPrice, &kline.HighPrice, &kline.BaseVolume, &kline.QuoteVolume, &kline.TakerBuyBaseVolume, &kline.TakerBuyQuoteVolume)
+
+		if err != nil {
+
+			rows.Close()
+			return nil, err
+		}
+
+		kline.Closed = true
+
+		databaseCandles = append(databaseCandles, kline)
+
+	}
+
+	rows.Close()
+
+	return databaseCandles, nil
+
+}
 func convertKlinesToNewTimestamp(klines []candlescommon.KLine, interval candlescommon.Interval) []candlescommon.KLine {
 
 	if interval.Letter == "h" {
-		klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration), true)
+		klines = candlescommon.HoursGroupKlineDesc(klines, uint64(interval.Duration), true, false)
 	} else if interval.Letter == "m" {
-		klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration), true)
+		klines = candlescommon.MinutesGroupKlineDesc(klines, uint64(interval.Duration), true, false)
 	}
 
 	return klines
+}
+func GetFirstKLines(symbol string, interval candlescommon.Interval, limit int) ([]candlescommon.KLine, error) {
+
+	//get interval for loading data
+	databaseInterval := GetOptimalDatabaseTimeframe(interval)
+
+	//construct new timeframe
+	databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
+
+	//get minimum value
+	_, min, err := IsAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+
+	//check for error
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	//fill values to the end
+	if min != 0 {
+		FillDatabaseWithPrevValues(symbol, databaseIn, math.MaxInt32)
+	}
+
+	fetchedData, err := getKlinesFromDatabaseAscending(symbol, databaseIn, 0, limit)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	for i := 0; i < len(fetchedData)/2; i++ {
+		j := len(fetchedData) - i - 1
+		fetchedData[i], fetchedData[j] = fetchedData[j], fetchedData[i]
+	}
+
+	if interval.Letter == "h" {
+		fetchedData = candlescommon.HoursGroupKlineDesc(fetchedData, uint64(interval.Duration), false, true)
+	} else if interval.Letter == "m" {
+		fetchedData = candlescommon.MinutesGroupKlineDesc(fetchedData, uint64(interval.Duration), false, true)
+	}
+
+	for i := 0; i < len(fetchedData)/2; i++ {
+		j := len(fetchedData) - i - 1
+		fetchedData[i], fetchedData[j] = fetchedData[j], fetchedData[i]
+	}
+
+	return fetchedData, nil
+}
+func GetKLinesInRange(symbol string, interval candlescommon.Interval, fromTimestamp uint64, endTimestamp uint64, limit int) ([]candlescommon.KLine, error) {
+
+	//get interval for loading data
+	databaseInterval := GetOptimalDatabaseTimeframe(interval)
+
+	//construct new timeframe
+	databaseIn := candlescommon.Interval{Letter: interval.Letter, Duration: databaseInterval}
+
+	//get minimum value
+	_, min, err := IsAllCandlesLoaded(symbol, fmt.Sprintf("%d%s", databaseIn.Duration, databaseIn.Letter))
+
+	//check for error
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	if min != 0 {
+		FillDatabaseWithPrevValues(symbol, databaseIn, math.MaxInt32)
+	}
+
+	klinesReceived := make([]candlescommon.KLine, 0)
+
+	triedToLoad := false
+
+	for len(klinesReceived) < limit {
+
+		fetchedData, err := getKlinesFromDatabaseAscending(symbol, databaseIn, fromTimestamp, 1000)
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		for i := 0; i < len(fetchedData)/2; i++ {
+			j := len(fetchedData) - i - 1
+			fetchedData[i], fetchedData[j] = fetchedData[j], fetchedData[i]
+		}
+
+		if interval.Letter == "h" {
+			fetchedData = candlescommon.HoursGroupKlineDesc(fetchedData, uint64(interval.Duration), false, true)
+		} else if interval.Letter == "m" {
+			fetchedData = candlescommon.MinutesGroupKlineDesc(fetchedData, uint64(interval.Duration), false, true)
+		}
+
+		if len(fetchedData) == 0 {
+
+			if !triedToLoad {
+
+				FillDatabaseToLatestValues(symbol, databaseIn)
+				triedToLoad = true
+				continue
+
+			} else {
+				break
+			}
+
+		}
+
+		for i := 0; i < len(fetchedData)/2; i++ {
+			j := len(fetchedData) - i - 1
+			fetchedData[i], fetchedData[j] = fetchedData[j], fetchedData[i]
+		}
+
+		klinesReceived = append(klinesReceived, fetchedData...)
+
+		if klinesReceived[len(klinesReceived)-1].OpenTime >= endTimestamp {
+			break
+		}
+
+		fromTimestamp = klinesReceived[len(klinesReceived)-1].CloseTime
+	}
+
+	return klinesReceived, nil
+
 }
 func GetLastKLines(symbol string, interval candlescommon.Interval, limit int) ([]candlescommon.KLine, error) {
 
@@ -317,73 +471,5 @@ func SaveCandles(klines []candlescommon.KLine, interval candlescommon.Interval) 
 	stmt.Close()
 
 	log.Println(time.Since(t))
-
-}
-
-func Test() {
-
-	klines, err := providers.GetLastKlines("ETHUSDT", "1m")
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	klines = candlescommon.MinutesGroupKlineDesc(klines, 5, true)
-
-	for {
-
-		oklines, err := providers.GetKlinesNew("ETHUSDT", "1m", providers.GetKlineRange{Direction: 0, FromTimestamp: klines[len(klines)-1].OpenTime})
-
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		oklines = candlescommon.MinutesGroupKlineDesc(oklines, 5, true)
-		klines = append(klines, oklines...)
-
-		prevClose := uint64(0)
-
-		for i := 0; i < len(klines); i++ {
-
-			if prevClose > 0 && klines[i].CloseTime != prevClose {
-
-				for j := 0; j <= i; j++ {
-					log.Println(j, klines[j])
-				}
-				log.Fatal("END")
-			}
-			prevClose = klines[i].PrevCloseCandleTimestamp
-
-		}
-
-		if len(oklines) == 0 || oklines[len(oklines)-1].PrevCloseCandleTimestamp == 0 {
-			break
-		}
-
-	}
-
-	interval := candlescommon.Interval{Duration: 5, Letter: "m"}
-
-	for i := 0; i < len(klines); i++ {
-
-		if klines[i].OpenTime%uint64(interval.Duration*60*1000) != 0 {
-			log.Println("Wrong open value", klines[i])
-
-		}
-
-		if klines[i].CloseTime-klines[i].OpenTime+1 != uint64(interval.Duration*60*1000) {
-			//log.Println("Wrong close value", klines[i])
-
-		}
-
-		if klines[i].CloseTime < klines[i].OpenTime {
-			//log.Println("close time fucked", klines[i])
-
-		}
-
-		if klines[i].PrevCloseCandleTimestamp != 0 && (klines[i].PrevCloseCandleTimestamp+1)%uint64(interval.Duration*60*1000) != 0 {
-			//log.Println("Wrong prev close value", klines[i])
-
-		}
-	}
 
 }

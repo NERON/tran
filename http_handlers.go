@@ -250,6 +250,14 @@ func SecondHandler() {
 	GroupAgg(trades)
 
 }
+func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
+
+	result := manager.GenerateMapOfPeriods("ETHUSDT", candlescommon.Interval{Duration: 20, Letter: "m"}, math.MaxUint64)
+
+	b, _ := json.Marshal(result)
+
+	w.Write(b)
+}
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	type ChartUpdateCandle struct {
