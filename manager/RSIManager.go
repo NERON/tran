@@ -12,6 +12,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 	centralRSI := float64(15)
 	fromTimestamp := uint64(0)
 	isOver := false
+	lastHandledCandle := uint64(0)
 
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	RSI := indicators.NewRSIMultiplePeriods(250)
@@ -71,12 +72,14 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			}
 
+			lastHandledCandle = candle.OpenTime
 			RSI.AddPoint(candle.ClosePrice)
 		}
 
-		log.Println(candles[len(candles)-1].CloseTime)
 		fromTimestamp = candles[len(candles)-1].CloseTime
 	}
+
+	log.Println(lastHandledCandle)
 
 	return currentPeriods
 
