@@ -252,7 +252,19 @@ func SecondHandler() {
 }
 func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
 
-	result := manager.GenerateMapOfPeriods("ETHUSDT", candlescommon.Interval{Duration: 20, Letter: "m"}, math.MaxUint64)
+	vars := mux.Vars(r)
+
+	intervalStr := vars["interval"]
+
+	centralRSI, _ := strconv.ParseUint(vars["centralRSI"], 10, 64)
+
+	if centralRSI == 0 {
+		centralRSI = 20
+	}
+
+	interval := candlescommon.IntervalFromStr(intervalStr)
+
+	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, math.MaxUint64)
 
 	b, _ := json.Marshal(result)
 
