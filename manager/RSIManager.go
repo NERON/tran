@@ -67,9 +67,9 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 				for _, cR := range centralRSIs {
 
 					bestPeriod, _, _ := RSI.GetBestPeriod(candle.LowPrice, float64(cR))
-					up, _, _ := RSI.GetIntervalForPeriod(bestPeriod, float64(cR))
+					up, down, _ := RSI.GetIntervalForPeriod(bestPeriod, float64(cR))
 
-					if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
+					if candle.LowPrice <= up && candle.LowPrice >= down {
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
