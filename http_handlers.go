@@ -272,8 +272,11 @@ func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
 
 	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, endTimestamp, float64(centralRSI))
 
-	b, _ := json.Marshal(result)
+	b, err := json.Marshal(result)
 
+	if err != nil {
+		log.Println(err.Error())
+	}
 	w.Write(b)
 }
 func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {

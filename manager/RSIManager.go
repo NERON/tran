@@ -90,6 +90,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 	log.Println(lastHandledCandle)
 
+	log.Println(currentPeriods)
 	return currentPeriods
 
 }
