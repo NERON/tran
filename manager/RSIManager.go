@@ -103,12 +103,19 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			up, down, _ := RSI.GetIntervalForPeriod(val, float64(cR))
 
-			result = append(result, SequenceItemData{
-				Period:     val,
-				CentralRSI: cR,
-				Up:         up,
-				Down:       down,
-			})
+			percentage := (down/up - 1) * 100
+
+			if percentage < 0 && percentage > -7 {
+
+				result = append(result, SequenceItemData{
+					Period:     val,
+					CentralRSI: cR,
+					Up:         up,
+					Down:       down,
+				})
+
+			}
+
 		}
 	}
 
