@@ -7,7 +7,14 @@ import (
 	"math"
 )
 
-func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) map[int]map[int]struct{} {
+type SequenceItemData struct {
+	Period     int
+	CentralRSI int
+	Up         float64
+	Down       float64
+}
+
+func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) []SequenceItemData {
 
 	fromTimestamp := uint64(0)
 	isOver := false
@@ -23,6 +30,8 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 	for _, cR := range centralRSIs {
 		currentPeriods[cR] = make(map[int]struct{})
 	}
+
+	result := make([]SequenceItemData, 0)
 
 	for !isOver {
 
@@ -88,9 +97,22 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 		fromTimestamp = candles[len(candles)-1].CloseTime
 	}
 
-	log.Println(lastHandledCandle)
+	for cR, periodMap := range currentPeriods {
 
-	log.Println(currentPeriods)
-	return currentPeriods
+		for val, _ := range periodMap {
+
+			up, down, _ := RSI.GetIntervalForPeriod(val, float64(cR))
+
+			result = append(result, SequenceItemData{
+				Period:     val,
+				CentralRSI: cR,
+				Up:         up,
+				Down:       down,
+			})
+		}
+	}
+
+	log.Println(lastHandledCandle)
+	return result
 
 }
