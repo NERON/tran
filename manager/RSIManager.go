@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) map[float64]map[int]struct{} {
+func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) map[int]map[int]struct{} {
 
 	fromTimestamp := uint64(0)
 	isOver := false
@@ -16,9 +16,9 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	RSI := indicators.NewRSIMultiplePeriods(250)
 
-	currentPeriods := make(map[float64]map[int]struct{})
+	currentPeriods := make(map[int]map[int]struct{})
 
-	centralRSIs := []float64{5, 10, 15}
+	centralRSIs := []int{5, 10, 15}
 
 	for _, cR := range centralRSIs {
 		currentPeriods[cR] = make(map[int]struct{})
@@ -56,8 +56,8 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 				for _, cR := range centralRSIs {
 
-					bestPeriod, _, _ := RSI.GetBestPeriod(candle.LowPrice, cR)
-					up, _, _ := RSI.GetIntervalForPeriod(bestPeriod, cR)
+					bestPeriod, _, _ := RSI.GetBestPeriod(candle.LowPrice, float64(cR))
+					up, _, _ := RSI.GetIntervalForPeriod(bestPeriod, float64(cR))
 
 					if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
