@@ -12,6 +12,7 @@ type SequenceItemData struct {
 	CentralRSI int
 	Up         float64
 	Down       float64
+	Percentage float64
 }
 
 func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) []SequenceItemData {
@@ -112,6 +113,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 					CentralRSI: cR,
 					Up:         up,
 					Down:       down,
+					Percentage: percentage,
 				})
 
 			}
