@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	_ "gopkg.in/lib/pq.v1"
+	_ "github.com/lib/pq"
 )
 
 var TemplateManager *template.Template
