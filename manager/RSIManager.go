@@ -73,7 +73,9 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 					bestPeriod, _, _ := RSI.GetBestPeriod(candle.LowPrice, float64(cR))
 					up, down, _ := RSI.GetIntervalForPeriod(bestPeriod, float64(cR))
 
-					if candle.LowPrice <= up && candle.LowPrice >= down {
+					percentage := (down/up - 1) * 100
+
+					if percentage < 0.94 && candle.LowPrice <= up && candle.LowPrice >= down {
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
@@ -87,8 +89,6 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 							delete(currentPeriods[cR], bestPeriod)
 
 						} else {
-
-							percentage := (down/up - 1) * 100
 
 							currentPeriods[cR][bestPeriod] = PeriodInfo{
 								Percentage: percentage,
