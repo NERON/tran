@@ -8,11 +8,12 @@ import (
 )
 
 type SequenceItemData struct {
-	Period     int
-	CentralRSI int
-	Up         float64
-	Down       float64
-	Percentage float64
+	Period             int
+	CentralRSI         int
+	Up                 float64
+	Down               float64
+	Percentage         float64
+	OriginalPercentage float64
 }
 
 type PeriodInfo struct {
@@ -115,14 +116,15 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			percentage := (down/up - 1) * 100
 
-			if periodInfo.Percentage < -0.94 && percentage < 0 && percentage > -5.5 {
+			if true {
 
 				result = append(result, SequenceItemData{
-					Period:     val,
-					CentralRSI: cR,
-					Up:         up,
-					Down:       down,
-					Percentage: percentage,
+					Period:             val,
+					CentralRSI:         cR,
+					Up:                 up,
+					Down:               down,
+					Percentage:         percentage,
+					OriginalPercentage: periodInfo.Percentage,
 				})
 
 			}
