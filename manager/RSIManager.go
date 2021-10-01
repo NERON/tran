@@ -15,6 +15,10 @@ type SequenceItemData struct {
 	Percentage float64
 }
 
+type PeriodInfo struct {
+	Percentage float64
+}
+
 func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTimestamp uint64, centralRSI float64) []SequenceItemData {
 
 	fromTimestamp := uint64(0)
@@ -24,12 +28,12 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 	lowReverse := indicators.NewRSILowReverseIndicator()
 	RSI := indicators.NewRSIMultiplePeriods(250)
 
-	currentPeriods := make(map[int]map[int]struct{})
+	currentPeriods := make(map[int]map[int]PeriodInfo)
 
 	centralRSIs := []int{5, 10, 15}
 
 	for _, cR := range centralRSIs {
-		currentPeriods[cR] = make(map[int]struct{})
+		currentPeriods[cR] = make(map[int]PeriodInfo)
 	}
 
 	result := make([]SequenceItemData, 0)
@@ -83,7 +87,12 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 							delete(currentPeriods[cR], bestPeriod)
 
 						} else {
-							currentPeriods[cR][bestPeriod] = struct{}{}
+
+							percentage := (down/up - 1) * 100
+
+							currentPeriods[cR][bestPeriod] = PeriodInfo{
+								Percentage: percentage,
+							}
 						}
 					}
 
@@ -100,13 +109,13 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 	for cR, periodMap := range currentPeriods {
 
-		for val, _ := range periodMap {
+		for val, periodInfo := range periodMap {
 
 			up, down, _ := RSI.GetIntervalForPeriod(val, float64(cR))
 
 			percentage := (down/up - 1) * 100
 
-			if percentage < 0 && percentage > -5.5 {
+			if periodInfo.Percentage < -0.94 && percentage < 0 && percentage > -5.5 {
 
 				result = append(result, SequenceItemData{
 					Period:     val,
