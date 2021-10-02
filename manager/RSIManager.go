@@ -121,8 +121,8 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 				result = append(result, SequenceItemData{
 					Period:             val,
 					CentralRSI:         cR,
-					Up:                 up,
-					Down:               down,
+					Up:                 math.Round(up*100000000) / 100000000,
+					Down:               math.Round(down*100000000) / 100000000,
 					Percentage:         percentage,
 					OriginalPercentage: periodInfo.Percentage,
 				})
