@@ -268,9 +268,11 @@ func NewTesterHandler(w http.ResponseWriter, r *http.Request) {
 		endTimestamp = math.MaxUint64
 	}
 
+	symbol := vars["symbol"]
+
 	interval := candlescommon.IntervalFromStr(intervalStr)
 
-	result := manager.GenerateMapOfPeriods("ETHUSDT", interval, endTimestamp, float64(centralRSI))
+	result := manager.GenerateMapOfPeriods(symbol, interval, endTimestamp, float64(centralRSI))
 
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Up > result[j].Up
