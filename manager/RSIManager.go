@@ -5,7 +5,6 @@ import (
 	"github.com/NERON/tran/indicators"
 	"log"
 	"math"
-	"time"
 )
 
 type SequenceItemData struct {
@@ -85,6 +84,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						if ok2 {
 
 							delete(currentPeriods[cR], bestPeriod-1)
+							delete(currentPeriods[cR], bestPeriod)
 
 						} else if ok1 {
 
@@ -97,7 +97,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 							}
 						}
 
-						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2)
+						//log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2)
 					}
 
 				}
