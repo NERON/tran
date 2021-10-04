@@ -62,7 +62,7 @@ func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float
 			return bestPeriod, bestRSIVal, bestPrice
 		}
 
-		if math.Abs(price-priceFor) < bestDiff && rsip.RSIs[i].Period > 1 {
+		if math.Abs(price-priceFor) < bestDiff {
 			bestPeriod = int(rsip.RSIs[i].Period)
 			bestPrice = price
 			bestDiff = math.Abs(price - priceFor)
