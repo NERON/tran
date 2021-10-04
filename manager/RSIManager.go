@@ -5,6 +5,7 @@ import (
 	"github.com/NERON/tran/indicators"
 	"log"
 	"math"
+	"time"
 )
 
 type SequenceItemData struct {
@@ -76,7 +77,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 					percentage := (down/up - 1) * 100
 
-					if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
+					if candle.LowPrice <= up && candle.LowPrice >= down {
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
@@ -97,6 +98,10 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						}
 
 						//log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2)
+					} else if bestPeriod > 2 {
+
+						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod)
+
 					}
 
 				}
