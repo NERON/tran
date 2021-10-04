@@ -76,7 +76,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 					percentage := (down/up - 1) * 100
 
-					if candle.LowPrice <= up {
+					if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
