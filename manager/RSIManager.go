@@ -71,7 +71,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 				for _, cR := range centralRSIs {
 
-					bestPeriod, _, _ := RSI.GetBestPeriodNew(candle.LowPrice, float64(cR), candle.OpenTime == 1556990400000)
+					bestPeriod, _, _ := RSI.GetBestPeriod(candle.LowPrice, float64(cR))
 					up, down, _ := RSI.GetIntervalForPeriod(bestPeriod, float64(cR))
 
 					percentage := (down/up - 1) * 100

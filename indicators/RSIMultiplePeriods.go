@@ -1,7 +1,6 @@
 package indicators
 
 import (
-	"log"
 	"math"
 )
 
@@ -74,37 +73,7 @@ func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float
 
 	return bestPeriod, bestRSIVal, bestPrice
 }
-func (rsip *RSIMultiplePeriods) GetBestPeriodNew(priceFor float64, centralRSI float64, show bool) (int, float64, float64) {
 
-	bestDiff := 10000000000000000.0
-	bestPeriod := 1
-	bestPrice := 0.0
-	bestRSIVal := 0.0
-
-	for i := 0; i < len(rsip.RSIs); i++ {
-
-		price, ok := rsip.RSIs[i].PredictPrice(centralRSI)
-		rsiVal, _ := rsip.RSIs[i].PredictForNextPoint(priceFor)
-
-		if !ok {
-			return bestPeriod, bestRSIVal, bestPrice
-		}
-
-		if math.Abs(price-priceFor) < bestDiff {
-			bestPeriod = int(rsip.RSIs[i].Period)
-			bestPrice = price
-			bestDiff = math.Abs(price - priceFor)
-			bestRSIVal = rsiVal
-
-			if show {
-				log.Println(bestPeriod, bestDiff)
-			}
-		}
-
-	}
-
-	return bestPeriod, bestRSIVal, bestPrice
-}
 func (rsip *RSIMultiplePeriods) GetIntervalForPeriod(period int, centralRSI float64) (float64, float64, float64) {
 
 	central, _ := rsip.RSIs[period-1].PredictPrice(centralRSI)
