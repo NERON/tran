@@ -97,7 +97,7 @@ func (rsip *RSIMultiplePeriods) GetBestPeriodNew(priceFor float64, centralRSI fl
 			bestRSIVal = rsiVal
 
 			if show {
-				log.Println(bestRSIVal, bestDiff)
+				log.Println(bestPeriod, bestDiff)
 			}
 		}
 
