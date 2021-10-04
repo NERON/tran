@@ -171,7 +171,7 @@
 
         var markPoints = data.reduce(function (filtered, candlestick, index) {
 
-            if (candlestick.IsRSIReverseLow && (candlestick.RSIBestPeriod == excludeFilterValue || excludeFilterValue ===0)) {
+            if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > 1 && (candlestick.RSIBestPeriod == excludeFilterValue || excludeFilterValue ===0)) {
 
                 filtered.push({
                     name: 'test_' + candlestick.OpenTime,
