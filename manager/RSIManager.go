@@ -109,6 +109,15 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			lastHandledCandle = candle.OpenTime
 			RSI.AddPoint(candle.ClosePrice)
+
+			if candle.OpenTime == 1556990400000 {
+				val, _ := RSI.RSIs[11].Calculate()
+				val1, _ := RSI.RSIs[0].Calculate()
+				log.Println(RSI.RSIs[11], val)
+				log.Println(RSI.RSIs[0], val1)
+
+			}
+
 		}
 
 		fromTimestamp = candles[len(candles)-1].CloseTime
