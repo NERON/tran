@@ -53,7 +53,7 @@ func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float
 	bestPrice := 0.0
 	bestRSIVal := 0.0
 
-	for i := 0; i < len(rsip.RSIs); i++ {
+	for i := 1; i < len(rsip.RSIs); i++ {
 
 		price, ok := rsip.RSIs[i].PredictPrice(centralRSI)
 		rsiVal, _ := rsip.RSIs[i].PredictForNextPoint(priceFor)
