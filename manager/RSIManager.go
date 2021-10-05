@@ -79,7 +79,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 					if candle.LowPrice <= up && candle.LowPrice >= down {
 
-						if candle.OpenTime == 1602849600000 {
+						if candle.OpenTime == 1602849600000 || candle.OpenTime == 1624195200000 {
 							bestPeriod = bestPeriod + 1
 						}
 
