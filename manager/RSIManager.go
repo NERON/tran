@@ -81,7 +81,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						filledPercentage := (up - candle.LowPrice) / (up - down) * 100
 
 						if filledPercentage > 90 {
-							bestPeriod = bestPeriod + 1
+							//bestPeriod = bestPeriod + 1
 							//log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, filledPercentage)
 						}
 
