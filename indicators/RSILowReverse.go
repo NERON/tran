@@ -1,6 +1,9 @@
 package indicators
 
-import "github.com/NERON/tran/candlescommon"
+import (
+	"github.com/NERON/tran/candlescommon"
+	"log"
+)
 
 type ReverseLowInterface interface {
 	AddPoint(calcValue float64, addValue float64)
@@ -45,6 +48,10 @@ func GenerateMapLows(lowReverse ReverseLowInterface, candles []candlescommon.KLi
 
 		lowReverse.AddPoint(candle.LowPrice, 0)
 
+		if candle.OpenTime == 1621429140000 {
+			log.Println(lowReverse, lowReverse.IsPreviousLow())
+		}
+
 		if lowReverse.IsPreviousLow() {
 
 			lowsMap[idx-1] = struct{}{}
@@ -52,6 +59,7 @@ func GenerateMapLows(lowReverse ReverseLowInterface, candles []candlescommon.KLi
 		} else if idx > 0 && candle.OpenPrice < candle.ClosePrice && candles[idx-1].LowPrice >= candle.LowPrice {
 			lowsMap[idx] = struct{}{}
 		}
+
 	}
 
 	return lowsMap
