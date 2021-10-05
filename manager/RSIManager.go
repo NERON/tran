@@ -97,7 +97,8 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 							}
 						}
 
-						//log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2)
+						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2)
+
 					} else if bestPeriod > 2 {
 
 						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod)
