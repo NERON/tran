@@ -390,6 +390,10 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			bestPeriod, _, _ = rsiP.GetBestPeriod(candle.LowPrice, float64(centralRSI))
 			up, down, _ = rsiP.GetIntervalForPeriod(bestPeriod, float64(centralRSI))
 
+			if candle.OpenTime == 1621429080000 {
+				log.Println("SPECIAL", bestPeriod, up, down)
+			}
+
 			if bestPeriod > 2 || (bestPeriod == 2 && candle.LowPrice <= up) {
 
 				for e := bestSequenceList.Front(); e != nil && e.Value.(int) <= bestPeriod; e = bestSequenceList.Front() {

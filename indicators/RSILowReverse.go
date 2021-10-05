@@ -2,7 +2,6 @@ package indicators
 
 import (
 	"github.com/NERON/tran/candlescommon"
-	"log"
 )
 
 type ReverseLowInterface interface {
@@ -47,10 +46,6 @@ func GenerateMapLows(lowReverse ReverseLowInterface, candles []candlescommon.KLi
 	for idx, candle := range candles {
 
 		lowReverse.AddPoint(candle.LowPrice, 0)
-
-		if candle.OpenTime == 1621429140000 {
-			log.Println(lowReverse, lowReverse.IsPreviousLow())
-		}
 
 		if lowReverse.IsPreviousLow() {
 
