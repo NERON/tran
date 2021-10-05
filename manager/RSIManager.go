@@ -82,7 +82,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						filledPercentage := (up - candle.LowPrice) / (up - down) * 100
 
 						if filledPercentage > 90 {
-							log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod)
+							log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, filledPercentage)
 						}
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
