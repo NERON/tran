@@ -81,9 +81,9 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 						filledPercentage := (up - candle.LowPrice) / (up - down) * 100
 
-						if candle.OpenTime == 1609300800000 {
+						/*if candle.OpenTime == 1609300800000 {
 							bestPeriod = bestPeriod + 1
-						}
+						}*/
 
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
@@ -103,7 +103,13 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 							}
 						}
 
-						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2, filledPercentage)
+						str := ""
+
+						if filledPercentage > 89 {
+							str = "                       !"
+						}
+
+						log.Println(time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2, filledPercentage, str)
 
 					} else if bestPeriod > 2 {
 
