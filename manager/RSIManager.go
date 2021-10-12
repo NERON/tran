@@ -81,7 +81,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 						filledPercentage := (up - candle.LowPrice) / (up - down) * 100
 
-						if candle.OpenTime == 1603809600000 || candle.OpenTime == 1602691200000 {
+						if candle.OpenTime == 1600891200000 {
 							bestPeriod = bestPeriod + 1
 						}
 
