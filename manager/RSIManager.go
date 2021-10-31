@@ -32,7 +32,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 	currentPeriods := make(map[int]map[int]PeriodInfo)
 
-	centralRSIs := []int{15}
+	centralRSIs := []int{5, 10, 15}
 
 	for _, cR := range centralRSIs {
 		currentPeriods[cR] = make(map[int]PeriodInfo)
@@ -133,7 +133,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			percentage := (down/up - 1) * 100
 
-			if (val == 2 && percentage < -0.2) || percentage < -0.35 {
+			if percentage < -0.49 {
 
 				result = append(result, SequenceItemData{
 					Period:             val,
