@@ -31,7 +31,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 	currentPeriods := make(map[int]map[int]PeriodInfo)
 
-	centralRSIs := []int{5, 10, 15}
+	centralRSIs := []int{15}
 
 	maxPeriod := 0
 
