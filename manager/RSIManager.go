@@ -34,6 +34,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 	centralRSIs := []int{15}
 
 	maxPeriod := 0
+	tmpt := uint64(0)
 
 	for _, cR := range centralRSIs {
 		currentPeriods[cR] = make(map[int]PeriodInfo)
@@ -108,7 +109,10 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 						//log.Println(cR, time.Unix(int64(candle.OpenTime/1000), 0), bestPeriod, ok1, ok2, filledPercentage, str)
 
-						maxPeriod = int(math.Max(float64(maxPeriod), float64(bestPeriod)))
+						if bestPeriod > maxPeriod {
+							maxPeriod = bestPeriod
+							tmpt = candle.CloseTime
+						}
 
 					}
 
@@ -148,7 +152,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 		}
 	}
 
-	log.Println(maxPeriod)
+	log.Println(maxPeriod, tmpt)
 	log.Println(lastHandledCandle)
 	return result
 
