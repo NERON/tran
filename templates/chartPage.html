@@ -13,7 +13,8 @@
 <div>
     <div>
         <input type="text" id="excludeFilterInput" size="10">
-        <button id="ExludeFilterButton">Start</button>
+        <button id="ExludeFilterButton">Start 1 </button>
+        <button id="ExludeFilterButton1">Start 2 </button>
     </div>
     <div>
         <input type="text" id="RSIPeriod" size="10">
@@ -132,6 +133,7 @@
     var RSIPeriod = 5;
     var RSIValue = centralRSI;
     var ExcludeFilter = 0;
+    var ExcludeFilterType = 0;
 
     $('#RSIValue').val(RSIValue);
     $('#RSIPeriod').val(RSIPeriod);
@@ -171,7 +173,7 @@
 
         var markPoints = data.reduce(function (filtered, candlestick, index) {
 
-            if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > 1 && (candlestick.RSIBestPeriod == excludeFilterValue || excludeFilterValue ===0)) {
+            if (candlestick.IsRSIReverseLow && candlestick.RSIBestPeriod > 1 && (ExcludeFilterType === 0 && (candlestick.RSIBestPeriod === excludeFilterValue || excludeFilterValue ===0)) || (ExcludeFilterType === 1 && candlestick.RSIBestPeriod >= excludeFilterValue)) {
 
                 filtered.push({
                     name: 'test_' + candlestick.OpenTime,
@@ -403,6 +405,15 @@
     $('#ExludeFilterButton').click(function () {
 
         ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
+        ExcludeFilterType = 0;
+        drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
+
+    });
+
+    $('#ExludeFilterButton1').click(function () {
+
+        ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
+        ExcludeFilterType = 1;
         drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
 
     });
