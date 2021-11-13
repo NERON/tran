@@ -87,7 +87,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
 
-						if ok2 {
+						if ok2 && false {
 
 							delete(currentPeriods[cR], bestPeriod-1)
 
