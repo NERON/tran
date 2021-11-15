@@ -87,7 +87,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 						_, ok1 := currentPeriods[cR][bestPeriod]
 						_, ok2 := currentPeriods[cR][bestPeriod-1]
 
-						if ok2 && false {
+						if ok2 {
 
 							delete(currentPeriods[cR], bestPeriod-1)
 
@@ -104,7 +104,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 						str := ""
 
-						if filledPercentage > 84 || filledPercentage < 16 {
+						if filledPercentage > 89 {
 							str = "                       !"
 						}
 
