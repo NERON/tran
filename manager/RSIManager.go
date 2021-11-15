@@ -122,7 +122,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 			}
 
 			lastHandledCandle = candle.OpenTime
-			RSI.AddPoint(candle.ClosePrice)
+			RSI.AddPoint(candle.LowPrice)
 
 		}
 
