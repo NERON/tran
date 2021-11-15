@@ -407,7 +407,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		rsiP.AddPoint(candle.ClosePrice)
+		rsiP.AddPoint(candle.LowPrice)
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
 			OpenTime:        candle.OpenTime,
