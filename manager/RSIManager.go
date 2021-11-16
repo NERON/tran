@@ -137,7 +137,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 			percentage := (down/up - 1) * 100
 
-			if percentage < -0.1 {
+			if true {
 
 				result = append(result, SequenceItemData{
 					Period:             val,
