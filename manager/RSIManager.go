@@ -104,7 +104,7 @@ func GenerateMapOfPeriods(symbol string, interval candlescommon.Interval, endTim
 
 						str := ""
 
-						if filledPercentage > 89 {
+						if filledPercentage > 79 {
 							str = "                       !"
 						}
 
