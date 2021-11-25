@@ -48,7 +48,7 @@ func (rsip *RSIMultiplePeriods) GetBestPeriodByRSIValue(priceFor float64, centra
 }
 func (rsip *RSIMultiplePeriods) GetBestPeriod(priceFor float64, centralRSI float64) (int, float64, float64) {
 
-	bestPeriod := 0
+	bestPeriod := 1
 	centralV := 0.0
 
 	for i := 2; i < len(rsip.RSIs); i++ {
