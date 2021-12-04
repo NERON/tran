@@ -4,11 +4,6 @@ import (
 	"container/list"
 	"encoding/json"
 	"fmt"
-	"github.com/NERON/tran/candlescommon"
-	"github.com/NERON/tran/indicators"
-	"github.com/NERON/tran/manager"
-	"github.com/gorilla/mux"
-	"gonum.org/v1/gonum/stat/combin"
 	"io/ioutil"
 	"log"
 	"math"
@@ -16,6 +11,12 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/NERON/tran/candlescommon"
+	"github.com/NERON/tran/indicators"
+	"github.com/NERON/tran/manager"
+	"github.com/gorilla/mux"
+	"gonum.org/v1/gonum/stat/combin"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -407,7 +408,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		rsiP.AddPoint(candle.LowPrice)
+		rsiP.AddPoint(candle.ClosePrice)
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
 			OpenTime:        candle.OpenTime,

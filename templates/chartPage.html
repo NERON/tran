@@ -216,15 +216,15 @@
 
             reverseRSIVals.push(reverseRSI.predictPriceForNextCandle(RSIValue));
             reverseRSIVals30.push(reverseRSI.predictPriceForNextCandle(centralRSI));
-            reverseRSI.addPoint(data[i].LowPrice);
+            reverseRSI.addPoint(data[i].ClosePrice);
 
 
             reverseRSIValsPrev.push(reverseRSIPrev.predictPriceForNextCandle(centralRSI));
-            reverseRSIPrev.addPoint(data[i].LowPrice);
+            reverseRSIPrev.addPoint(data[i].ClosePrice);
 
 
             reverseRSIValsNext.push(reverseRSINext.predictPriceForNextCandle(centralRSI));
-            reverseRSINext.addPoint(data[i].LowPrice);
+            reverseRSINext.addPoint(data[i].ClosePrice);
 
 
         }
