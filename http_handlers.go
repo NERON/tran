@@ -356,7 +356,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, candleOld := range candlesOld {
 
-		rsiP.AddPoint(candleOld.LowPrice)
+		rsiP.AddPoint(candleOld.ClosePrice)
 
 	}
 
@@ -408,7 +408,7 @@ func ChartUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		rsiP.AddPoint(candle.LowPrice)
+		rsiP.AddPoint(candle.ClosePrice)
 
 		updateCandles = append(updateCandles, ChartUpdateCandle{
 			OpenTime:        candle.OpenTime,
