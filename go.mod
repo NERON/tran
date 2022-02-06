@@ -1,4 +1,4 @@
-module tran
+module github.com/NERON/tran
 
 go 1.17
 
