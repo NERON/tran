@@ -12,7 +12,7 @@ func OpenDatabaseConnection() error {
 
 	var err error
 	log.Println("establish db")
-	DatabaseManager, err = sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@127.0.0.1:5432/%s", "neron", "neronium196531abc", "tran"))
+	DatabaseManager, err = sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@127.0.0.1:5432/%s", "neron", "eQgZ4mdW4Nw4ZemQ", "tran"))
 
 	return err
 }
