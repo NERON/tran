@@ -454,6 +454,8 @@
         ExcludeFilter = $('#excludeFilterInput').val() * 1 || 0;
         RSIValue = $('#RSIValue').val() * 1 || 0;
         RSIPeriod = $('#RSIPeriod').val() * 1 || 0;
+	    
+	centralRSI = RSIValue;
 
         drawChart(chartData, ExcludeFilter, RSIValue, RSIPeriod);
 
