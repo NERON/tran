@@ -50,6 +50,6 @@ func main() {
 
 	router := InitRouting()
 
-	log.Fatal(http.ListenAndServeTLS(":443", "server.pem", "server.key", router))
+	log.Fatal(http.ListenAndServe(":443",router))
 
 }
